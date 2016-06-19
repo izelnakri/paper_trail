@@ -1,0 +1,2 @@
+defmodule PaperTrail do
+end
