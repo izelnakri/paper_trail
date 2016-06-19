@@ -40,7 +40,7 @@ defmodule PaperTrail.Mixfile do
       maintainers: ["Izel Nakri"],
       licenses: ["MIT License"],
       links: %{
-        # "GitHub" => "https://github.com/ericmj/postgrex",
+        "GitHub" => "https://github.com/izelnakri/paper_trail"
         # "Docs" => "http://ericmj.github.io/postgrex/"
       }
     ]
