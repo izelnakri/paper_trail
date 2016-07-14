@@ -10,24 +10,24 @@ defmodule PaperTrail do
 
   def get_versions(changeset) do
     item_type = changeset.__struct__ |> Module.split |> List.last
-    version_query(item_type, changeset.id) |> Application.Repo.all # where id, item_type last inserted_at
+    version_query(item_type, changeset.id) |> Application.Repo.all
   end
 
   def get_version(model, id) do
     item_type = Module.split(model) |> List.last
-    version_query(item_type, id) |> Application.Repo.one
+    last(version_query(item_type, id)) |> Application.Repo.one
   end
 
   def get_version(changeset) do
     item_type = changeset.__struct__ |> Module.split |> List.last
-    last(version_query(item_type, changeset.id)) |> Application.Repo.one # where id, item_type last inserted_at
+    last(version_query(item_type, changeset.id)) |> Application.Repo.one
   end
 
   defp version_query(item_type, id) do
     from v in Version,
     where: v.item_type == ^item_type and v.item_id == ^id
   end
-
+  
   # changeset = Model.changeset(Ecto.Repo.get(Model, id), params)
 
   def insert(struct, meta \\ nil) do
@@ -72,7 +72,7 @@ defmodule PaperTrail do
 
   def make_version_struct(%{event: "update"}, changeset, meta) do
     %Version{
-      event: "create",
+      event: "update",
       item_type: changeset.data.__struct__ |> Module.split |> List.last,
       item_id: changeset.data.id,
       item_changes: changeset.changes,
