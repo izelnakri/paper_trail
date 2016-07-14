@@ -1,5 +1,13 @@
 # PaperTrail
 
+```mix papertrail.install```
+
+PaperTrail.create/1, PaperTrail.update/1, PaperTrail.destroy/1
+
+PaperTrail.get_version\2, PaperTrail.get_version\1 PaperTrail.get_versions\2, PaperTrail.get_versions\1
+
+I will write some tests for this library.
+
 **TODO: Add description**
 
 ## Installation
@@ -17,4 +25,3 @@ If [available in Hex](https://hex.pm/docs/publish), the package can be installed
         def application do
           [applications: [:paper_trail]]
         end
-
