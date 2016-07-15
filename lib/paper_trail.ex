@@ -1,35 +1,50 @@
 defmodule PaperTrail do
   alias Ecto.Multi
   import Ecto.Query
-  alias Model.Version
+  alias PaperTrail.Version
 
+  @doc """
+  Gets all the versions of a record given a module and its id
+  """
   def get_versions(model, id) do
     item_type = model |> Module.split |> List.last
     version_query(item_type, id) |> Application.Repo.all
   end
 
-  def get_versions(changeset) do
-    item_type = changeset.__struct__ |> Module.split |> List.last
-    version_query(item_type, changeset.id) |> Application.Repo.all
+  @doc """
+  Gets all the versions of a record
+  """
+  def get_versions(record) do
+    item_type = record.__struct__ |> Module.split |> List.last
+    version_query(item_type, record.id) |> Application.Repo.all
   end
 
+  @doc """
+  Gets the last version of a record given its module reference and its id
+  """
   def get_version(model, id) do
     item_type = Module.split(model) |> List.last
     last(version_query(item_type, id)) |> Application.Repo.one
   end
 
-  def get_version(changeset) do
-    item_type = changeset.__struct__ |> Module.split |> List.last
-    last(version_query(item_type, changeset.id)) |> Application.Repo.one
+  @doc """
+  Gets the last version of a record
+  """
+  def get_version(record) do
+    item_type = record.__struct__ |> Module.split |> List.last
+    last(version_query(item_type, record.id)) |> Application.Repo.one
   end
 
   defp version_query(item_type, id) do
     from v in Version,
     where: v.item_type == ^item_type and v.item_id == ^id
   end
-  
+
   # changeset = Model.changeset(Ecto.Repo.get(Model, id), params)
 
+  @doc """
+  Inserts a record to the database with a related version insertion in one transaction
+  """
   def insert(struct, meta \\ nil) do
     Multi.new
     |> Multi.insert(:model, struct)
@@ -40,6 +55,11 @@ defmodule PaperTrail do
     |> Application.Repo.transaction
   end
 
+  # might make the changeset version
+
+  @doc """
+  Updates a record from the database with a related version insertion in one transaction
+  """
   def update(changeset, meta \\ nil) do
     Multi.new
     |> Multi.update(:model, changeset)
@@ -50,6 +70,9 @@ defmodule PaperTrail do
     |> Application.Repo.transaction
   end
 
+  @doc """
+  Deletes a record from the database with a related version insertion in one transaction
+  """
   def delete(struct, meta \\ nil) do
     Multi.new
     |> Multi.delete(:model, struct)
@@ -60,7 +83,7 @@ defmodule PaperTrail do
     |> Application.Repo.transaction
   end
 
-  def make_version_struct(%{event: "create"}, model, meta) do
+  defp make_version_struct(%{event: "create"}, model, meta) do
     %Version{
       event: "create",
       item_type: model.__struct__ |> Module.split |> List.last,
@@ -70,7 +93,7 @@ defmodule PaperTrail do
     }
   end
 
-  def make_version_struct(%{event: "update"}, changeset, meta) do
+  defp make_version_struct(%{event: "update"}, changeset, meta) do
     %Version{
       event: "update",
       item_type: changeset.data.__struct__ |> Module.split |> List.last,
@@ -80,7 +103,7 @@ defmodule PaperTrail do
     }
   end
 
-  def make_version_struct(%{event: "destroy"}, model, meta) do
+  defp make_version_struct(%{event: "destroy"}, model, meta) do
     %Version{
       event: "destroy",
       item_type: model.__struct__ |> Module.split |> List.last,
