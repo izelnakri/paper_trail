@@ -21,6 +21,14 @@ defmodule PaperTrailTest do
 
       timestamps
     end
+
+    @required_fields ~w()
+    @optional_fields ~w()
+
+    def changeset(model, params \\ :empty) do
+      model
+      |> cast(params, @required_fields, @optional_fields)
+    end
   end
 
   defmodule Person do
@@ -39,9 +47,17 @@ defmodule PaperTrailTest do
 
       timestamps
     end
+
+    @required_fields ~w()
+    @optional_fields ~w()
+
+    def changeset(model, params \\ :empty) do
+      model
+      |> cast(params, @required_fields, @optional_fields)
+    end
   end
 
-  test "the truth" do
+  test "" do
     assert 1 + 1 == 2
   end
 end

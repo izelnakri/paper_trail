@@ -2,7 +2,14 @@
 # and its dependencies with the aid of the Mix.Config module.
 use Mix.Config
 
-# config :paper_trail, ecto_repos: []
+config :example, ecto_repos: [Example.Repo]
+
+config :example, Example.Repo,
+  adapter: Ecto.Adapters.Postgres,
+  database: "papertrail_example",
+  username: "postgres",
+  password: "postgres"
+
 # This configuration is loaded before any dependency and is restricted
 # to this project. If another project depends on this project, this
 # file won't be loaded nor affect the parent project. For this reason,
@@ -11,11 +18,11 @@ use Mix.Config
 
 # You can configure for your application as:
 #
-#     config :paper_trail, key: :value
+#     config :example, key: :value
 #
 # And access this configuration in your application as:
 #
-#     Application.get_env(:paper_trail, :key)
+#     Application.get_env(:example, :key)
 #
 # Or configure a 3rd-party app:
 #
