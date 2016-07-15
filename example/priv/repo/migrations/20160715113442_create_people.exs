@@ -9,7 +9,11 @@ defmodule Example.Repo.Migrations.CreatePeople do
       add :gender, :boolean
       add :birthdate, :date
 
+      add :company_id, references(:companies), null: false
+
       timestamps
     end
+
+    create index(:people, [:company_id])
   end
 end
