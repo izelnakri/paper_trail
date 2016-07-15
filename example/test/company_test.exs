@@ -4,14 +4,18 @@ defmodule CompanyTest do
 
   doctest Company
 
-  test "creating a company creates a company version with correct attributes" do
+  setup_all do
+    Repo.delete_all(Company)
+    Repo.delete_all(PaperTrail.Version)
+    :ok
+  end
 
-    # Mix.env |> inspect |> IO.puts
+  test "creating a company creates a company version with correct attributes" do
     new_company = Company.changeset(%Company{}, %{
       name: "Acme LLC", is_active: true, city: "Greenwich"
     })
 
-    persisted_company = PaperTrail.insert(new_company)
+    {:ok, persisted_company} = PaperTrail.insert(new_company)
 
     persisted_company |> inspect |> IO.puts
 
@@ -21,8 +25,8 @@ defmodule CompanyTest do
     )
 
     assert company_count == [1]
+    
     # assert Map.
-    # company |> inspect |> IO.puts
 
   end
 

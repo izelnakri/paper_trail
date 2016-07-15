@@ -30,7 +30,7 @@ defmodule PaperTrail.Mixfile do
 
   defp description do
      """
-     PaperTrail lets you track and record all the changes in your database.
+     Track and record all the changes in your database with PaperTrail.
      """
   end
 

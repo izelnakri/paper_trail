@@ -6,4 +6,4 @@ config :example, Repo,
   password: "postgres",
   database: "paper_trail_example_test",
   hostname: "localhost",
-  pool: Ecto.Adapters.SQL.Sandbox
+  poolsize: 10
