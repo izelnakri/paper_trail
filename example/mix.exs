@@ -30,7 +30,8 @@ defmodule Example.Mixfile do
     [
       {:postgrex, ">= 0.0.0"},
       {:ecto, "~> 2.0.2"},
-      {:poison, "2.1.0"}
+      {:poison, "2.1.0"},
+      {:paper_trail, ">= 0.0.0"}
     ]
   end
 end
