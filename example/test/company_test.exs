@@ -45,15 +45,12 @@ defmodule CompanyTest do
       founded_in: nil
     }
 
-    version |> inspect |> IO.puts
-
     assert Map.drop(version, [:id]) == %{
       event: "create",
       item_type: "Company",
       item_id: Repo.one(first(Company, :id)).id,
       item_changes: Map.drop(result[:model], [:__meta__, :__struct__]),
-      meta: nil,
-      originator: nil
+      meta: nil
     }
   end
 

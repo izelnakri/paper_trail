@@ -8,7 +8,6 @@ defmodule Repo.Migrations.AddVersions do
       add :item_id,      :integer
       add :item_changes, :map
       add :meta,         :map
-      add :originator,   :string
 
       add :inserted_at,  :datetime, null: false
     end

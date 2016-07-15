@@ -13,13 +13,12 @@ defmodule PaperTrail.Version do
     field :item_id, :integer
     field :item_changes, :map
     field :meta, :map
-    field :originator, :string
 
     timestamps(updated_at: false)
   end
 
-  @required_fields ~w(item_type item_id event created_at)
-  @optional_fields ~w(meta originator)
+  @required_fields ~w(event item_type item_id created_at)
+  @optional_fields ~w(meta)
 
   @doc """
   Creates a changeset based on the `model` and `params`.
