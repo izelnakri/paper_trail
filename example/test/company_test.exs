@@ -104,7 +104,57 @@ defmodule CompanyTest do
   end
 
   test "deleting a company creates a company version with correct attributes" do
+    company = first(Company, :id) |> Repo.one
 
+    {:ok, result} = PaperTrail.delete(company)
+
+    company_count = Repo.all(
+      from company in Company,
+      select: count(company.id)
+    )
+
+    company_ref = result[:model] |> Map.drop([:__meta__, :__struct__, :inserted_at, :updated_at, :id])
+
+    version_count = Repo.all(
+      from version in PaperTrail.Version,
+      select: count(version.id)
+    )
+
+    version = result[:version] |> Map.drop([:__meta__, :__struct__, :inserted_at])
+
+    assert company_count == [0]
+    assert version_count == [3]
+
+    assert company_ref == %{
+      name: "Acme LLC",
+      is_active: true,
+      city: "Hong Kong",
+      website: "http://www.acme.com",
+      address: nil,
+      facebook: "acme.llc",
+      twitter: nil,
+      founded_in: nil
+    }
+
+    assert Map.drop(version, [:id]) == %{
+      event: "destroy",
+      item_type: "Company",
+      item_id: company.id,
+      item_changes: %{
+        id: company.id,
+        inserted_at: company.inserted_at,
+        updated_at: company.updated_at,
+        name: "Acme LLC",
+        is_active: true,
+        website: "http://www.acme.com",
+        city: "Hong Kong",
+        address: nil,
+        facebook: "acme.llc",
+        twitter: nil,
+        founded_in: nil
+      },
+      meta: nil
+    }
   end
 end
 # field :name, :string
