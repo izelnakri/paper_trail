@@ -1,11 +1,12 @@
 defmodule CompanyTest do
   use ExUnit.Case
   import Ecto.Query
-  alias Example.Repo
 
   doctest Company
 
   test "creating a company creates a company version with correct attributes" do
+
+    # Mix.env |> inspect |> IO.puts
     new_company = Company.changeset(%Company{}, %{
       name: "Acme LLC", is_active: true, city: "Greenwich"
     })
@@ -19,7 +20,7 @@ defmodule CompanyTest do
       select: count(company.id)
     )
 
-    assert company_count == 1
+    assert company_count == [1]
     # assert Map.
     # company |> inspect |> IO.puts
 

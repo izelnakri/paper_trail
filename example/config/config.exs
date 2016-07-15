@@ -2,13 +2,7 @@
 # and its dependencies with the aid of the Mix.Config module.
 use Mix.Config
 
-config :example, ecto_repos: [Example.Repo]
-
-config :example, Example.Repo,
-  adapter: Ecto.Adapters.Postgres,
-  database: "papertrail_example",
-  username: "postgres",
-  password: "postgres"
+config :example, ecto_repos: [Repo]
 
 # This configuration is loaded before any dependency and is restricted
 # to this project. If another project depends on this project, this
@@ -35,4 +29,5 @@ config :example, Example.Repo,
 # Configuration from the imported file will override the ones defined
 # here (which is why it is important to import them last).
 #
-#     import_config "#{Mix.env}.exs"
+
+import_config "#{Mix.env}.exs"
