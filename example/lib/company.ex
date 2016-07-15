@@ -19,7 +19,7 @@ defmodule Company do
   end
 
   @required_fields ~w()
-  @optional_fields ~w()
+  @optional_fields ~w(name is_active website city address facebook twitter founded_in)
 
   def changeset(model, params \\ :empty) do
     model
