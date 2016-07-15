@@ -8,7 +8,7 @@ defmodule PaperTrail do
   """
   def get_versions(model, id) do
     item_type = model |> Module.split |> List.last
-    version_query(item_type, id) |> Application.Repo.all
+    version_query(item_type, id) |> Repo.all
   end
 
   @doc """
@@ -16,7 +16,7 @@ defmodule PaperTrail do
   """
   def get_versions(record) do
     item_type = record.__struct__ |> Module.split |> List.last
-    version_query(item_type, record.id) |> Application.Repo.all
+    version_query(item_type, record.id) |> Repo.all
   end
 
   @doc """
@@ -24,7 +24,7 @@ defmodule PaperTrail do
   """
   def get_version(model, id) do
     item_type = Module.split(model) |> List.last
-    last(version_query(item_type, id)) |> Application.Repo.one
+    last(version_query(item_type, id)) |> Repo.one
   end
 
   @doc """
@@ -32,7 +32,7 @@ defmodule PaperTrail do
   """
   def get_version(record) do
     item_type = record.__struct__ |> Module.split |> List.last
-    last(version_query(item_type, record.id)) |> Application.Repo.one
+    last(version_query(item_type, record.id)) |> Repo.one
   end
 
   defp version_query(item_type, id) do
@@ -50,9 +50,9 @@ defmodule PaperTrail do
     |> Multi.insert(:model, struct)
     |> Multi.run(:version, fn %{model: model} ->
         version = make_version_struct(%{event: "create"}, model, meta)
-        Application.Repo.insert(version)
+        Repo.insert(version)
       end)
-    |> Application.Repo.transaction
+    |> Repo.transaction
   end
 
   # might make the changeset version
@@ -65,9 +65,9 @@ defmodule PaperTrail do
     |> Multi.update(:model, changeset)
     |> Multi.run(:version, fn %{model: model} ->
         version = make_version_struct(%{event: "update"}, changeset, meta)
-        Application.Repo.insert(version)
+        Repo.insert(version)
       end)
-    |> Application.Repo.transaction
+    |> Repo.transaction
   end
 
   @doc """
@@ -78,9 +78,9 @@ defmodule PaperTrail do
     |> Multi.delete(:model, struct)
     |> Multi.run(:version, fn %{model: model} ->
         version = make_version_struct(%{event: "destroy"}, model, meta)
-        Application.Repo.insert(version)
+        Repo.insert(version)
       end)
-    |> Application.Repo.transaction
+    |> Repo.transaction
   end
 
   defp make_version_struct(%{event: "create"}, model, meta) do
