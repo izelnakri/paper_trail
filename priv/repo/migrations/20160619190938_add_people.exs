@@ -1,4 +1,4 @@
-defmodule Repo.Migrations.AddPeople do
+defmodule Repo.Migrations.CreatePeople do
   use Ecto.Migration
 
   def change do
@@ -9,7 +9,11 @@ defmodule Repo.Migrations.AddPeople do
       add :gender, :boolean
       add :birthdate, :date
 
+      add :company_id, references(:companies), null: false
+
       timestamps
     end
+
+    create index(:people, [:company_id])
   end
 end

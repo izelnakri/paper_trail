@@ -4,8 +4,6 @@ defmodule CompanyTest do
 
   doctest Company
 
- # maybe test meta tag insertion and relationships
-
   setup_all do
     Repo.delete_all(Person)
     Repo.delete_all(Company)

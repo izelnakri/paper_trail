@@ -1,10 +1,10 @@
-defmodule Repo.Migrations.AddCompanies do
+defmodule Repo.Migrations.CreateCompanies do
   use Ecto.Migration
 
   def change do
     create table(:companies) do
       add :name,       :string
-      add :is_active,  :string
+      add :is_active,  :boolean
       add :website,    :string
       add :city,       :string
       add :address,    :string

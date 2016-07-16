@@ -5,8 +5,6 @@ defmodule PaperTrail.Version do
   import Ecto.Changeset
   import Ecto.Query
 
-  # how to record column changes in migration ?
-
   schema "versions" do
     field :event, :string
     field :item_type, :string
