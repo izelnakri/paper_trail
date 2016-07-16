@@ -1,9 +1,7 @@
 defmodule Company do
   use Ecto.Schema
 
-  import Ecto
   import Ecto.Changeset
-  import Ecto.Query
 
   schema "companies" do
     field :name, :string

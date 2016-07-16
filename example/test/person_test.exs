@@ -144,8 +144,6 @@ defmodule PersonTest do
       select: count(person.id)
     )
 
-    person_ref = result[:model] |> Map.drop([:__meta__, :__struct__, :inserted_at, :updated_at, :id])
-
     version_count = Repo.all(
       from version in PaperTrail.Version,
       select: count(version.id)

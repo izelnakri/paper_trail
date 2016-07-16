@@ -1,9 +1,7 @@
 defmodule Person do
   use Ecto.Schema
 
-  import Ecto
   import Ecto.Changeset
-  import Ecto.Query
 
   schema "people" do
     field :first_name, :string

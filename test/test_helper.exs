@@ -8,9 +8,7 @@ Mix.Task.run "ecto.migrate", ~w(-r Repo)
 defmodule Company do
   use Ecto.Schema
 
-  import Ecto
   import Ecto.Changeset
-  import Ecto.Query
 
   schema "companies" do
     field :name, :string
@@ -39,9 +37,7 @@ end
 defmodule Person do
   use Ecto.Schema
 
-  import Ecto
   import Ecto.Changeset
-  import Ecto.Query
 
   schema "people" do
     field :first_name, :string
