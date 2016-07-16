@@ -1,12 +1,12 @@
 defmodule Mix.Tasks.Papertrail.Install do
   @shortdoc "generates paper_trail migration file for your database"
 
-  import Macro, only: [camelize: 1, underscore: 1]
+  import Macro, only: [underscore: 1]
   import Mix.Generator
 
   use Mix.Task
 
-  def run(args) do
+  def run(_args) do
     path = Path.relative_to("priv/repo/migrations", Mix.Project.app_path)
     file = Path.join(path, "#{timestamp()}_#{underscore(AddVersions)}.exs")
     create_directory path

@@ -1,7 +1,6 @@
 defmodule PaperTrail do
-  import Ecto.Query
   import PaperTrail.VersionQueries
-  
+
   alias Ecto.Multi
   alias PaperTrail.Version
 
@@ -24,7 +23,7 @@ defmodule PaperTrail do
   def update(changeset, meta \\ nil) do
     Multi.new
     |> Multi.update(:model, changeset)
-    |> Multi.run(:version, fn %{model: model} ->
+    |> Multi.run(:version, fn %{model: _model} ->
         version = make_version_struct(%{event: "update"}, changeset, meta)
         Repo.insert(version)
       end)

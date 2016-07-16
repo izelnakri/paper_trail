@@ -1,9 +1,7 @@
 defmodule PaperTrail.Version do
   use Ecto.Schema
 
-  import Ecto
   import Ecto.Changeset
-  import Ecto.Query
 
   schema "versions" do
     field :event, :string
