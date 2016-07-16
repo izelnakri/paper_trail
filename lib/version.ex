@@ -17,9 +17,6 @@ defmodule PaperTrail.Version do
     timestamps(updated_at: false)
   end
 
-  @required_fields ~w(event item_type item_id created_at)
-  @optional_fields ~w(meta)
-
   @doc """
   Creates a changeset based on the `model` and `params`.
 
@@ -28,6 +25,7 @@ defmodule PaperTrail.Version do
   """
   def changeset(model, params \\ :empty) do
     model
-    |> cast(params, @required_fields, @optional_fields)
+    |> validate_required(~w(event item_type item_id created_at))
+    |> cast(params, ~w(meta))
   end
 end
