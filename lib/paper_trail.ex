@@ -55,7 +55,7 @@ defmodule PaperTrail do
     |> Repo.transaction
   end
 
-  def make_version_struct(%{event: "create"}, model, meta) do
+  defp make_version_struct(%{event: "create"}, model, meta) do
     IO.puts "make_version_struct called"
     filter_item_changes(model) |> inspect |> IO.puts
     %Version{
@@ -67,7 +67,7 @@ defmodule PaperTrail do
     }
   end
 
-  def filter_item_changes(model) do
+  defp filter_item_changes(model) do
     relationships = model.__struct__.__schema__(:associations)
 
     Map.drop(model, [:__struct__, :__meta__] ++ relationships)
