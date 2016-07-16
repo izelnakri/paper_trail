@@ -12,14 +12,16 @@ defmodule Person do
     field :gender, :boolean
     field :birthdate, Ecto.Date
 
+    belongs_to :company, Company
+
     timestamps
   end
 
-  @required_fields ~w()
-  @optional_fields ~w()
+  @optional_fields ~w(first_name last_name visit_count gender birthdate company_id)
 
-  def changeset(model, params \\ :empty) do
+  def changeset(model, params \\ %{}) do
     model
-    |> cast(params, @required_fields, @optional_fields)
+    |> cast(params, @optional_fields)
+    |> foreign_key_constraint(:company_id)
   end
 end

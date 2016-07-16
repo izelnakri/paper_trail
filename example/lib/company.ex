@@ -15,14 +15,16 @@ defmodule Company do
     field :twitter, :string
     field :founded_in, :string
 
+    has_many :people, Person
+
     timestamps
   end
 
-  @required_fields ~w()
   @optional_fields ~w(name is_active website city address facebook twitter founded_in)
 
-  def changeset(model, params \\ :empty) do
+  def changeset(model, params \\ %{}) do
     model
-    |> cast(params, @required_fields, @optional_fields)
+    |> cast(params, @optional_fields)
+    |> cast_assoc(:people, required: false)
   end
 end

@@ -4,6 +4,8 @@ defmodule CompanyTest do
 
   doctest Company
 
+ # maybe test meta tag insertion and relationships
+
   setup_all do
     Repo.delete_all(Company)
     Repo.delete_all(PaperTrail.Version)
@@ -12,7 +14,7 @@ defmodule CompanyTest do
 
   test "creating a company creates a company version with correct attributes" do
     new_company = Company.changeset(%Company{}, %{
-      name: "Acme LLC", is_active: true, city: "Greenwich"
+      name: "Acme LLC", is_active: true, city: "Greenwich", people: []
     })
 
     {:ok, result} = PaperTrail.insert(new_company)
@@ -42,7 +44,8 @@ defmodule CompanyTest do
       address: nil,
       facebook: nil,
       twitter: nil,
-      founded_in: nil
+      founded_in: nil,
+      people: []
     }
 
     assert Map.drop(version, [:id]) == %{
@@ -55,14 +58,12 @@ defmodule CompanyTest do
   end
 
   test "updating a company creates a company version with correct item_changes" do
-    old_company = first(Company, :id) |> Repo.one
+    old_company = first(Company, :id) |> preload(:people) |> Repo.one
     new_company = Company.changeset(old_company, %{
       city: "Hong Kong",
       website: "http://www.acme.com",
       facebook: "acme.llc"
     })
-
-    new_company |> inspect |> IO.puts
 
     {:ok, result} = PaperTrail.update(new_company)
 
@@ -91,7 +92,8 @@ defmodule CompanyTest do
       address: nil,
       facebook: "acme.llc",
       twitter: nil,
-      founded_in: nil
+      founded_in: nil,
+      people: []
     }
 
     assert Map.drop(version, [:id]) == %{
@@ -104,7 +106,7 @@ defmodule CompanyTest do
   end
 
   test "deleting a company creates a company version with correct attributes" do
-    company = first(Company, :id) |> Repo.one
+    company = first(Company, :id) |> preload(:people) |> Repo.one
 
     {:ok, result} = PaperTrail.delete(company)
 
@@ -133,7 +135,8 @@ defmodule CompanyTest do
       address: nil,
       facebook: "acme.llc",
       twitter: nil,
-      founded_in: nil
+      founded_in: nil,
+      people: []
     }
 
     assert Map.drop(version, [:id]) == %{
@@ -151,17 +154,10 @@ defmodule CompanyTest do
         address: nil,
         facebook: "acme.llc",
         twitter: nil,
-        founded_in: nil
+        founded_in: nil,
+        people: []
       },
       meta: nil
     }
   end
 end
-# field :name, :string
-# field :is_active, :boolean
-# field :website, :string
-# field :city, :string
-# field :address, :string
-# field :facebook, :string
-# field :twitter, :string
-# field :founded_in, :string
