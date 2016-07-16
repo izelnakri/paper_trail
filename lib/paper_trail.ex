@@ -45,14 +45,32 @@ defmodule PaperTrail do
   @doc """
   Inserts a record to the database with a related version insertion in one transaction
   """
-  def insert(struct, meta \\ nil) do
+  def insert(changeset, meta \\ nil) do
     Multi.new
-    |> Multi.insert(:model, struct)
+    |> Multi.insert(:model, changeset)
     |> Multi.run(:version, fn %{model: model} ->
         version = make_version_struct(%{event: "create"}, model, meta)
         Repo.insert(version)
       end)
     |> Repo.transaction
+  end
+
+  def make_version_struct(%{event: "create"}, model, meta) do
+    IO.puts "make_version_struct called"
+    filter_item_changes(model) |> inspect |> IO.puts
+    %Version{
+      event: "create",
+      item_type: model.__struct__ |> Module.split |> List.last,
+      item_id: model.id,
+      item_changes: filter_item_changes(model),
+      meta: meta
+    }
+  end
+
+  def filter_item_changes(model) do
+    relationships = model.__struct__.__schema__(:associations)
+
+    Map.drop(model, [:__struct__, :__meta__] ++ relationships)
   end
 
   # might make the changeset version
@@ -81,16 +99,6 @@ defmodule PaperTrail do
         Repo.insert(version)
       end)
     |> Repo.transaction
-  end
-
-  defp make_version_struct(%{event: "create"}, model, meta) do
-    %Version{
-      event: "create",
-      item_type: model.__struct__ |> Module.split |> List.last,
-      item_id: model.id,
-      item_changes: Map.drop(model, [:__struct__, :__meta__]),
-      meta: meta
-    }
   end
 
   defp make_version_struct(%{event: "update"}, changeset, meta) do
