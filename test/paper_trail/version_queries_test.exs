@@ -1,5 +1,6 @@
 defmodule PaperTrailTest.VersionQueries do
   use ExUnit.Case
+  alias PaperTrail.Version
   import Ecto.Query
 
   setup_all do
@@ -57,8 +58,25 @@ defmodule PaperTrailTest.VersionQueries do
     :ok
   end
 
-  test "testing a case" do
+  test "get_version gives us the right version" do
+    last_person = last(Person, :id) |> Repo.one
+    target_version = last(Version, :id) |> Repo.one
 
+    assert PaperTrail.get_version(last_person) == target_version
+    assert PaperTrail.get_version(Person, last_person.id) == target_version
   end
+
+  test "get_versions gives us the right versions" do
+    last_person = last(Person, :id) |> Repo.one
+    target_versions = Repo.all(
+      from version in Version,
+      where: version.item_type == "Person" and version.item_id == ^last_person.id
+    )
+
+    assert PaperTrail.get_versions(last_person) == target_versions
+    assert PaperTrail.get_versions(Person, last_person.id) == target_versions
+  end
+
+  # query meta data!!
 
 end

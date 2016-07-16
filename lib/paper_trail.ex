@@ -1,6 +1,6 @@
 defmodule PaperTrail do
-  import PaperTrail.VersionQueries
-
+  use PaperTrail.VersionQueries
+  
   alias Ecto.Multi
   alias PaperTrail.Version
 
