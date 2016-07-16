@@ -105,7 +105,11 @@ defmodule PaperTrail do
     Multi.new
     |> Multi.delete(:model, struct)
     |> Multi.run(:version, fn %{model: model} ->
+        IO.puts("model is :")
+        model |> inspect |> IO.puts
         version = make_version_struct(%{event: "destroy"}, model, meta)
+        IO.puts "version is"
+        version |> inspect |> IO.puts
         Repo.insert(version)
       end)
     |> Repo.transaction
