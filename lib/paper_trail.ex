@@ -1,8 +1,36 @@
 defmodule PaperTrail do
-  use PaperTrail.VersionQueries
-  
+  alias PaperTrail.VersionQueries
+
   alias Ecto.Multi
   alias PaperTrail.Version
+
+  @doc """
+  Gets all the versions of a record given a module and its id
+  """
+  def get_versions(model, id) do
+    VersionQueries.get_versions(model, id)
+  end
+
+  @doc """
+  Gets all the versions of a record
+  """
+  def get_versions(record) do
+    VersionQueries.get_versions(record)
+  end
+
+  @doc """
+  Gets the last version of a record given its module reference and its id
+  """
+  def get_version(model, id) do
+    VersionQueries.get_version(model, id)
+  end
+
+  @doc """
+  Gets the last version of a record
+  """
+  def get_version(record) do
+    VersionQueries.get_version(record)
+  end
 
   @doc """
   Inserts a record to the database with a related version insertion in one transaction

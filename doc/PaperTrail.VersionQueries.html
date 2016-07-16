@@ -5,10 +5,10 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.12.0">
-    <title>Mix.Tasks.Papertrail.Install – paper_trail v0.1.1</title>
+    <title>PaperTrail.VersionQueries – paper_trail v0.1.1</title>
     <link rel="stylesheet" href="dist/app-88251e7c81.css" />
     
-      <link rel="canonical" href="https://hexdocs.pm/paper_trail/Mix.Tasks.Papertrail.Install.html" />
+      <link rel="canonical" href="https://hexdocs.pm/paper_trail/PaperTrail.VersionQueries.html" />
     
     <script src="dist/sidebar_items.js"></script>
   </head>
@@ -61,7 +61,7 @@
 
       <h1>
         <small class="visible-xs">paper_trail v0.1.1</small>
-        Mix.Tasks.Papertrail.Install
+        PaperTrail.VersionQueries
         
         
       </h1>
@@ -85,10 +85,37 @@
     </h2>
     <div class="summary-row">
   <div class="summary-signature">
-    <a href="#run/1">run(args)</a>
+    <a href="#get_version/1">get_version(record)</a>
   </div>
   
-    <div class="summary-synopsis"><p>Callback implementation for <code class="inline">c:Mix.Task.run/1</code></p>
+    <div class="summary-synopsis"><p>Gets the last version of a record</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#get_version/2">get_version(model, id)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Gets the last version of a record given its module reference and its id</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#get_versions/1">get_versions(record)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Gets all the versions of a record</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#get_versions/2">get_versions(model, id)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Gets all the versions of a record given a module and its id</p>
 </div>
   
 </div>
@@ -113,18 +140,63 @@
             </a>
             Functions
           </h1>
-          <div class="detail" id="run/1">
+          <div class="detail" id="get_version/1">
   <div class="detail-header">
-    <a href="#run/1" class="detail-link" title="Link to this function">
+    <a href="#get_version/1" class="detail-link" title="Link to this function">
       <i class="icon-link"></i>
     </a>
-    <span class="signature">run(args)</span>
+    <span class="signature">get_version(record)</span>
     
     
   </div>
   
   <section class="docstring">
-    <p>Callback implementation for <code class="inline">c:Mix.Task.run/1</code>.</p>
+    <p>Gets the last version of a record</p>
+
+  </section>
+</div>
+<div class="detail" id="get_version/2">
+  <div class="detail-header">
+    <a href="#get_version/2" class="detail-link" title="Link to this function">
+      <i class="icon-link"></i>
+    </a>
+    <span class="signature">get_version(model, id)</span>
+    
+    
+  </div>
+  
+  <section class="docstring">
+    <p>Gets the last version of a record given its module reference and its id</p>
+
+  </section>
+</div>
+<div class="detail" id="get_versions/1">
+  <div class="detail-header">
+    <a href="#get_versions/1" class="detail-link" title="Link to this function">
+      <i class="icon-link"></i>
+    </a>
+    <span class="signature">get_versions(record)</span>
+    
+    
+  </div>
+  
+  <section class="docstring">
+    <p>Gets all the versions of a record</p>
+
+  </section>
+</div>
+<div class="detail" id="get_versions/2">
+  <div class="detail-header">
+    <a href="#get_versions/2" class="detail-link" title="Link to this function">
+      <i class="icon-link"></i>
+    </a>
+    <span class="signature">get_versions(model, id)</span>
+    
+    
+  </div>
+  
+  <section class="docstring">
+    <p>Gets all the versions of a record given a module and its id</p>
 
   </section>
 </div>
