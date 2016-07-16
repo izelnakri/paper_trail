@@ -5,6 +5,7 @@ defmodule PersonTest do
   doctest Person
 
   setup_all do
+    Repo.delete_all(Person)
     Repo.delete_all(Company)
     Repo.delete_all(PaperTrail.Version)
 
@@ -51,20 +52,21 @@ defmodule PersonTest do
     assert person_count == [1]
     assert version_count == [1]
 
-    assert person == %{
+    assert Map.drop(person, [:company]) == %{
       first_name: "Izel",
       last_name: "Nakri",
       gender: true,
       visit_count: nil,
-      birthdate: nil
+      birthdate: nil,
+      company_id: company.id
     }
 
     assert Map.drop(version, [:id]) == %{
       event: "create",
       item_type: "Person",
       item_id: Repo.one(first(Person, :id)).id,
-      item_changes: Map.drop(result[:model], [:__meta__, :__struct__]),
-      meta: nil
+      item_changes: Map.drop(result[:model], [:__meta__, :__struct__, :company]),
+      meta: %{originator: "admin"}
     }
   end
 

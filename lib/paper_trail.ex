@@ -88,6 +88,16 @@ defmodule PaperTrail do
     |> Repo.transaction
   end
 
+  defp make_version_struct(%{event: "update"}, changeset, meta) do
+    %Version{
+      event: "update",
+      item_type: changeset.data.__struct__ |> Module.split |> List.last,
+      item_id: changeset.data.id,
+      item_changes: changeset.changes,
+      meta: meta
+    }
+  end
+
   @doc """
   Deletes a record from the database with a related version insertion in one transaction
   """
@@ -101,22 +111,12 @@ defmodule PaperTrail do
     |> Repo.transaction
   end
 
-  defp make_version_struct(%{event: "update"}, changeset, meta) do
-    %Version{
-      event: "update",
-      item_type: changeset.data.__struct__ |> Module.split |> List.last,
-      item_id: changeset.data.id,
-      item_changes: changeset.changes,
-      meta: meta
-    }
-  end
-
   defp make_version_struct(%{event: "destroy"}, model, meta) do
     %Version{
       event: "destroy",
       item_type: model.__struct__ |> Module.split |> List.last,
       item_id: model.id,
-      item_changes: Map.drop(model, [:__struct__, :__meta__]),
+      item_changes: filter_item_changes(model),
       meta: meta
     }
   end

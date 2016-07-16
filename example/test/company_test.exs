@@ -7,6 +7,7 @@ defmodule CompanyTest do
  # maybe test meta tag insertion and relationships
 
   setup_all do
+    Repo.delete_all(Person)
     Repo.delete_all(Company)
     Repo.delete_all(PaperTrail.Version)
     :ok
@@ -52,7 +53,7 @@ defmodule CompanyTest do
       event: "create",
       item_type: "Company",
       item_id: Repo.one(first(Company, :id)).id,
-      item_changes: Map.drop(result[:model], [:__meta__, :__struct__]),
+      item_changes: Map.drop(result[:model], [:__meta__, :__struct__, :people]),
       meta: nil
     }
   end
