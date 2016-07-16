@@ -135,7 +135,7 @@ defmodule PersonTest do
   end
 
   test "deleting a person creates a person version with correct attributes" do
-    person = first(Person, :id) |> Repo.one
+    person = first(Person, :id) |> preload(:company) |> Repo.one
 
     {:ok, result} = PaperTrail.delete(person)
 
@@ -153,32 +153,25 @@ defmodule PersonTest do
 
     version = result[:version] |> Map.drop([:__meta__, :__struct__, :inserted_at])
 
-    assert person_count == [1]
+    assert person_count == [0]
     assert version_count == [3]
 
-    assert person_ref == %{
-
+    assert Map.drop(version, [:id]) == %{
+      event: "destroy",
+      item_type: "Person",
+      item_id: person.id,
+      item_changes: %{
+        id: person.id,
+        inserted_at: person.inserted_at,
+        updated_at: person.updated_at,
+        first_name: "Isaac",
+        last_name: "Nakri",
+        gender: true,
+        visit_count: 10,
+        birthdate: elem(Ecto.Date.cast(~D[1992-04-01]), 1),
+        company_id: person.company.id
+      },
+      meta: nil
     }
-
-    # assert Map.drop(version, [:id]) == %{
-    #   event: "destroy",
-    #   item_type: "Company",
-    #   item_id: company.id,
-    #   item_changes: %{
-    #     id: company.id,
-    #     inserted_at: company.inserted_at,
-    #     updated_at: company.updated_at,
-    #     name: "Acme LLC",
-    #     is_active: true,
-    #     website: "http://www.acme.com",
-    #     city: "Hong Kong",
-    #     address: nil,
-    #     facebook: "acme.llc",
-    #     twitter: nil,
-    #     founded_in: nil,
-    #     people: []
-    #   },
-    #   meta: nil
-    # }
   end
 end

@@ -56,8 +56,6 @@ defmodule PaperTrail do
   end
 
   defp make_version_struct(%{event: "create"}, model, meta) do
-    IO.puts "make_version_struct called"
-    filter_item_changes(model) |> inspect |> IO.puts
     %Version{
       event: "create",
       item_type: model.__struct__ |> Module.split |> List.last,
@@ -105,11 +103,7 @@ defmodule PaperTrail do
     Multi.new
     |> Multi.delete(:model, struct)
     |> Multi.run(:version, fn %{model: model} ->
-        IO.puts("model is :")
-        model |> inspect |> IO.puts
         version = make_version_struct(%{event: "destroy"}, model, meta)
-        IO.puts "version is"
-        version |> inspect |> IO.puts
         Repo.insert(version)
       end)
     |> Repo.transaction

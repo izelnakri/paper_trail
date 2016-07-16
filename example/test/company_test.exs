@@ -155,8 +155,7 @@ defmodule CompanyTest do
         address: nil,
         facebook: "acme.llc",
         twitter: nil,
-        founded_in: nil,
-        people: []
+        founded_in: nil
       },
       meta: nil
     }
