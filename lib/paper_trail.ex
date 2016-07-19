@@ -33,6 +33,13 @@ defmodule PaperTrail do
   end
 
   @doc """
+  Gets the current record of a version
+  """
+  def get_current(version) do
+    VersionQueries.get_current(version)
+  end
+
+  @doc """
   Inserts a record to the database with a related version insertion in one transaction
   """
   def insert(changeset, meta \\ nil) do

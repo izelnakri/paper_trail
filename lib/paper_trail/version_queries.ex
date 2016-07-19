@@ -34,6 +34,14 @@ defmodule PaperTrail.VersionQueries do
     last(version_query(item_type, record.id)) |> Repo.one
   end
 
+  @doc """
+  Gets the current record of a version
+  """
+  def get_current(version) do
+    Repo.get("Elixir." <> version.item_type |> String.to_atom, version.item_id)
+  end
+
+
   defp version_query(item_type, id) do
     from v in Version,
     where: v.item_type == ^item_type and v.item_id == ^id

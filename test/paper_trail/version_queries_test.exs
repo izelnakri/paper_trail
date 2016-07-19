@@ -77,6 +77,12 @@ defmodule PaperTrailTest.VersionQueries do
     assert PaperTrail.get_versions(Person, last_person.id) == target_versions
   end
 
+  test "get_current gives us the current record of a version" do
+    person = first(Person, :id) |> Repo.one
+    first_version = Version |> where([v], v.item_type == "Person" and v.item_id == ^person.id) |> first |> Repo.one
+
+    assert PaperTrail.get_current(first_version) == person
+  end
   # query meta data!!
 
 end

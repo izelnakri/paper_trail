@@ -21,7 +21,7 @@ defmodule PaperTrail.Version do
   """
   def changeset(model, params \\ :empty) do
     model
-    |> validate_required(~w(event item_type item_id created_at))
-    |> cast(params, ~w(meta))
+    |> validate_required(~w(event item_type item_id))
+    |> cast(params, ~w(meta inserted_at))
   end
 end
