@@ -1,14 +1,16 @@
 # How does it work?
 
-PaperTrail can record  every change in your database in a seperate database table called 'versions'. Library generates a new version record with associated data every time you run PaperTrail.insert/1, PaperTrail.update/1 or PaperTrail.destroy/1 functions. Simply these functions wrap your Repo insert, update or destroy actions in a database transaction, so if your database action fails you won't get a new version.
+PaperTrail lets you record every change in your database in a seperate database table called ```versions```. Library generates a new version record with associated data every time you run ```PaperTrail.insert/1```, ```PaperTrail.update/1``` or ```PaperTrail.destroy/1``` functions. Simply these functions wrap your Repo insert, update or destroy actions in a database transaction, so if your database action fails you won't get a new version.
 
-PaperTrail is inspired by the ruby gem ```paper_trail```. However, unlike the ```paper_trail``` gem this library actually results in less data duplication, faster and more explicit programming model to version your record changes. PaperTrail doesn't need any declaration in your model to work, it simply replaces your Repo.insert, update and destroy functions with PaperTrail ones every time you need versioning. You can you it in your phoenix controller methods for example like this:
+PaperTrail is inspired by the ruby gem ```paper_trail```. However, unlike the ```paper_trail``` gem this library actually results in less data duplication, faster and more explicit programming model to version your record changes.
+
+PaperTrail doesn't need any declaration in your model to work, it simply replaces your ```Repo.insert```, update and destroy functions with PaperTrail ones every time you need versioning. You can you it in your phoenix controller methods for example like this:
 
 ```elixir
 
 ```
 
-The library code is minimal and tested. It is highly suggested that you check out the source code, there is nothing magical really.
+The library source code is minimal and tested. It is highly suggested that you check it out, there is nothing magical really.
 
 ## Installation
 
@@ -22,7 +24,7 @@ The library code is minimal and tested. It is highly suggested that you check ou
 
   ```mix deps.compile```
 
-  3. run this command to generate a migration for versions table in the database:
+  3. run this command to generate the migration:
 
   ```mix papertrail.install```
 
