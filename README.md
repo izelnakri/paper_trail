@@ -1,6 +1,6 @@
 # How does it work?
 
-PaperTrail saves your every database row change in a seperate table called 'versions'. Library generates a new version record with associated data every time you run PaperTrail.insert/1, PaperTrail.update/1 or PaperTrail.destroy/1 functions. Simply these functions wrap your insert, update or destroy actions in a database transaction, so if your database action fails you won't get a new version.
+PaperTrail can record  every change in your database in a seperate database table called 'versions'. Library generates a new version record with associated data every time you run PaperTrail.insert/1, PaperTrail.update/1 or PaperTrail.destroy/1 functions. Simply these functions wrap your Repo insert, update or destroy actions in a database transaction, so if your database action fails you won't get a new version.
 
 PaperTrail is inspired by the ruby gem ```paper_trail```. However, unlike the ```paper_trail``` gem this library actually results in less data duplication, faster and more explicit programming model to version your record changes. PaperTrail doesn't need any declaration in your model to work, it simply replaces your Repo.insert, update and destroy functions with PaperTrail ones every time you need versioning. You can you it in your phoenix controller methods for example like this:
 
