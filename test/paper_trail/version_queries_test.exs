@@ -35,7 +35,7 @@ defmodule PaperTrailTest.VersionQueries do
 
     company = first(Company, :id) |> Repo.one
 
-    new_person = Person.changeset(%Person{}, %{
+    Person.changeset(%Person{}, %{
       first_name: "Izel",
       last_name: "Nakri",
       gender: true,
