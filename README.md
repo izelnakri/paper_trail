@@ -138,13 +138,3 @@ Your versions don't need a model lifecycle callbacks like before_create or befor
 
 PaperTrail.Version(s) order matter,
 don't delete your versions merge them
-
-## Examples
-
-PaperTrail.create/1, PaperTrail.update/1, PaperTrail.destroy/1
-
-every operation has to go through the changeset function
-
-PaperTrail.get_version\2, PaperTrail.get_version\1 PaperTrail.get_versions\2, PaperTrail.get_versions\1
-
-PaperTrail.get_current
