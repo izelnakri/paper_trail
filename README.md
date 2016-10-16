@@ -68,7 +68,7 @@ PaperTrail lets you record every change in your database in a seperate database 
   PaperTrail.delete(updated_post)
   # => on success:
   # {:ok,
-  #  %{model: %Testo.Post{__meta__: #Ecto.Schema.Metadata<:deleted, "posts">,
+  #  %{model: %Post{__meta__: #Ecto.Schema.Metadata<:deleted, "posts">,
   #     title: "Elixir matures fast", content: "Future is already here, you deserve to be awesome!",
   #     id: 1, inserted_at: #Ecto.DateTime<2016-09-15 21:42:38>,
   #     updated_at: #Ecto.DateTime<2016-09-15 22:00:59>},
@@ -99,9 +99,11 @@ The library source code is minimal and tested. It is highly suggested that you c
 
   1. Add paper_trail to your list of dependencies in `mix.exs`:
 
+  ```elixir
     def deps do
       [{:paper_trail, "~> 0.0.1"}]
     end
+  ```
 
   2. install and compile your dependency:
 
