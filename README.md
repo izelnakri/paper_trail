@@ -101,12 +101,12 @@ The library source code is minimal and tested. It is highly suggested that you c
 
   ```elixir
     def deps do
-      [{:paper_trail, "~> 0.0.1"}]
+      [{:paper_trail, "~> 0.5.0"}]
     end
   ```
 
-  2. configure the repo module to use
-  
+  2. configure paper_trail to use your application repo in `config/config.exs`:
+
   ```elixir
   config :paper_trail, repo: YourApplicationName.Repo
   ```
@@ -125,9 +125,9 @@ The library source code is minimal and tested. It is highly suggested that you c
 
 Your application is now ready to collect some history!
 
-## How to use paper_trail with phoenix?
+## Does this work with phoenix?
 
-A guide needs to be written for this. Although it isn't that hard to implement for the brave.
+YES! Make sure you do the steps.
 
 TODO AREA:
 
@@ -137,11 +137,9 @@ TODO AREA:
 
 ## Storing version meta data
 
-give originator example
-
 Your versions don't need a model lifecycle callbacks like before_create or before_update for any extra meta data, all your meta data could be stored in one object and that object could be passed as the second optional parameter to PaperTrail.insert || PaperTrail.update || PaperTrail.delete
 
 ## Suggestions
 
 - PaperTrail.Version(s) order matter,
-- don't delete your versions merge them
+- don't delete your paper_trail versions, instead you can merge them
