@@ -105,15 +105,21 @@ The library source code is minimal and tested. It is highly suggested that you c
     end
   ```
 
-  2. install and compile your dependency:
+  2. configure the repo module to use
+  
+  ```elixir
+  config :paper_trail, repo: YourApplicationName.Repo
+  ```
+
+  3. install and compile your dependency:
 
   ```mix deps.compile```
 
-  3. run this command to generate the migration:
+  4. run this command to generate the migration:
 
   ```mix papertrail.install```
 
-  4. run the migration:
+  5. run the migration:
 
   ```mix ecto.migrate```
 
@@ -122,7 +128,6 @@ Your application is now ready to collect some history!
 ## How to use paper_trail with phoenix?
 
 A guide needs to be written for this. Although it isn't that hard to implement for the brave.
-One caveat: your application Repo has to be ```Repo``` instead of ```YourApplicationName.Repo```
 
 TODO AREA:
 

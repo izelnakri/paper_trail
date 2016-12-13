@@ -1,9 +1,9 @@
-defmodule Repo do
+defmodule PaperTrail.Repo do
   use Ecto.Repo, otp_app: :paper_trail
 end
 
-Mix.Task.run "ecto.create", ~w(-r Repo)
-Mix.Task.run "ecto.migrate", ~w(-r Repo)
+Mix.Task.run "ecto.create", ~w(-r PaperTrail.Repo)
+Mix.Task.run "ecto.migrate", ~w(-r PaperTrail.Repo)
 
 defmodule Company do
   use Ecto.Schema
@@ -60,7 +60,7 @@ defmodule Person do
   end
 end
 
-Repo.start_link
+PaperTrail.Repo.start_link
 
 ExUnit.configure seed: 0
 
