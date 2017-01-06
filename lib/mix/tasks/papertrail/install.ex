@@ -17,14 +17,17 @@ defmodule Mix.Tasks.Papertrail.Install do
 
       def change do
         create table(:versions) do
-          add :event,        :string
-          add :item_type,    :string
-          add :item_id,      :integer
-          add :item_changes, :map
-          add :meta,         :map
+          add :event,         :string
+          add :item_type,     :string
+          add :item_id,       :integer
+          add :originator_id, :integer
+          add :item_changes,  :map
+          add :meta,          :map
 
           add :inserted_at,  :datetime, null: false
         end
+
+        create index(:versions, [:originator_id])
       end
     end
     """

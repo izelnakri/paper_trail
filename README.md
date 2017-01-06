@@ -139,6 +139,14 @@ TODO AREA:
 
 Your versions don't need a model lifecycle callbacks like before_create or before_update for any extra meta data, all your meta data could be stored in one object and that object could be passed as the second optional parameter to PaperTrail.insert || PaperTrail.update || PaperTrail.delete
 
+## Storing changes originator
+
+You could specify changes originator to `paper_trail`. This is doable by specifying `:originator` keyword list for your application:
+
+```elixir
+config :paper_trail, originator: [name: :user, model: YoutApp.User]
+```
+
 ## Suggestions
 
 - PaperTrail.Version(s) order matter,

@@ -3,12 +3,19 @@ defmodule PaperTrail.Version do
 
   import Ecto.Changeset
 
+  @originator PaperTrail.OriginatorClient.originator
+
   schema "versions" do
     field :event, :string
     field :item_type, :string
     field :item_id, :integer
     field :item_changes, :map
     field :meta, :map
+    field :originator_id, :integer
+
+    if @originator do
+      belongs_to @originator[:name], @originator[:model], foreign_key: :originator_id, define_field: false
+    end
 
     timestamps(updated_at: false)
   end
