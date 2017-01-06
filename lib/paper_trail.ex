@@ -44,11 +44,11 @@ defmodule PaperTrail do
   @doc """
   Inserts a record to the database with a related version insertion in one transaction
   """
-  def insert(changeset, meta \\ nil) do
+  def insert(changeset, opts) do
     Multi.new
     |> Multi.insert(:model, changeset)
     |> Multi.run(:version, fn %{model: model} ->
-        version = make_version_struct(%{event: "create"}, model, meta)
+        version = make_version_struct(%{event: "create"}, model, opts)
         @repo.insert(version)
       end)
     |> @repo.transaction
@@ -57,11 +57,11 @@ defmodule PaperTrail do
   @doc """
   Updates a record from the database with a related version insertion in one transaction
   """
-  def update(changeset, meta \\ nil) do
+  def update(changeset, opts) do
     Multi.new
     |> Multi.update(:model, changeset)
     |> Multi.run(:version, fn %{model: _model} ->
-        version = make_version_struct(%{event: "update"}, changeset, meta)
+        version = make_version_struct(%{event: "update"}, changeset, opts)
         @repo.insert(version)
       end)
     |> @repo.transaction
@@ -80,33 +80,36 @@ defmodule PaperTrail do
     |> @repo.transaction
   end
 
-  defp make_version_struct(%{event: "create"}, model, meta) do
+  defp make_version_struct(%{event: "create"}, model, opts) do
     %Version{
       event: "create",
       item_type: model.__struct__ |> Module.split |> List.last,
       item_id: model.id,
       item_changes: filter_item_changes(model),
-      meta: meta
+      originator_id: opts[:originator_id],
+      meta: opts[:meta]
     }
   end
 
-  defp make_version_struct(%{event: "update"}, changeset, meta) do
+  defp make_version_struct(%{event: "update"}, changeset, opts) do
     %Version{
       event: "update",
       item_type: changeset.data.__struct__ |> Module.split |> List.last,
       item_id: changeset.data.id,
       item_changes: changeset.changes,
-      meta: meta
+      originator_id: opts[:originator_id],
+      meta: opts[:meta]
     }
   end
 
-  defp make_version_struct(%{event: "destroy"}, model, meta) do
+  defp make_version_struct(%{event: "destroy"}, model, opts) do
     %Version{
       event: "destroy",
       item_type: model.__struct__ |> Module.split |> List.last,
       item_id: model.id,
       item_changes: filter_item_changes(model),
-      meta: meta
+      originator_id: opts[:originator_id],
+      meta: opts[:meta]
     }
   end
 
