@@ -25,6 +25,9 @@ defmodule Mix.Tasks.Papertrail.Install do
 
           add :inserted_at,  :datetime, null: false
         end
+
+        # Uncomment if you want to add the following indexes to speed up special queries:
+        # create index(:versions, [:event, :item_id, :item_type])
       end
     end
     """
