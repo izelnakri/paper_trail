@@ -118,6 +118,10 @@ The library source code is minimal and tested. It is highly suggested that you c
   4. run this command to generate the migration:
 
   ```mix papertrail.install```
+  
+  5. If you do not wish to use `:utc_datetime` for storing your timestamps, change the migration to `:naive_datetime`.
+     This was changed in Ecto 2.1, see the [CHANGELOG.md](https://github.com/elixir-ecto/ecto/blob/v2.1/CHANGELOG.md) for
+     more details.
 
   5. run the migration:
 

@@ -23,7 +23,7 @@ defmodule Mix.Tasks.Papertrail.Install do
           add :item_changes, :map
           add :meta,         :map
 
-          add :inserted_at,  :datetime, null: false
+          add :inserted_at,  :utc_datetime, null: false
         end
 
         # Uncomment if you want to add the following indexes to speed up special queries:
