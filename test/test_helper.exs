@@ -22,7 +22,7 @@ defmodule Company do
 
     has_many :people, Person
 
-    timestamps
+    timestamps()
   end
 
   @optional_fields ~w(name is_active website city address facebook twitter founded_in)
@@ -48,7 +48,7 @@ defmodule Person do
 
     belongs_to :company, Company
 
-    timestamps
+    timestamps()
   end
 
   @optional_fields ~w(first_name last_name visit_count gender birthdate company_id)

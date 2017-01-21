@@ -2,14 +2,16 @@ defmodule PaperTrail.Mixfile do
   use Mix.Project
 
   def project do
-    [app: :paper_trail,
-     version: "0.5.0",
-     elixir: "~> 1.3",
-     description: description,
-     build_embedded: Mix.env == :prod,
-     start_permanent: Mix.env == :prod,
-     package: package,
-     deps: deps]
+    [
+      app: :paper_trail,
+      version: "0.5.2",
+      elixir: "~> 1.3",
+      description: description(),
+      build_embedded: Mix.env == :prod,
+      start_permanent: Mix.env == :prod,
+      package: package(),
+      deps: deps()
+    ]
   end
 
   # Configuration for the OTP application
@@ -23,9 +25,10 @@ defmodule PaperTrail.Mixfile do
 
   defp deps do
     [
-      {:ecto, ">= 2.0.0"},
-      {:poison, ">= 2.0.0"},
-      {:ex_doc, ">= 0.0.0", only: :dev}
+      {:ecto, ">= 2.1.0"},
+      {:poison, ">= 3.1.0"},
+      {:ex_doc, ">= 0.0.0", only: :dev},
+      {:postgrex, "~> 0.13.0"}
     ]
   end
 
