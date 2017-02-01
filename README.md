@@ -1,3 +1,5 @@
+[![Build Status](https://circleci.com/gh/izelnakri/paper_trail.svg?style=shield&circle-token=:circle-token)](https://circleci.com/gh/izelnakri/paper_trail.svg?style=shield&circle-token=:circle-token) [![Hex Version](http://img.shields.io/hexpm/v/paper_trail.svg?style=flat)](https://hex.pm/packages/paper_trail) [![Hex docs](http://img.shields.io/badge/hex.pm-docs-green.svg?style=flat)](https://hexdocs.pm/paper_trail)
+
 # How does it work?
 
 PaperTrail lets you record every change in your database in a seperate database table called ```versions```. Library generates a new version record with associated data every time you run ```PaperTrail.insert/1```, ```PaperTrail.update/1``` or ```PaperTrail.delete/1``` functions. Simply these functions wrap your Repo insert, update or destroy actions in a database transaction, so if your database action fails you won't get a new version.
@@ -118,7 +120,7 @@ The library source code is minimal and tested. It is highly suggested that you c
   4. run this command to generate the migration:
 
   ```mix papertrail.install```
-  
+
   5. If you do not wish to use `:utc_datetime` for storing your timestamps, change the migration to `:naive_datetime`.
      This was changed in Ecto 2.1, see the [CHANGELOG.md](https://github.com/elixir-ecto/ecto/blob/v2.1/CHANGELOG.md) for
      more details.
