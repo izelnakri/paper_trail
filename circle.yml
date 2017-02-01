@@ -3,6 +3,10 @@ machine:
     PATH: "$HOME/.asdf/bin:$HOME/.asdf/shims:$PATH"
     MIX_ENV: test
 
+database:
+  override:
+    - createdb paper_trail_example_test
+
 dependencies:
   cache_directories:
     - ~/.asdf
@@ -13,7 +17,7 @@ dependencies:
     - asdf plugin-add erlang https://github.com/asdf-vm/asdf-erlang.git || true
     - asdf plugin-add elixir https://github.com/asdf-vm/asdf-elixir.git || true
     - echo "erlang 19.0" >> .tool-versions
-    - echo "elixir 1.3.1" >> .tool-versions
+    - echo "elixir 1.4.0" >> .tool-versions
     - asdf install
     - mix local.hex --force
     - mix local.rebar --force
