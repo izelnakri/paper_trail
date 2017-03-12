@@ -15,9 +15,9 @@ defmodule StrictCompany do
     field :founded_in, :string
 
     belongs_to :first_version, PaperTrail.Version
-    belongs_to :current_version, PaperTrail.Version
+    belongs_to :current_version, PaperTrail.Version, on_replace: :update
 
-    has_many :people, SimplePerson, foreign_key: :company_id
+    has_many :people, StrictPerson, foreign_key: :company_id
 
     timestamps()
   end
@@ -49,8 +49,8 @@ defmodule StrictPerson do
     field :birthdate, Ecto.Date
 
     belongs_to :first_version, PaperTrail.Version
-    belongs_to :current_version, PaperTrail.Version
-    belongs_to :company, SimpleCompany, foreign_key: :company_id
+    belongs_to :current_version, PaperTrail.Version, on_replace: :update
+    belongs_to :company, StrictCompany, foreign_key: :company_id
 
     timestamps()
   end

@@ -10,8 +10,8 @@ defmodule Repo.Migrations.CreateStrictPeople do
       add :birthdate, :date
 
       add :company_id, references(:strict_companies), null: false
-      add :first_version_id, references(:versions)
-      add :current_version_id, references(:versions)
+      add :first_version_id, references(:versions), null: false
+      add :current_version_id, references(:versions), null: false
 
       timestamps()
     end

@@ -9,16 +9,17 @@ defmodule PaperTrail.Version do
     field :item_type, :string
     field :item_id, :integer
     field :item_changes, :map
-    # add :producer_id # in future
-    field :produced_by,   :string
+    field :sourced_by,   :string
     field :meta, :map
+
+    # belongs_to :owner
 
     timestamps(updated_at: false)
   end
 
   def changeset(model, params \\ :empty) do
     model
-    |> cast(params, [:item_changes, :meta])
+    |> cast(params, [:item_type, :item_id, :item_changes, :sourced_by, :meta])
     |> validate_required([:event, :item_type, :item_id, :item_changes])
   end
 

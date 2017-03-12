@@ -1,5 +1,6 @@
 defmodule PaperTrailTest.VersionQueries do
   use ExUnit.Case
+
   alias PaperTrail.Version
   alias SimpleCompany, as: Company
   alias SimplePerson, as: Person
@@ -11,7 +12,7 @@ defmodule PaperTrailTest.VersionQueries do
   setup_all do
     @repo.delete_all(Person)
     @repo.delete_all(Company)
-    @repo.delete_all(PaperTrail.Version)
+    @repo.delete_all(Version)
 
     Company.changeset(%Company{}, %{
       name: "Acme LLC", is_active: true, city: "Greenwich", people: []

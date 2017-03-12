@@ -12,8 +12,8 @@ defmodule Repo.Migrations.CreateStrictCompanies do
       add :twitter,    :string
       add :founded_in, :string
 
-      add :first_version_id, references(:versions)
-      add :current_version_id, references(:versions)
+      add :first_version_id, references(:versions), null: false
+      add :current_version_id, references(:versions), null: false
 
       timestamps()
     end
