@@ -1,8 +1,8 @@
-defmodule Repo.Migrations.CreateCompanies do
+defmodule Repo.Migrations.CreateSimpleCompanies do
   use Ecto.Migration
 
   def change do
-    create table(:companies) do
+    create table(:simple_companies) do
       add :name,       :string
       add :is_active,  :boolean
       add :website,    :string
@@ -12,7 +12,7 @@ defmodule Repo.Migrations.CreateCompanies do
       add :twitter,    :string
       add :founded_in, :string
 
-      timestamps
+      timestamps()
     end
   end
 end

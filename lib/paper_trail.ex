@@ -47,7 +47,7 @@ defmodule PaperTrail do
   @doc """
   Inserts a record to the database with a related version insertion in one transaction
   """
-  def insert(changeset, options \\ [created_by: nil, meta: nil])
+  def insert(changeset, options \\ [produced_by: nil, meta: nil])
   def insert(changeset, options) when @strict_mode do
     Multi.new
     |> Multi.run(:version, fn %{} ->
@@ -81,7 +81,7 @@ defmodule PaperTrail do
   @doc """
   Updates a record from the database with a related version insertion in one transaction
   """
-  def update(changeset, options \\ [created_by: nil, meta: nil])
+  def update(changeset, options \\ [produced_by: nil, meta: nil])
   def update(changeset, options) when @strict_mode do
     Multi.new
     |> Multi.run(:version, fn %{} ->
@@ -109,7 +109,7 @@ defmodule PaperTrail do
   @doc """
   Deletes a record from the database with a related version insertion in one transaction
   """
-  def delete(struct, options \\ [created_by: nil, meta: nil]) do
+  def delete(struct, options \\ [produced_by: nil, meta: nil]) do
     Multi.new
     |> Multi.delete(:model, struct)
     |> Multi.run(:version, fn %{} ->
@@ -119,14 +119,14 @@ defmodule PaperTrail do
     |> @repo.transaction
   end
 
-  defp make_version_struct(event_list, model, options \\ [created_by: nil, meta: nil])
+  defp make_version_struct(event_list, model, options \\ [produced_by: nil, meta: nil])
   defp make_version_struct(%{event: "insert"}, model, options) do
     %Version{
       event: "insert",
       item_type: model.__struct__ |> Module.split |> List.last,
       item_id: model.id,
       item_changes: filter_item_changes(model),
-      created_by: options[:created_by],
+      produced_by: options[:produced_by],
       meta: options[:meta]
     }
   end
@@ -136,7 +136,7 @@ defmodule PaperTrail do
       item_type: changeset.data.__struct__ |> Module.split |> List.last,
       item_id: changeset.data.id,
       item_changes: changeset.changes,
-      created_by: options[:created_by],
+      produced_by: options[:produced_by],
       meta: options[:meta]
     }
   end
@@ -146,7 +146,7 @@ defmodule PaperTrail do
       item_type: model.__struct__ |> Module.split |> List.last,
       item_id: model.id,
       item_changes: filter_item_changes(model),
-      created_by: options[:created_by],
+      produced_by: options[:produced_by],
       meta: options[:meta]
     }
   end

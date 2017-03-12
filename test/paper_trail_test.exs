@@ -1,6 +1,8 @@
 defmodule PaperTrailTest do
   use ExUnit.Case
   import Ecto.Query
+  alias SimpleCompany, as: Company
+  alias SimplePerson, as: Person
 
   @repo PaperTrail.RepoClient.repo
 
@@ -17,26 +19,16 @@ defmodule PaperTrailTest do
     new_company = Company.changeset(%Company{}, %{
       name: "Acme LLC", is_active: true, city: "Greenwich", people: []
     })
-
     {:ok, result} = PaperTrail.insert(new_company)
 
-    company_count = @repo.all(
-      from company in Company,
-      select: count(company.id)
-    )
+    company_count = Company.count()
+    version_count = PaperTrail.Version.count()
 
     company = result[:model] |> Map.drop([:__meta__, :__struct__, :inserted_at, :updated_at, :id])
-
-    version_count = @repo.all(
-      from version in PaperTrail.Version,
-      select: count(version.id)
-    )
-
     version = result[:version] |> Map.drop([:__meta__, :__struct__, :inserted_at])
 
     assert company_count == [1]
     assert version_count == [1]
-
     assert company == %{
       name: "Acme LLC",
       is_active: true,
@@ -48,13 +40,12 @@ defmodule PaperTrailTest do
       founded_in: nil,
       people: []
     }
-
     assert Map.drop(version, [:id]) == %{
       event: "insert",
-      item_type: "Company",
+      item_type: "SimpleCompany",
       item_id: @repo.one(first(Company, :id)).id,
       item_changes: Map.drop(result[:model], [:__meta__, :__struct__, :people]),
-      created_by: nil,
+      produced_by: nil,
       meta: nil
     }
   end
@@ -66,21 +57,12 @@ defmodule PaperTrailTest do
       website: "http://www.acme.com",
       facebook: "acme.llc"
     })
-
     {:ok, result} = PaperTrail.update(new_company)
 
-    company_count = @repo.all(
-      from company in Company,
-      select: count(company.id)
-    )
+    company_count = Company.count()
+    version_count = PaperTrail.Version.count()
 
     company = result[:model] |> Map.drop([:__meta__, :__struct__, :inserted_at, :updated_at, :id])
-
-    version_count = @repo.all(
-      from version in PaperTrail.Version,
-      select: count(version.id)
-    )
-
     version = result[:version] |> Map.drop([:__meta__, :__struct__, :inserted_at])
 
     assert company_count == [1]
@@ -100,10 +82,10 @@ defmodule PaperTrailTest do
 
     assert Map.drop(version, [:id]) == %{
       event: "update",
-      item_type: "Company",
+      item_type: "SimpleCompany",
       item_id: @repo.one(first(Company, :id)).id,
       item_changes: %{city: "Hong Kong", website: "http://www.acme.com", facebook: "acme.llc"},
-      created_by: nil,
+      produced_by: nil,
       meta: nil
     }
   end
@@ -117,14 +99,9 @@ defmodule PaperTrailTest do
       from company in Company,
       select: count(company.id)
     )
+    version_count = PaperTrail.Version.count()
 
     company_ref = result[:model] |> Map.drop([:__meta__, :__struct__, :inserted_at, :updated_at, :id])
-
-    version_count = @repo.all(
-      from version in PaperTrail.Version,
-      select: count(version.id)
-    )
-
     version = result[:version] |> Map.drop([:__meta__, :__struct__, :inserted_at])
 
     assert company_count == [0]
@@ -144,7 +121,7 @@ defmodule PaperTrailTest do
 
     assert Map.drop(version, [:id]) == %{
       event: "delete",
-      item_type: "Company",
+      item_type: "SimpleCompany",
       item_id: company.id,
       item_changes: %{
         id: company.id,
@@ -159,11 +136,10 @@ defmodule PaperTrailTest do
         twitter: nil,
         founded_in: nil
       },
-      created_by: nil,
+      produced_by: nil,
       meta: nil
     }
   end
-
 
   test "creating a person with meta tag creates a person version with correct attributes" do
     Company.changeset(%Company{}, %{
@@ -178,28 +154,18 @@ defmodule PaperTrailTest do
     }) |> PaperTrail.insert
 
     company = first(Company, :id) |> @repo.one
-
     new_person = Person.changeset(%Person{}, %{
       first_name: "Izel",
       last_name: "Nakri",
       gender: true,
       company_id: company.id
     })
+    {:ok, result} = PaperTrail.insert(new_person, produced_by: "admin") # add link name later on
 
-    {:ok, result} = PaperTrail.insert(new_person, created_by: "admin") # add link name later on
-
-    person_count = @repo.all(
-      from person in Person,
-      select: count(person.id)
-    )
+    person_count = Person.count()
+    version_count = PaperTrail.Version.count()
 
     person = result[:model] |> Map.drop([:__meta__, :__struct__, :inserted_at, :updated_at, :id])
-
-    version_count = @repo.all(
-      from version in PaperTrail.Version,
-      select: count(version.id)
-    )
-
     version = result[:version] |> Map.drop([:__meta__, :__struct__, :inserted_at])
 
     assert person_count == [1]
@@ -216,15 +182,16 @@ defmodule PaperTrailTest do
 
     assert Map.drop(version, [:id]) == %{
       event: "insert",
-      item_type: "Person",
+      item_type: "SimplePerson",
       item_id: @repo.one(first(Person, :id)).id,
       item_changes: Map.drop(result[:model], [:__meta__, :__struct__, :company]),
-      created_by: "admin",
+      produced_by: "admin",
       meta: nil
     }
   end
 
   test "updating a person creates a person version with correct attributes" do
+    # does this work?
     old_person = first(Person, :id) |> @repo.one
 
     target_company = @repo.one(
@@ -232,7 +199,6 @@ defmodule PaperTrailTest do
       where: c.name == "Another Company Corp.",
       limit: 1
     )
-
     new_person = Person.changeset(old_person, %{
       first_name: "Isaac",
       visit_count: 10,
@@ -240,22 +206,14 @@ defmodule PaperTrailTest do
       company_id: target_company.id
     })
 
-    {:ok, result} = PaperTrail.update(new_person, created_by: "user:1", meta: %{
+    {:ok, result} = PaperTrail.update(new_person, produced_by: "user:1", meta: %{
       linkname: "izelnakri"
     })
 
-    person_count = @repo.all(
-      from person in Person,
-      select: count(person.id)
-    )
+    person_count = Person.count()
+    version_count = PaperTrail.Version.count()
 
     person = result[:model] |> Map.drop([:__meta__, :__struct__, :inserted_at, :updated_at, :id])
-
-    version_count = @repo.all(
-      from version in PaperTrail.Version,
-      select: count(version.id)
-    )
-
     version = result[:version] |> Map.drop([:__meta__, :__struct__, :inserted_at])
 
     assert person_count == [1]
@@ -272,7 +230,7 @@ defmodule PaperTrailTest do
 
     assert Map.drop(version, [:id]) == %{
       event: "update",
-      item_type: "Person",
+      item_type: "SimplePerson",
       item_id: @repo.one(first(Person, :id)).id,
       item_changes: %{
         first_name: "Isaac",
@@ -280,7 +238,7 @@ defmodule PaperTrailTest do
         birthdate: elem(Ecto.Date.cast(~D[1992-04-01]), 1),
         company_id: target_company.id
       },
-      created_by: "user:1",
+      produced_by: "user:1",
       meta: %{
         linkname: "izelnakri"
       }
@@ -288,19 +246,13 @@ defmodule PaperTrailTest do
   end
 
   test "deleting a person creates a person version with correct attributes" do
+    # does this work?
     person = first(Person, :id) |> preload(:company) |> @repo.one
 
     {:ok, result} = PaperTrail.delete(person)
 
-    person_count = @repo.all(
-      from person in Person,
-      select: count(person.id)
-    )
-
-    version_count = @repo.all(
-      from version in PaperTrail.Version,
-      select: count(version.id)
-    )
+    person_count = Person.count()
+    version_count = PaperTrail.Version.count()
 
     version = result[:version] |> Map.drop([:__meta__, :__struct__, :inserted_at])
 
@@ -309,7 +261,7 @@ defmodule PaperTrailTest do
 
     assert Map.drop(version, [:id]) == %{
       event: "delete",
-      item_type: "Person",
+      item_type: "SimplePerson",
       item_id: person.id,
       item_changes: %{
         id: person.id,
@@ -322,7 +274,7 @@ defmodule PaperTrailTest do
         birthdate: elem(Ecto.Date.cast(~D[1992-04-01]), 1),
         company_id: person.company.id
       },
-      created_by: nil,
+      produced_by: nil,
       meta: nil
     }
   end

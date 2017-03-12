@@ -7,10 +7,11 @@ defmodule Repo.Migrations.AddVersions do
       add :item_type,    :string
       add :item_id,      :integer
       add :item_changes, :map
-      add :created_by,   :string, size: 50
+      # add :producer_id # in future
+      add :produced_by,   :string, size: 50
       add :meta,         :map
 
-      add :inserted_at,  :datetime, null: false
+      add :inserted_at,  :utc_datetime, null: false
     end
   end
 end
