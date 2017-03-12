@@ -8,20 +8,15 @@ defmodule PaperTrail.Version do
     field :item_type, :string
     field :item_id, :integer
     field :item_changes, :map
+    field :created_by, :string
     field :meta, :map
 
     timestamps(updated_at: false)
   end
 
-  @doc """
-  Creates a changeset based on the `model` and `params`.
-
-  If no params are provided, an invalid changeset is returned
-  with no validation performed.
-  """
   def changeset(model, params \\ :empty) do
     model
-    |> validate_required(~w(event item_type item_id))
-    |> cast(params, ~w(meta inserted_at))
+    |> cast(params, [:item_changes, :meta])
+    |> validate_required([:event, :item_type, :item_id, :item_changes])
   end
 end

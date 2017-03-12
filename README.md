@@ -135,14 +135,30 @@ Your application is now ready to collect some history!
 
 YES! Make sure you do the steps.
 
-TODO AREA:
+# Introduction of Strict mode
+This is a feature needed for larger applications where every change needs to have an owner reference. This mode adds the following behavior:
+
+1 - PaperTrail records get a required string field called ````originator```. PaperTrail.insert/1, PaperTrail.update/1, PaperTrail.delete/1 functions accepts a second argument for the originator. Example:
+```elixir
+PaperTrail.update(changeset, "migration")
+# or:
+PaperTrail.update(changeset, "user:1234")
+```
+If the originator field isn't provided originator field will be "unknown" by default.
+
+2 - Strict mode expects tracked models to have foreign-key reference to their insert_version and current_versions(s). These columns should be named ```insert_version_id```, and ```current_version_id``` in their respective model tables. Example migration:
+
+TODO: give here a migration example
+
+When you run PaperTrail.insert/1 transaction, insert_version_id and current_version_id gets assigned for the model. Example:
+
+When you delete a model, current_version_id gets updated during the transaction. Example:
 
 ** remove wrong Elixir compiler errors
 
 ** explain the columns
 
 ## Storing version meta data
-
 Your versions don't need a model lifecycle callbacks like before_create or before_update for any extra meta data, all your meta data could be stored in one object and that object could be passed as the second optional parameter to PaperTrail.insert || PaperTrail.update || PaperTrail.delete
 
 ## Suggestions

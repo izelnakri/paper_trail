@@ -50,10 +50,11 @@ defmodule PaperTrailTest do
     }
 
     assert Map.drop(version, [:id]) == %{
-      event: "create",
+      event: "insert",
       item_type: "Company",
       item_id: @repo.one(first(Company, :id)).id,
       item_changes: Map.drop(result[:model], [:__meta__, :__struct__, :people]),
+      created_by: nil,
       meta: nil
     }
   end
@@ -102,6 +103,7 @@ defmodule PaperTrailTest do
       item_type: "Company",
       item_id: @repo.one(first(Company, :id)).id,
       item_changes: %{city: "Hong Kong", website: "http://www.acme.com", facebook: "acme.llc"},
+      created_by: nil,
       meta: nil
     }
   end
@@ -141,7 +143,7 @@ defmodule PaperTrailTest do
     }
 
     assert Map.drop(version, [:id]) == %{
-      event: "destroy",
+      event: "delete",
       item_type: "Company",
       item_id: company.id,
       item_changes: %{
@@ -157,6 +159,7 @@ defmodule PaperTrailTest do
         twitter: nil,
         founded_in: nil
       },
+      created_by: nil,
       meta: nil
     }
   end
@@ -183,7 +186,7 @@ defmodule PaperTrailTest do
       company_id: company.id
     })
 
-    {:ok, result} = PaperTrail.insert(new_person, %{originator: "admin"}) # add link name later on
+    {:ok, result} = PaperTrail.insert(new_person, created_by: "admin") # add link name later on
 
     person_count = @repo.all(
       from person in Person,
@@ -212,11 +215,12 @@ defmodule PaperTrailTest do
     }
 
     assert Map.drop(version, [:id]) == %{
-      event: "create",
+      event: "insert",
       item_type: "Person",
       item_id: @repo.one(first(Person, :id)).id,
       item_changes: Map.drop(result[:model], [:__meta__, :__struct__, :company]),
-      meta: %{originator: "admin"}
+      created_by: "admin",
+      meta: nil
     }
   end
 
@@ -236,8 +240,7 @@ defmodule PaperTrailTest do
       company_id: target_company.id
     })
 
-    {:ok, result} = PaperTrail.update(new_person, %{
-      originator: "user:1",
+    {:ok, result} = PaperTrail.update(new_person, created_by: "user:1", meta: %{
       linkname: "izelnakri"
     })
 
@@ -277,8 +280,8 @@ defmodule PaperTrailTest do
         birthdate: elem(Ecto.Date.cast(~D[1992-04-01]), 1),
         company_id: target_company.id
       },
+      created_by: "user:1",
       meta: %{
-        originator: "user:1",
         linkname: "izelnakri"
       }
     }
@@ -305,7 +308,7 @@ defmodule PaperTrailTest do
     assert version_count == [8]
 
     assert Map.drop(version, [:id]) == %{
-      event: "destroy",
+      event: "delete",
       item_type: "Person",
       item_id: person.id,
       item_changes: %{
@@ -319,6 +322,7 @@ defmodule PaperTrailTest do
         birthdate: elem(Ecto.Date.cast(~D[1992-04-01]), 1),
         company_id: person.company.id
       },
+      created_by: nil,
       meta: nil
     }
   end
