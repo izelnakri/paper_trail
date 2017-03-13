@@ -55,7 +55,7 @@ defmodule PaperTrailTest do
       item_type: "SimpleCompany",
       item_id: company.id,
       item_changes: company,
-      sourced_by: nil,
+      set_by: nil,
       meta: nil
     }
     assert company == first(Company, :id) |> @repo.one |> serialize
@@ -96,7 +96,7 @@ defmodule PaperTrailTest do
       item_type: "SimpleCompany",
       item_id: company.id,
       item_changes: %{city: "Hong Kong", website: "http://www.acme.com", facebook: "acme.llc"},
-      sourced_by: nil,
+      set_by: nil,
       meta: nil
     }
     assert company == first(Company, :id) |> @repo.one |> serialize
@@ -157,7 +157,7 @@ defmodule PaperTrailTest do
         twitter: nil,
         founded_in: nil
       },
-      sourced_by: nil,
+      set_by: nil,
       meta: nil
     }
     assert company == company_before_deletion
@@ -189,7 +189,7 @@ defmodule PaperTrailTest do
       last_name: "Nakri",
       gender: true,
       company_id: new_company_result[:model].id
-    }) |> PaperTrail.insert(sourced_by: "admin")
+    }) |> PaperTrail.insert(set_by: "admin")
 
     person_count = Person.count()
     version_count = Version.count()
@@ -213,7 +213,7 @@ defmodule PaperTrailTest do
       item_type: "SimplePerson",
       item_id: person.id,
       item_changes: person,
-      sourced_by: "admin",
+      set_by: "admin",
       meta: nil
     }
     assert person == first(Person, :id) |> @repo.one |> serialize
@@ -229,12 +229,12 @@ defmodule PaperTrailTest do
       last_name: "Nakri",
       gender: true,
       company_id: target_company_insertion[:model].id
-    }) |> PaperTrail.insert(sourced_by: "admin")
+    }) |> PaperTrail.insert(set_by: "admin")
     {:ok, result} = Person.changeset(insert_person_result[:model], %{
       first_name: "Isaac",
       visit_count: 10,
       birthdate: ~D[1992-04-01],
-    }) |> PaperTrail.update(sourced_by: "scraper", meta: %{linkname: "izelnakri"})
+    }) |> PaperTrail.update(set_by: "scraper", meta: %{linkname: "izelnakri"})
 
     person_count = Person.count()
     version_count = Version.count()
@@ -262,7 +262,7 @@ defmodule PaperTrailTest do
         visit_count: 10,
         birthdate: elem(Ecto.Date.cast(~D[1992-04-01]), 1)
       },
-      sourced_by: "scraper",
+      set_by: "scraper",
       meta: %{
         linkname: "izelnakri"
       }
@@ -280,13 +280,13 @@ defmodule PaperTrailTest do
       last_name: "Nakri",
       gender: true,
       company_id: target_company_insertion[:model].id
-    }) |> PaperTrail.insert(sourced_by: "admin") # add link name later on
+    }) |> PaperTrail.insert(set_by: "admin") # add link name later on
     {:ok, update_result} = Person.changeset(insert_person_result[:model], %{
       first_name: "Isaac",
       visit_count: 10,
       birthdate: ~D[1992-04-01],
       company_id: target_company_insertion[:model].id
-    }) |> PaperTrail.update(sourced_by: "scraper", meta: %{linkname: "izelnakri"})
+    }) |> PaperTrail.update(set_by: "scraper", meta: %{linkname: "izelnakri"})
     person_before_deletion = first(Person, :id) |> @repo.one |> serialize
     {:ok, result} = PaperTrail.delete(update_result[:model])
 
@@ -314,7 +314,7 @@ defmodule PaperTrailTest do
         birthdate: elem(Ecto.Date.cast(~D[1992-04-01]), 1),
         company_id: target_company_insertion[:model].id
       },
-      sourced_by: nil,
+      set_by: nil,
       meta: nil
     }
     assert old_person == person_before_deletion

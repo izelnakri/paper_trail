@@ -47,7 +47,7 @@ defmodule PaperTrail do
   @doc """
   Inserts a record to the database with a related version insertion in one transaction
   """
-  def insert(changeset, options \\ [sourced_by: nil, meta: nil]) do
+  def insert(changeset, options \\ [set_by: nil, meta: nil]) do
     case @client.strict_mode() do
       true ->
         transaction = Multi.new
@@ -74,8 +74,10 @@ defmodule PaperTrail do
           |> @repo.transaction
 
         case transaction do
-          {:ok, map} -> {:ok, Map.delete(map, :initial_version)}
-          {:error, transaction} -> {:error, transaction.model}
+          {:error, :model, changeset, %{}} ->
+            filtered_changes = Map.drop(changeset.changes, [:current_version_id, :first_version_id])
+            {:error, Map.merge(changeset, %{repo: @repo, changes: filtered_changes})}
+          {:ok, map} -> {:ok, Map.drop(map, [:initial_version])}
         end
       _ ->
         transaction = Multi.new
@@ -96,7 +98,7 @@ defmodule PaperTrail do
   @doc """
   Updates a record from the database with a related version insertion in one transaction
   """
-  def update(changeset, options \\ [sourced_by: nil, meta: nil]) do
+  def update(changeset, options \\ [set_by: nil, meta: nil]) do
     case @client.strict_mode() do
       true ->
         transaction = Multi.new
@@ -119,8 +121,10 @@ defmodule PaperTrail do
         |> @repo.transaction
 
         case transaction do
+          {:error, :model, changeset, %{}} ->
+            filtered_changes = Map.drop(changeset.changes, [:current_version_id])
+            {:error, Map.merge(changeset, %{repo: @repo, changes: filtered_changes})}
           {:ok, map} -> {:ok, Map.delete(map, :initial_version)}
-          _ -> transaction
         end
       _ ->
         transaction = Multi.new
@@ -141,7 +145,7 @@ defmodule PaperTrail do
   @doc """
   Deletes a record from the database with a related version insertion in one transaction
   """
-  def delete(struct, options \\ [sourced_by: nil, meta: nil]) do
+  def delete(struct, options \\ [set_by: nil, meta: nil]) do
     transaction = Multi.new
     |> Multi.delete(:model, struct)
     |> Multi.run(:version, fn %{} ->
@@ -163,7 +167,7 @@ defmodule PaperTrail do
       item_type: model.__struct__ |> Module.split |> List.last,
       item_id: model.id,
       item_changes: serialize(model),
-      sourced_by: options[:sourced_by],
+      set_by: options[:set_by],
       meta: options[:meta]
     }
   end
@@ -173,7 +177,7 @@ defmodule PaperTrail do
       item_type: changeset.data.__struct__ |> Module.split |> List.last,
       item_id: changeset.data.id,
       item_changes: changeset.changes,
-      sourced_by: options[:sourced_by],
+      set_by: options[:set_by],
       meta: options[:meta]
     }
   end
@@ -183,7 +187,7 @@ defmodule PaperTrail do
       item_type: model.__struct__ |> Module.split |> List.last,
       item_id: model.id,
       item_changes: serialize(model),
-      sourced_by: options[:sourced_by],
+      set_by: options[:set_by],
       meta: options[:meta]
     }
   end

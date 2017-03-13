@@ -27,6 +27,8 @@ defmodule StrictCompany do
   def changeset(model, params \\ %{}) do
     model
     |> cast(params, @optional_fields)
+    |> validate_required([:name])
+    |> no_assoc_constraint(:people)
   end
 
   def count do

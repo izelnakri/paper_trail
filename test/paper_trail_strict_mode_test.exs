@@ -1,4 +1,3 @@
-# TODO: test error messages
 defmodule PaperTrailStrictModeTest do
   use ExUnit.Case
 
@@ -58,10 +57,17 @@ defmodule PaperTrailStrictModeTest do
       item_type: "StrictCompany",
       item_id: company.id,
       item_changes: company,
-      sourced_by: nil,
+      set_by: nil,
       meta: nil
     }
     assert company == first(Company, :id) |> @repo.one |> serialize
+  end
+
+  test "PaperTrail.insert\\2 with an error returns and error tuple like Repo.insert\\2" do
+    result = create_company_with_version(%{name: nil, is_active: true, city: "Greenwich"})
+    ecto_result = Company.changeset(%Company{}, %{name: nil, is_active: true, city: "Greenwich"})
+      |> @repo.insert
+    assert result == ecto_result
   end
 
   test "updating a company creates a company version with correct item_changes" do
@@ -99,10 +105,23 @@ defmodule PaperTrailStrictModeTest do
         facebook: "acme.llc",
         current_version_id: version.id
       },
-      sourced_by: nil,
+      set_by: nil,
       meta: nil
     }
     assert company == first(Company, :id) |> @repo.one |> serialize
+  end
+
+  test "PaperTrail.update\\2 with an error returns and error tuple like Repo.update\\2" do
+    {:ok, insert_result} = create_company_with_version()
+    company = insert_result[:model]
+    result = update_company_with_version(company, %{
+      name: nil, city: "Hong Kong", website: "http://www.acme.com", facebook: "acme.llc"
+    })
+    ecto_result = Company.changeset(company, %{
+      name: nil, city: "Hong Kong", website: "http://www.acme.com", facebook: "acme.llc"
+    }) |> @repo.update
+
+    assert result == ecto_result
   end
 
   test "deleting a company creates a company version with correct attributes" do
@@ -151,10 +170,24 @@ defmodule PaperTrailStrictModeTest do
         first_version_id: insert_company_result[:version].id,
         current_version_id: update_company_result[:version].id
       },
-      sourced_by: nil,
+      set_by: nil,
       meta: nil
     }
     assert old_company == company_before_deletion
+  end
+
+  test "PaperTrail.delete\\2 with an error returns and error tuple like Repo.delete\\2" do
+    {:ok, insert_company_result} = create_company_with_version()
+    {:ok, insert_person_result} = Person.changeset(%Person{}, %{
+      first_name: "Izel",
+      last_name: "Nakri",
+      gender: true,
+      company_id: insert_company_result[:model].id
+    }) |> PaperTrail.insert
+    ecto_result = insert_company_result[:model] |> Company.changeset |> @repo.delete
+    result = insert_company_result[:model] |> Company.changeset |> PaperTrail.delete
+
+    assert result == ecto_result
   end
 
   test "creating a person with meta tag creates a person version with correct attributes" do
@@ -169,7 +202,7 @@ defmodule PaperTrailStrictModeTest do
       last_name: "Nakri",
       gender: true,
       company_id: insert_company_result[:model].id
-    }) |> PaperTrail.insert(sourced_by: "admin")
+    }) |> PaperTrail.insert(set_by: "admin")
 
     person_count = Person.count()
     version_count = Version.count()
@@ -195,7 +228,7 @@ defmodule PaperTrailStrictModeTest do
       item_type: "StrictPerson",
       item_id: person.id,
       item_changes: person,
-      sourced_by: "admin",
+      set_by: "admin",
       meta: nil
     }
     assert person == first(Person, :id) |> @repo.one |> serialize
@@ -211,12 +244,12 @@ defmodule PaperTrailStrictModeTest do
       last_name: "Nakri",
       gender: true,
       company_id: target_company_insertion[:model].id
-    }) |> PaperTrail.insert(sourced_by: "admin")
+    }) |> PaperTrail.insert(set_by: "admin")
     {:ok, result} = Person.changeset(insert_person_result[:model], %{
       first_name: "Isaac",
       visit_count: 10,
       birthdate: ~D[1992-04-01]
-    }) |> PaperTrail.update(sourced_by: "scraper", meta: %{linkname: "izelnakri"})
+    }) |> PaperTrail.update(set_by: "scraper", meta: %{linkname: "izelnakri"})
 
     person_count = Person.count()
     version_count = Version.count()
@@ -247,7 +280,7 @@ defmodule PaperTrailStrictModeTest do
         birthdate: elem(Ecto.Date.cast(~D[1992-04-01]), 1),
         current_version_id: version.id
       },
-      sourced_by: "scraper",
+      set_by: "scraper",
       meta: %{
         linkname: "izelnakri"
       }
@@ -265,12 +298,12 @@ defmodule PaperTrailStrictModeTest do
       last_name: "Nakri",
       gender: true,
       company_id: target_company_insertion[:model].id
-    }) |> PaperTrail.insert(sourced_by: "admin")
+    }) |> PaperTrail.insert(set_by: "admin")
     {:ok, update_person_result} = Person.changeset(insert_person_result[:model], %{
       first_name: "Isaac",
       visit_count: 10,
       birthdate: ~D[1992-04-01]
-    }) |> PaperTrail.update(sourced_by: "scraper", meta: %{linkname: "izelnakri"})
+    }) |> PaperTrail.update(set_by: "scraper", meta: %{linkname: "izelnakri"})
     person_before_deletion = first(Person, :id) |> @repo.one |> serialize
     {:ok, result} = PaperTrail.delete(update_person_result[:model])
 
@@ -300,7 +333,7 @@ defmodule PaperTrailStrictModeTest do
         first_version_id: insert_person_result[:version].id,
         current_version_id: update_person_result[:version].id
       },
-      sourced_by: nil,
+      set_by: nil,
       meta: nil
     }
     assert old_person == person_before_deletion

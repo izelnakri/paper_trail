@@ -39,8 +39,8 @@ defmodule Mix.Tasks.Papertrail.Install do
 
   defp created_by_field do
     case @strict_mode do
-      true -> "add :created_by,   :string, size: 50, null: false, default: 'unknown'"
-      _ -> "add :created_by,   :string, size: 50"
+      true -> "add :set_by, :string, size: 50, null: false, default: 'unknown'"
+      _ -> "add :set_by, :string, size: 50"
     end
   end
 
