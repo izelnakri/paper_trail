@@ -152,9 +152,15 @@ When you run PaperTrail.insert/1 transaction, insert_version_id and current_vers
 
 When you update a model, current_version_id gets updated during the transaction. Example:
 
-** remove wrong Elixir compiler errors
+## Storing setter relationships
+You could specify setter relationship to `paper_trail` versions. This is doable by specifying `:setter` keyword list for your application:
 
-** explain the columns
+```elixir
+  config :paper_trail, setter: [name: :user, model: YourApp.User]
+  # For most application setter will be user, models can be updated/created/deleted by several users.
+```
+
+
 
 ## Storing version meta data
 Your versions don't need a model lifecycle callbacks like before_create or before_update for any extra meta data, all your meta data could be stored in one object and that object could be passed as the second optional parameter to PaperTrail.insert || PaperTrail.update || PaperTrail.delete :
@@ -162,3 +168,7 @@ Your versions don't need a model lifecycle callbacks like before_create or befor
 ## Suggestions
 - PaperTrail.Version(s) order matter,
 - don't delete your paper_trail versions, instead you can merge them
+
+## TODO
+** remove wrong Elixir compiler errors
+** explain the columns
