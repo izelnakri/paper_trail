@@ -3,7 +3,7 @@ defmodule Repo.Migrations.CreateSimpleCompanies do
 
   def change do
     create table(:simple_companies) do
-      add :name,       :string
+      add :name,       :string, null: false
       add :is_active,  :boolean
       add :website,    :string
       add :city,       :string

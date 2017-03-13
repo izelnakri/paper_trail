@@ -3,7 +3,7 @@ defmodule Repo.Migrations.CreateStrictPeople do
 
   def change do
     create table(:strict_people) do
-      add :first_name, :string
+      add :first_name, :string, null: false
       add :last_name, :string
       add :visit_count, :integer
       add :gender, :boolean

@@ -3,15 +3,19 @@ defmodule Repo.Migrations.AddVersions do
 
   def change do
     create table(:versions) do
-      add :event,        :string
-      add :item_type,    :string
-      add :item_id,      :integer
-      add :item_changes, :map
+      add :event,        :string, null: false
+      add :item_type,    :string, null: false
+      add :item_id,      :integer, null: false
+      add :item_changes, :map, null: false
       # add :owner_id # in future
       add :sourced_by,   :string, size: 50
       add :meta,         :map
 
       add :inserted_at,  :utc_datetime, null: false
     end
+
+    create index(:versions, [:item_type, :item_id])
+    create index(:versions, [:event, :item_type])
+    create index(:versions, [:item_type, :inserted_at])
   end
 end

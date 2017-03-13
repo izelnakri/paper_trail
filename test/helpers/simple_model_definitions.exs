@@ -24,7 +24,8 @@ defmodule SimpleCompany do
   def changeset(model, params \\ %{}) do
     model
     |> cast(params, @optional_fields)
-    |> cast_assoc(:people, required: false)
+    |> validate_required([:name])
+    |> no_assoc_constraint(:people)
   end
 
   def count do

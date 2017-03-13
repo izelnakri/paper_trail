@@ -1,3 +1,4 @@
+# TODO: test error messages
 defmodule PaperTrailStrictModeTest do
   use ExUnit.Case
 
@@ -37,6 +38,7 @@ defmodule PaperTrailStrictModeTest do
     company = result[:model] |> serialize()
     version = result[:version] |> serialize()
 
+    assert Map.keys(result) == [:model, :version]
     assert company_count == [1]
     assert version_count == [1]
     assert Map.drop(company, [:id, :inserted_at, :updated_at]) == %{
@@ -59,6 +61,7 @@ defmodule PaperTrailStrictModeTest do
       sourced_by: nil,
       meta: nil
     }
+    assert company == first(Company, :id) |> @repo.one |> serialize
   end
 
   test "updating a company creates a company version with correct item_changes" do
@@ -71,6 +74,7 @@ defmodule PaperTrailStrictModeTest do
     company = result[:model] |> serialize
     version = result[:version] |> serialize
 
+    assert Map.keys(result) == [:model, :version]
     assert company_count == [1]
     assert version_count == [2]
     assert Map.drop(company, [:id, :inserted_at, :updated_at]) == %{
@@ -85,20 +89,26 @@ defmodule PaperTrailStrictModeTest do
       first_version_id: insert_company_result[:version].id,
       current_version_id: version.id
     }
-    # IMPORTANT: current_version also changes?
     assert Map.drop(version, [:id, :inserted_at]) == %{
       event: "update",
       item_type: "StrictCompany",
       item_id: company.id,
-      item_changes: %{city: "Hong Kong", website: "http://www.acme.com", facebook: "acme.llc"},
+      item_changes: %{
+        city: "Hong Kong",
+        website: "http://www.acme.com",
+        facebook: "acme.llc",
+        current_version_id: version.id
+      },
       sourced_by: nil,
       meta: nil
     }
+    assert company == first(Company, :id) |> @repo.one |> serialize
   end
 
   test "deleting a company creates a company version with correct attributes" do
     {:ok, insert_company_result} = create_company_with_version()
     {:ok, update_company_result} = update_company_with_version(insert_company_result[:model])
+    company_before_deletion = first(Company, :id) |> @repo.one |> serialize
     {:ok, result} = PaperTrail.delete(update_company_result[:model])
 
     company_count = Company.count()
@@ -107,6 +117,7 @@ defmodule PaperTrailStrictModeTest do
     old_company = result[:model] |> serialize()
     version = result[:version] |> serialize()
 
+    assert Map.keys(result) == [:model, :version]
     assert company_count == [0]
     assert version_count == [3]
     assert Map.drop(old_company, [:id, :inserted_at, :updated_at]) == %{
@@ -143,6 +154,7 @@ defmodule PaperTrailStrictModeTest do
       sourced_by: nil,
       meta: nil
     }
+    assert old_company == company_before_deletion
   end
 
   test "creating a person with meta tag creates a person version with correct attributes" do
@@ -152,7 +164,7 @@ defmodule PaperTrailStrictModeTest do
       is_active: true,
       address: "Sesame street 100/3, 101010"
     })
-    {:ok, insert_person_result} = Person.changeset(%Person{}, %{
+    {:ok, result} = Person.changeset(%Person{}, %{
       first_name: "Izel",
       last_name: "Nakri",
       gender: true,
@@ -162,9 +174,10 @@ defmodule PaperTrailStrictModeTest do
     person_count = Person.count()
     version_count = Version.count()
 
-    person = insert_person_result[:model] |> serialize
-    version = insert_person_result[:version] |> serialize
+    person = result[:model] |> serialize
+    version = result[:version] |> serialize
 
+    assert Map.keys(result) == [:model, :version]
     assert person_count == [1]
     assert version_count == [3]
     assert Map.drop(person, [:id, :inserted_at, :updated_at]) == %{
@@ -174,8 +187,8 @@ defmodule PaperTrailStrictModeTest do
       visit_count: nil,
       birthdate: nil,
       company_id: insert_company_result[:model].id,
-      first_version_id: insert_person_result[:version].id,
-      current_version_id: insert_person_result[:version].id
+      first_version_id: result[:version].id,
+      current_version_id: result[:version].id
     }
     assert Map.drop(version, [:id, :inserted_at]) == %{
       event: "insert",
@@ -185,6 +198,7 @@ defmodule PaperTrailStrictModeTest do
       sourced_by: "admin",
       meta: nil
     }
+    assert person == first(Person, :id) |> @repo.one |> serialize
   end
 
   test "updating a person creates a person version with correct attributes" do
@@ -210,6 +224,7 @@ defmodule PaperTrailStrictModeTest do
     person = result[:model] |> serialize
     version = result[:version] |> serialize
 
+    assert Map.keys(result) == [:model, :version]
     assert person_count == [1]
     assert version_count == [4]
     assert Map.drop(person, [:id, :inserted_at, :updated_at]) == %{
@@ -229,13 +244,15 @@ defmodule PaperTrailStrictModeTest do
       item_changes: %{
         first_name: "Isaac",
         visit_count: 10,
-        birthdate: elem(Ecto.Date.cast(~D[1992-04-01]), 1)
+        birthdate: elem(Ecto.Date.cast(~D[1992-04-01]), 1),
+        current_version_id: version.id
       },
       sourced_by: "scraper",
       meta: %{
         linkname: "izelnakri"
       }
     }
+    assert person == first(Person, :id) |> @repo.one |> serialize
   end
 
   test "deleting a person creates a person version with correct attributes" do
@@ -254,6 +271,7 @@ defmodule PaperTrailStrictModeTest do
       visit_count: 10,
       birthdate: ~D[1992-04-01]
     }) |> PaperTrail.update(sourced_by: "scraper", meta: %{linkname: "izelnakri"})
+    person_before_deletion = first(Person, :id) |> @repo.one |> serialize
     {:ok, result} = PaperTrail.delete(update_person_result[:model])
 
     person_count = Person.count()
@@ -262,6 +280,7 @@ defmodule PaperTrailStrictModeTest do
     old_person = result[:model] |> serialize
     version = result[:version] |> serialize
 
+    assert Map.keys(result) == [:model, :version]
     assert person_count == [0]
     assert version_count == [5]
     assert Map.drop(version, [:id, :inserted_at]) == %{
@@ -284,6 +303,7 @@ defmodule PaperTrailStrictModeTest do
       sourced_by: nil,
       meta: nil
     }
+    assert old_person == person_before_deletion
   end
 
   defp create_company_with_version(params \\ %{

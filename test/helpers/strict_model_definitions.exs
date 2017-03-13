@@ -27,7 +27,6 @@ defmodule StrictCompany do
   def changeset(model, params \\ %{}) do
     model
     |> cast(params, @optional_fields)
-    |> cast_assoc(:people, required: false)
   end
 
   def count do
