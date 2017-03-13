@@ -22,14 +22,16 @@ defmodule Mix.Tasks.Papertrail.Install do
           add :item_type,    :string, null: false
           add :item_id,      :integer
           add :item_changes, :map, null: false
-          #{created_by_field()}
+          add :setter_id, references(:users) # you can change :users to your own foreign key constraint
+          #{set_by_field()}
           add :meta,         :map
 
           add :inserted_at,  :utc_datetime, null: false
         end
 
+        create index(:versions, [:setter_id])
+        create index(:versions, [:item_id, :item_type])
         # Uncomment if you want to add the following indexes to speed up special queries:
-        # create index(:versions, [:item_id, :item_type])
         # create index(:versions, [:event, :item_type])
         # create index(:versions, [:item_type, :inserted_at])
       end
@@ -37,9 +39,9 @@ defmodule Mix.Tasks.Papertrail.Install do
     """
   end
 
-  defp created_by_field do
+  defp set_by_field do
     case @strict_mode do
-      true -> "add :set_by, :string, size: 50, null: false, default: 'unknown'"
+      true -> "add :set_by, :string, size: 50, null: false, default: \"unknown\""
       _ -> "add :set_by, :string, size: 50"
     end
   end
