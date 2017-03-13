@@ -131,9 +131,7 @@ Your application is now ready to collect some history!
 
 YES! Make sure you do the steps.
 
-# Introduction of Strict mode
-This is a feature needed for larger applications where every change needs to have an owner reference. This mode adds the following behavior:
-
+## Version set_by references:
 1 - PaperTrail records get a required string field called ````set_by```. PaperTrail.insert/1, PaperTrail.update/1, PaperTrail.delete/1 functions accepts a second argument for the originator. Example:
 ```elixir
 PaperTrail.update(changeset, set_by: "migration")
@@ -142,15 +140,6 @@ PaperTrail.update(changeset, set_by: "user:1234")
 # or:
 PaperTrail.delete(changeset, set_by: "worker:delete_inactive_users")
 ```
-If the set_by field isn't provided set_by field will be "unknown" by default. Set_by column has a null constraint on strict_mode on purpose thus you should really put a set_by to reference who initiated this change in the database.
-
-2 - Strict mode expects tracked models to have foreign-key reference to their first_version and current_version. These columns should be named ```first_version_id```, and ```current_version_id``` in their respective model tables. Example migration:
-
-TODO: give here a migration example
-
-When you run PaperTrail.insert/1 transaction, insert_version_id and current_version_id gets assigned for the model. Example:
-
-When you update a model, current_version_id gets updated during the transaction. Example:
 
 ## Storing setter relationships
 You could specify setter relationship to `paper_trail` versions. This is doable by specifying `:setter` keyword list for your application:
@@ -160,7 +149,65 @@ You could specify setter relationship to `paper_trail` versions. This is doable 
   # For most application setter will be user, models can be updated/created/deleted by several users.
 ```
 
+# PaperTrail Strict mode
+This is a feature more suitable for larger applications where models keep their version references via foreign key constraints. Thus it would be impossible to delete the first and current version of a model. In order to enable this:
 
+```elixir
+# in your config/config.exs
+config :paper_trail, strict_mode: true
+```
+
+This mode adds the following behavior:
+
+1- Strict mode expects tracked models to have foreign-key reference to their first_version and current_version. These columns should be named ```first_version_id```, and ```current_version_id``` in their respective model tables. Example migration:
+
+```elixir
+# in the migration file:
+def change do
+  create table(:companies) do
+    add :name,       :string, null: false
+    add :founded_in, :string
+
+    add :first_version_id, references(:versions), null: false
+    add :current_version_id, references(:versions), null: false
+
+    timestamps()
+  end
+
+  create index(:companies, [:first_version_id])
+  create index(:companies, [:current_version_id])
+end
+
+# in the model definition:
+defmodule StrictCompany do
+  use Ecto.Schema
+  import Ecto.Changeset
+
+  schema "companies" do
+    field :name, :string
+    field :founded_in, :string
+
+    belongs_to :first_version, PaperTrail.Version
+    belongs_to :current_version, PaperTrail.Version, on_replace: :update
+
+    timestamps()
+  end
+end
+```
+
+2- If the version set_by field isn't provided with a value default set_by be "unknown". Set_by column has a null constraint on strict_mode on purpose, you should really put a set_by to reference who initiated this change in the database.
+
+When you run PaperTrail.insert/1 transaction, insert_version_id and current_version_id gets assigned for the model. Example:
+
+```elixir
+
+```
+
+When you update a model, current_version_id gets updated during the transaction. Example:
+
+```elixir
+
+```
 
 ## Storing version meta data
 Your versions don't need a model lifecycle callbacks like before_create or before_update for any extra meta data, all your meta data could be stored in one object and that object could be passed as the second optional parameter to PaperTrail.insert || PaperTrail.update || PaperTrail.delete :
