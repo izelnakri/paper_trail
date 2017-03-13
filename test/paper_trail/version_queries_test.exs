@@ -46,7 +46,7 @@ defmodule PaperTrailTest.VersionQueries do
       last_name: "Nakri",
       gender: true,
       company_id: company.id
-    }) |> PaperTrail.insert(%{originator: "admin"}) # add link name later on
+    }) |> PaperTrail.insert(set_by: "admin") # add link name later on
 
     another_company = @repo.one(
       from c in Company,
@@ -59,7 +59,7 @@ defmodule PaperTrailTest.VersionQueries do
       visit_count: 10,
       birthdate: ~D[1992-04-01],
       company_id: another_company.id
-    }) |> PaperTrail.update(%{originator: "user:1", linkname: "izelnakri"})
+    }) |> PaperTrail.update(set_by: "user:1", meta: %{linkname: "izelnakri"})
 
     :ok
   end

@@ -220,7 +220,9 @@ defmodule PaperTrailTest do
   end
 
   test "updating a person creates a person version with correct attributes" do
-    create_company_with_version(%{name: "Acme LLC", website: "http://www.acme.com"})
+    {:ok, initial_company_insertion} = create_company_with_version(%{
+      name: "Acme LLC", website: "http://www.acme.com"
+    })
     {:ok, target_company_insertion} = create_company_with_version(%{
       name: "Another Company Corp.", is_active: true, address: "Sesame street 100/3, 101010"
     })
@@ -234,6 +236,7 @@ defmodule PaperTrailTest do
       first_name: "Isaac",
       visit_count: 10,
       birthdate: ~D[1992-04-01],
+      company_id: initial_company_insertion[:model].id
     }) |> PaperTrail.update(set_by: "scraper", meta: %{linkname: "izelnakri"})
 
     person_count = Person.count()
@@ -246,7 +249,7 @@ defmodule PaperTrailTest do
     assert person_count == [1]
     assert version_count == [4]
     assert Map.drop(person, [:id, :inserted_at, :updated_at]) == %{
-      company_id: target_company_insertion[:model].id,
+      company_id: initial_company_insertion[:model].id,
       first_name: "Isaac",
       visit_count: 10,
       birthdate: elem(Ecto.Date.cast(~D[1992-04-01]), 1),
@@ -260,7 +263,8 @@ defmodule PaperTrailTest do
       item_changes: %{
         first_name: "Isaac",
         visit_count: 10,
-        birthdate: elem(Ecto.Date.cast(~D[1992-04-01]), 1)
+        birthdate: elem(Ecto.Date.cast(~D[1992-04-01]), 1),
+        company_id: initial_company_insertion[:model].id
       },
       set_by: "scraper",
       meta: %{
