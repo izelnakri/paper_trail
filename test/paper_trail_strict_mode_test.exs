@@ -8,6 +8,8 @@ defmodule PaperTrailStrictModeTest do
   alias StrictPerson, as: Person
 
   @repo PaperTrail.RepoClient.repo
+  @create_company_params %{name: "Acme LLC", is_active: true, city: "Greenwich"}
+  @update_company_params %{city: "Hong Kong", website: "http://www.acme.com", facebook: "acme.llc"}
 
   doctest PaperTrail
 
@@ -29,7 +31,8 @@ defmodule PaperTrailStrictModeTest do
   end
 
   test "creating a company creates a company version with correct attributes" do
-    {:ok, result} = create_company_with_version()
+    user = create_user()
+    {:ok, result} = create_company_with_version(@create_company_params, setter_id: user.id)
 
     company_count = Company.count()
     version_count = Version.count()
@@ -57,6 +60,7 @@ defmodule PaperTrailStrictModeTest do
       item_type: "StrictCompany",
       item_id: company.id,
       item_changes: company,
+      setter_id: user.id,
       set_by: nil,
       meta: nil
     }
@@ -71,8 +75,11 @@ defmodule PaperTrailStrictModeTest do
   end
 
   test "updating a company creates a company version with correct item_changes" do
+    user = create_user()
     {:ok, insert_company_result} = create_company_with_version()
-    {:ok, result} = update_company_with_version(insert_company_result[:model])
+    {:ok, result} = update_company_with_version(
+      insert_company_result[:model], @update_company_params, setter_id: user.id
+    )
 
     company_count = Company.count()
     version_count = Version.count()
@@ -105,6 +112,7 @@ defmodule PaperTrailStrictModeTest do
         facebook: "acme.llc",
         current_version_id: version.id
       },
+      setter_id: user.id,
       set_by: nil,
       meta: nil
     }
@@ -125,10 +133,11 @@ defmodule PaperTrailStrictModeTest do
   end
 
   test "deleting a company creates a company version with correct attributes" do
+    user = create_user()
     {:ok, insert_company_result} = create_company_with_version()
     {:ok, update_company_result} = update_company_with_version(insert_company_result[:model])
     company_before_deletion = first(Company, :id) |> @repo.one |> serialize
-    {:ok, result} = PaperTrail.delete(update_company_result[:model])
+    {:ok, result} = PaperTrail.delete(update_company_result[:model], setter_id: user.id)
 
     company_count = Company.count()
     version_count = Version.count()
@@ -170,6 +179,7 @@ defmodule PaperTrailStrictModeTest do
         first_version_id: insert_company_result[:version].id,
         current_version_id: update_company_result[:version].id
       },
+      setter_id: user.id,
       set_by: nil,
       meta: nil
     }
@@ -202,7 +212,7 @@ defmodule PaperTrailStrictModeTest do
       last_name: "Nakri",
       gender: true,
       company_id: insert_company_result[:model].id
-    }) |> PaperTrail.insert(set_by: "admin")
+    }) |> PaperTrail.insert(set_by: "admin", meta: %{linkname: "izelnakri"})
 
     person_count = Person.count()
     version_count = Version.count()
@@ -228,8 +238,9 @@ defmodule PaperTrailStrictModeTest do
       item_type: "StrictPerson",
       item_id: person.id,
       item_changes: person,
+      setter_id: nil,
       set_by: "admin",
-      meta: nil
+      meta: %{linkname: "izelnakri"}
     }
     assert person == first(Person, :id) |> @repo.one |> serialize
   end
@@ -284,10 +295,9 @@ defmodule PaperTrailStrictModeTest do
         current_version_id: version.id,
         company_id: insert_company_result[:model].id
       },
+      setter_id: nil,
       set_by: "scraper",
-      meta: %{
-        linkname: "izelnakri"
-      }
+      meta: %{linkname: "izelnakri"}
     }
     assert person == first(Person, :id) |> @repo.one |> serialize
   end
@@ -309,7 +319,9 @@ defmodule PaperTrailStrictModeTest do
       birthdate: ~D[1992-04-01]
     }) |> PaperTrail.update(set_by: "scraper", meta: %{linkname: "izelnakri"})
     person_before_deletion = first(Person, :id) |> @repo.one |> serialize
-    {:ok, result} = PaperTrail.delete(update_person_result[:model])
+    {:ok, result} = PaperTrail.delete(
+      update_person_result[:model], set_by: "admin", meta: %{linkname: "izelnakri"}
+    )
 
     person_count = Person.count()
     version_count = Version.count()
@@ -337,21 +349,22 @@ defmodule PaperTrailStrictModeTest do
         first_version_id: insert_person_result[:version].id,
         current_version_id: update_person_result[:version].id
       },
-      set_by: nil,
-      meta: nil
+      setter_id: nil,
+      set_by: "admin",
+      meta: %{linkname: "izelnakri"}
     }
     assert old_person == person_before_deletion
   end
 
-  defp create_company_with_version(params \\ %{
-    name: "Acme LLC", is_active: true, city: "Greenwich"
-  }, options \\ nil) do
+  defp create_user do
+    User.changeset(%User{}, %{token: "fake-token", username: "izelnakri"}) |> @repo.insert!
+  end
+
+  defp create_company_with_version(params \\ @create_company_params, options \\ nil) do
     Company.changeset(%Company{}, params) |> PaperTrail.insert(options)
   end
 
-  defp update_company_with_version(company, params \\ %{
-    city: "Hong Kong", website: "http://www.acme.com", facebook: "acme.llc"
-  }, options \\ nil) do
+  defp update_company_with_version(company, params \\ @update_company_params , options \\ nil) do
     Company.changeset(company, params) |> PaperTrail.update(options)
   end
 

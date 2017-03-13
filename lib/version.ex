@@ -4,7 +4,7 @@ defmodule PaperTrail.Version do
   import Ecto.Changeset
   import Ecto.Query
 
-  @setter PaperTrail.OriginatorClient.setter
+  @setter PaperTrail.RepoClient.setter
 
   schema "versions" do
     field :event, :string
@@ -16,7 +16,7 @@ defmodule PaperTrail.Version do
     field :setter_id, :integer
 
     if @setter do
-      belongs_to @setter[:name], @setter[:model], foreign_key: :originator_id, define_field: false
+      belongs_to @setter[:name], @setter[:model], define_field: false, foreign_key: :originator_id
     end
 
     timestamps(updated_at: false)

@@ -22,7 +22,7 @@ defmodule Mix.Tasks.Papertrail.Install do
           add :item_type,    :string, null: false
           add :item_id,      :integer
           add :item_changes, :map, null: false
-          add :setter_id, :integer
+          add :setter_id, references(:users) # you can change :users to your own foreign key constraint
           #{set_by_field()}
           add :meta,         :map
 
@@ -41,7 +41,7 @@ defmodule Mix.Tasks.Papertrail.Install do
 
   defp set_by_field do
     case @strict_mode do
-      true -> "add :set_by, :string, size: 50, null: false, default: 'unknown'"
+      true -> "add :set_by, :string, size: 50, null: false, default: \"unknown\""
       _ -> "add :set_by, :string, size: 50"
     end
   end

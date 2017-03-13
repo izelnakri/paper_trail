@@ -8,6 +8,8 @@ defmodule PaperTrailTest do
   alias SimplePerson, as: Person
 
   @repo PaperTrail.RepoClient.repo
+  @create_company_params %{name: "Acme LLC", is_active: true, city: "Greenwich"}
+  @update_company_params %{city: "Hong Kong", website: "http://www.acme.com", facebook: "acme.llc"}
 
   doctest PaperTrail
 
@@ -29,7 +31,8 @@ defmodule PaperTrailTest do
   end
 
   test "creating a company creates a company version with correct attributes" do
-    {:ok, result} = create_company_with_version()
+    user = create_user()
+    {:ok, result} = create_company_with_version(@create_company_params, setter_id: user.id)
 
     company_count = Company.count()
     version_count = Version.count()
@@ -55,6 +58,7 @@ defmodule PaperTrailTest do
       item_type: "SimpleCompany",
       item_id: company.id,
       item_changes: company,
+      setter_id: user.id,
       set_by: nil,
       meta: nil
     }
@@ -69,8 +73,11 @@ defmodule PaperTrailTest do
   end
 
   test "updating a company creates a company version with correct item_changes" do
+    user = create_user()
     {:ok, insert_result} = create_company_with_version()
-    {:ok, result} = update_company_with_version(insert_result[:model])
+    {:ok, result} = update_company_with_version(
+      insert_result[:model], @update_company_params, setter_id: user.id
+    )
 
     company_count = Company.count()
     version_count = Version.count()
@@ -96,6 +103,7 @@ defmodule PaperTrailTest do
       item_type: "SimpleCompany",
       item_id: company.id,
       item_changes: %{city: "Hong Kong", website: "http://www.acme.com", facebook: "acme.llc"},
+      setter_id: user.id,
       set_by: nil,
       meta: nil
     }
@@ -116,10 +124,11 @@ defmodule PaperTrailTest do
   end
 
   test "deleting a company creates a company version with correct attributes" do
+    user = create_user()
     {:ok, insert_result} = create_company_with_version()
     {:ok, update_result} = update_company_with_version(insert_result[:model])
     company_before_deletion = first(Company, :id) |> @repo.one |> serialize
-    {:ok, result} = PaperTrail.delete(update_result[:model])
+    {:ok, result} = PaperTrail.delete(update_result[:model], setter_id: user.id)
 
     company_count = Company.count()
     version_count = Version.count()
@@ -157,6 +166,7 @@ defmodule PaperTrailTest do
         twitter: nil,
         founded_in: nil
       },
+      setter_id: user.id,
       set_by: nil,
       meta: nil
     }
@@ -189,7 +199,7 @@ defmodule PaperTrailTest do
       last_name: "Nakri",
       gender: true,
       company_id: new_company_result[:model].id
-    }) |> PaperTrail.insert(set_by: "admin")
+    }) |> PaperTrail.insert(set_by: "admin", meta: %{linkname: "izelnakri"})
 
     person_count = Person.count()
     version_count = Version.count()
@@ -213,8 +223,9 @@ defmodule PaperTrailTest do
       item_type: "SimplePerson",
       item_id: person.id,
       item_changes: person,
+      setter_id: nil,
       set_by: "admin",
-      meta: nil
+      meta: %{linkname: "izelnakri"}
     }
     assert person == first(Person, :id) |> @repo.one |> serialize
   end
@@ -266,10 +277,9 @@ defmodule PaperTrailTest do
         birthdate: elem(Ecto.Date.cast(~D[1992-04-01]), 1),
         company_id: initial_company_insertion[:model].id
       },
+      setter_id: nil,
       set_by: "scraper",
-      meta: %{
-        linkname: "izelnakri"
-      }
+      meta: %{linkname: "izelnakri"}
     }
     assert person == first(Person, :id) |> @repo.one |> serialize
   end
@@ -292,7 +302,9 @@ defmodule PaperTrailTest do
       company_id: target_company_insertion[:model].id
     }) |> PaperTrail.update(set_by: "scraper", meta: %{linkname: "izelnakri"})
     person_before_deletion = first(Person, :id) |> @repo.one |> serialize
-    {:ok, result} = PaperTrail.delete(update_result[:model])
+    {:ok, result} = PaperTrail.delete(
+      update_result[:model], set_by: "admin", meta: %{linkname: "izelnakri"}
+    )
 
     person_count = Person.count()
     version_count = Version.count()
@@ -318,21 +330,22 @@ defmodule PaperTrailTest do
         birthdate: elem(Ecto.Date.cast(~D[1992-04-01]), 1),
         company_id: target_company_insertion[:model].id
       },
-      set_by: nil,
-      meta: nil
+      setter_id: nil,
+      set_by: "admin",
+      meta: %{linkname: "izelnakri"}
     }
     assert old_person == person_before_deletion
   end
 
-  defp create_company_with_version(params \\ %{
-    name: "Acme LLC", is_active: true, city: "Greenwich"
-  }, options \\ nil) do
+  defp create_user do
+    User.changeset(%User{}, %{token: "fake-token", username: "izelnakri"}) |> @repo.insert!
+  end
+
+  defp create_company_with_version(params \\ @create_company_params, options \\ nil) do
     Company.changeset(%Company{}, params) |> PaperTrail.insert(options)
   end
 
-  defp update_company_with_version(company, params \\ %{
-    city: "Hong Kong", website: "http://www.acme.com", facebook: "acme.llc"
-  }, options \\ nil) do
+  defp update_company_with_version(company, params \\ @update_company_params, options \\ nil) do
     Company.changeset(company, params) |> PaperTrail.update(options)
   end
 
