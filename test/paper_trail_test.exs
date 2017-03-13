@@ -1,4 +1,4 @@
-# TODO: person / company_id tests
+# TODO: test error messages, db sourcing
 defmodule PaperTrailTest do
   use ExUnit.Case
 
@@ -28,19 +28,19 @@ defmodule PaperTrailTest do
     end
     :ok
   end
-  
+
   test "creating a company creates a company version with correct attributes" do
     {:ok, result} = create_company_with_version()
 
     company_count = Company.count()
     version_count = Version.count()
 
-    company = result[:model] |> serialize |> Map.drop([:inserted_at, :updated_at, :id])
-    version = result[:version] |> serialize |> Map.drop([:inserted_at])
+    company = result[:model] |> serialize
+    version = result[:version] |> serialize
 
     assert company_count == [1]
     assert version_count == [1]
-    assert company == %{
+    assert Map.drop(company, [:id, :inserted_at, :updated_at]) == %{
       name: "Acme LLC",
       is_active: true,
       city: "Greenwich",
@@ -50,30 +50,29 @@ defmodule PaperTrailTest do
       twitter: nil,
       founded_in: nil
     }
-    assert Map.drop(version, [:id]) == %{
+    assert Map.drop(version, [:id, :inserted_at]) == %{
       event: "insert",
       item_type: "SimpleCompany",
-      item_id: @repo.one(first(Company, :id)).id,
-      item_changes: serialize(result[:model]),
+      item_id: company.id,
+      item_changes: company,
       sourced_by: nil,
       meta: nil
     }
   end
 
   test "updating a company creates a company version with correct item_changes" do
-    create_company_with_version()
-    old_company = first(Company, :id) |> @repo.one
-    {:ok, result} = update_company_with_version(old_company)
+    {:ok, insert_result} = create_company_with_version()
+    {:ok, result} = update_company_with_version(insert_result[:model])
 
     company_count = Company.count()
     version_count = Version.count()
 
-    company = result[:model] |> serialize |> Map.drop([:inserted_at, :updated_at, :id])
-    version = result[:version] |> serialize |> Map.drop([:inserted_at])
+    company = result[:model] |> serialize
+    version = result[:version] |> serialize
 
     assert company_count == [1]
     assert version_count == [2]
-    assert company == %{
+    assert Map.drop(company, [:id, :inserted_at, :updated_at]) == %{
       name: "Acme LLC",
       is_active: true,
       city: "Hong Kong",
@@ -83,10 +82,10 @@ defmodule PaperTrailTest do
       twitter: nil,
       founded_in: nil
     }
-    assert Map.drop(version, [:id]) == %{
+    assert Map.drop(version, [:id, :inserted_at]) == %{
       event: "update",
       item_type: "SimpleCompany",
-      item_id: @repo.one(first(Company, :id)).id,
+      item_id: company.id,
       item_changes: %{city: "Hong Kong", website: "http://www.acme.com", facebook: "acme.llc"},
       sourced_by: nil,
       meta: nil
@@ -94,23 +93,19 @@ defmodule PaperTrailTest do
   end
 
   test "deleting a company creates a company version with correct attributes" do
-    create_company_with_version()
-    old_company = first(Company, :id) |> @repo.one
-    update_company_with_version(old_company)
-    company = first(Company, :id) |> @repo.one
-
-    {:ok, result} = PaperTrail.delete(company)
+    {:ok, insert_result} = create_company_with_version()
+    {:ok, update_result} = update_company_with_version(insert_result[:model])
+    {:ok, result} = PaperTrail.delete(update_result[:model])
 
     company_count = Company.count()
     version_count = Version.count()
 
-    company_ref = result[:model] |> serialize |> Map.drop([:inserted_at, :updated_at, :id])
-    version = result[:version] |> serialize |> Map.drop([:inserted_at])
+    company = result[:model] |> serialize
+    version = result[:version] |> serialize
 
     assert company_count == [0]
     assert version_count == [3]
-
-    assert company_ref == %{
+    assert Map.drop(company, [:id, :inserted_at, :updated_at]) == %{
       name: "Acme LLC",
       is_active: true,
       city: "Hong Kong",
@@ -120,8 +115,7 @@ defmodule PaperTrailTest do
       twitter: nil,
       founded_in: nil
     }
-
-    assert Map.drop(version, [:id]) == %{
+    assert Map.drop(version, [:id, :inserted_at]) == %{
       event: "delete",
       item_type: "SimpleCompany",
       item_id: company.id,
@@ -144,48 +138,40 @@ defmodule PaperTrailTest do
   end
 
   test "creating a person with meta tag creates a person version with correct attributes" do
-    Company.changeset(%Company{}, %{
-      name: "Acme LLC",
-      website: "http://www.acme.com"
-    }) |> PaperTrail.insert
-
-    Company.changeset(%Company{}, %{
+    create_company_with_version()
+    {:ok, new_company_result} = Company.changeset(%Company{}, %{
       name: "Another Company Corp.",
       is_active: true,
       address: "Sesame street 100/3, 101010"
     }) |> PaperTrail.insert
-
-    company = first(Company, :id) |> @repo.one
-    new_person = Person.changeset(%Person{}, %{
+    {:ok, result} = Person.changeset(%Person{}, %{
       first_name: "Izel",
       last_name: "Nakri",
       gender: true,
-      company_id: company.id
-    })
-    {:ok, result} = PaperTrail.insert(new_person, sourced_by: "admin") # add link name later on
+      company_id: new_company_result[:model].id
+    }) |> PaperTrail.insert(sourced_by: "admin")
 
     person_count = Person.count()
     version_count = Version.count()
 
-    person = result[:model] |> Map.drop([:__meta__, :__struct__, :inserted_at, :updated_at, :id])
-    version = result[:version] |> Map.drop([:__meta__, :__struct__, :inserted_at])
+    person = result[:model] |> serialize
+    version = result[:version] |> serialize
 
     assert person_count == [1]
     assert version_count == [3]
-
-    assert Map.drop(person, [:company]) == %{
+    assert  Map.drop(person, [:inserted_at, :updated_at, :id]) == %{
       first_name: "Izel",
       last_name: "Nakri",
       gender: true,
       visit_count: nil,
       birthdate: nil,
-      company_id: company.id
+      company_id: new_company_result[:model].id
     }
-    assert Map.drop(version, [:id]) == %{
+    assert Map.drop(version, [:id, :inserted_at]) == %{
       event: "insert",
       item_type: "SimplePerson",
-      item_id: @repo.one(first(Person, :id)).id,
-      item_changes: serialize(result[:model]),
+      item_id: person.id,
+      item_changes: person,
       sourced_by: "admin",
       meta: nil
     }
@@ -193,47 +179,42 @@ defmodule PaperTrailTest do
 
   test "updating a person creates a person version with correct attributes" do
     create_company_with_version(%{name: "Acme LLC", website: "http://www.acme.com"})
-
     {:ok, target_company_insertion} = create_company_with_version(%{
       name: "Another Company Corp.", is_active: true, address: "Sesame street 100/3, 101010"
     })
-    {:ok, insert_result} = Person.changeset(%Person{}, %{
+    {:ok, insert_person_result} = Person.changeset(%Person{}, %{
       first_name: "Izel",
       last_name: "Nakri",
       gender: true,
       company_id: target_company_insertion[:model].id
     }) |> PaperTrail.insert(sourced_by: "admin")
-
-    old_person = insert_result[:model]
-    target_company = @repo.get_by(Company, name: "Another Company Corp.")
-
-    {:ok, result} = Person.changeset(old_person, %{
+    {:ok, result} = Person.changeset(insert_person_result[:model], %{
       first_name: "Isaac",
       visit_count: 10,
       birthdate: ~D[1992-04-01],
-      company_id: target_company.id
+      # company_id: target_company_insertion[:model].id
     }) |> PaperTrail.update(sourced_by: "scraper", meta: %{linkname: "izelnakri"})
 
     person_count = Person.count()
     version_count = Version.count()
 
-    person = result[:model] |> serialize |> Map.drop([:inserted_at, :updated_at, :id])
-    version = result[:version] |> serialize |> Map.drop([:inserted_at])
+    person = result[:model] |> serialize
+    version = result[:version] |> serialize
 
     assert person_count == [1]
     assert version_count == [4]
-    assert person == %{
-      company_id: target_company.id,
+    assert Map.drop(person, [:id, :inserted_at, :updated_at]) == %{
+      company_id: target_company_insertion[:model].id,
       first_name: "Isaac",
       visit_count: 10,
-      birthdate: elem(Ecto.Date.cast(~D[1992-04-01]), 1), #  this is the only problem
+      birthdate: elem(Ecto.Date.cast(~D[1992-04-01]), 1),
       last_name: "Nakri",
       gender: true
     }
-    assert Map.drop(version, [:id]) == %{
+    assert Map.drop(version, [:id, :inserted_at]) == %{
       event: "update",
       item_type: "SimplePerson",
-      item_id: old_person.id,
+      item_id: person.id,
       item_changes: %{
         first_name: "Isaac",
         visit_count: 10,
@@ -248,51 +229,45 @@ defmodule PaperTrailTest do
 
   test "deleting a person creates a person version with correct attributes" do
     create_company_with_version(%{name: "Acme LLC", website: "http://www.acme.com"})
-
     {:ok, target_company_insertion} = create_company_with_version(%{
       name: "Another Company Corp.", is_active: true, address: "Sesame street 100/3, 101010"
     })
-
-    {:ok, insert_result} = Person.changeset(%Person{}, %{
+    {:ok, insert_person_result} = Person.changeset(%Person{}, %{
       first_name: "Izel",
       last_name: "Nakri",
       gender: true,
       company_id: target_company_insertion[:model].id
     }) |> PaperTrail.insert(sourced_by: "admin") # add link name later on
-
-    old_person = insert_result[:model]
-    {:ok, update_result} = Person.changeset(old_person, %{
+    {:ok, update_result} = Person.changeset(insert_person_result[:model], %{
       first_name: "Isaac",
       visit_count: 10,
       birthdate: ~D[1992-04-01],
       company_id: target_company_insertion[:model].id
     }) |> PaperTrail.update(sourced_by: "scraper", meta: %{linkname: "izelnakri"})
-
-    person = first(Person, :id) |> preload(:company) |> @repo.one
-    {:ok, result} = PaperTrail.delete(person)
+    {:ok, result} = PaperTrail.delete(update_result[:model])
 
     person_count = Person.count()
     version_count = Version.count()
 
-    version = result[:version] |> serialize |> Map.drop([:inserted_at])
+    old_person = update_result[:model]
+    version = result[:version] |> serialize
 
     assert person_count == [0]
     assert version_count == [5]
-
-    assert Map.drop(version, [:id]) == %{
+    assert Map.drop(version, [:id, :inserted_at]) == %{
       event: "delete",
       item_type: "SimplePerson",
-      item_id: person.id,
+      item_id: old_person.id,
       item_changes: %{
-        id: person.id,
-        inserted_at: person.inserted_at,
-        updated_at: person.updated_at,
+        id: old_person.id,
+        inserted_at: old_person.inserted_at,
+        updated_at: old_person.updated_at,
         first_name: "Isaac",
         last_name: "Nakri",
         gender: true,
         visit_count: 10,
         birthdate: elem(Ecto.Date.cast(~D[1992-04-01]), 1),
-        company_id: person.company.id
+        company_id: target_company_insertion[:model].id
       },
       sourced_by: nil,
       meta: nil

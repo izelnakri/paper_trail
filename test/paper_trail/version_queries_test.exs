@@ -15,10 +15,10 @@ defmodule PaperTrailTest.VersionQueries do
     @repo.delete_all(Version)
 
     Company.changeset(%Company{}, %{
-      name: "Acme LLC", is_active: true, city: "Greenwich", people: []
+      name: "Acme LLC", is_active: true, city: "Greenwich"
     }) |> PaperTrail.insert
 
-    old_company = first(Company, :id) |> preload(:people) |> @repo.one
+    old_company = first(Company, :id) |> @repo.one
 
     Company.changeset(old_company, %{
       city: "Hong Kong",
@@ -26,7 +26,7 @@ defmodule PaperTrailTest.VersionQueries do
       facebook: "acme.llc"
     }) |> PaperTrail.update
 
-    first(Company, :id) |> preload(:people) |> @repo.one |> PaperTrail.delete
+    first(Company, :id) |> @repo.one |> PaperTrail.delete
 
     Company.changeset(%Company{}, %{
       name: "Acme LLC",
@@ -59,7 +59,7 @@ defmodule PaperTrailTest.VersionQueries do
       visit_count: 10,
       birthdate: ~D[1992-04-01],
       company_id: another_company.id
-    }) |> PaperTrail.update(%{ originator: "user:1", linkname: "izelnakri" })
+    }) |> PaperTrail.update(%{originator: "user:1", linkname: "izelnakri"})
 
     :ok
   end
@@ -90,5 +90,4 @@ defmodule PaperTrailTest.VersionQueries do
     assert PaperTrail.get_current(first_version) == person
   end
   # query meta data!!
-
 end
