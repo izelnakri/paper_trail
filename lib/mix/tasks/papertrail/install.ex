@@ -1,5 +1,6 @@
 defmodule Mix.Tasks.Papertrail.Install do
   @shortdoc "generates paper_trail migration file for your database"
+  @strict_mode PaperTrail.RepoClient.strict_mode()
 
   import Macro, only: [underscore: 1]
   import Mix.Generator
@@ -17,20 +18,32 @@ defmodule Mix.Tasks.Papertrail.Install do
 
       def change do
         create table(:versions) do
-          add :event,        :string
-          add :item_type,    :string
+          add :event,        :string, null: false
+          add :item_type,    :string, null: false
           add :item_id,      :integer
-          add :item_changes, :map
+          add :item_changes, :map, null: false
+          add :setter_id, references(:users) # you can change :users to your own foreign key constraint
+          #{set_by_field()}
           add :meta,         :map
 
           add :inserted_at,  :utc_datetime, null: false
         end
 
+        create index(:versions, [:setter_id])
+        create index(:versions, [:item_id, :item_type])
         # Uncomment if you want to add the following indexes to speed up special queries:
-        # create index(:versions, [:event, :item_id, :item_type])
+        # create index(:versions, [:event, :item_type])
+        # create index(:versions, [:item_type, :inserted_at])
       end
     end
     """
+  end
+
+  defp set_by_field do
+    case @strict_mode do
+      true -> "add :set_by, :string, size: 50, null: false, default: \"unknown\""
+      _ -> "add :set_by, :string, size: 50"
+    end
   end
 
   defp timestamp do

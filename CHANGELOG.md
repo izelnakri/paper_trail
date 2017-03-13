@@ -1,0 +1,2 @@
+- Version event names now match their Ecto counterparts. Version event names are now 'insert', 'update', 'delete' instead of 'create', 'update', 'destroy'.
+- Introduction of strict mode. Please read the documentation for more information on the required set_by field and foreign-key references.

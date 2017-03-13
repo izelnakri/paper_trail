@@ -2,7 +2,9 @@
 
 # How does it work?
 
-PaperTrail lets you record every change in your database in a seperate database table called ```versions```. Library generates a new version record with associated data every time you run ```PaperTrail.insert/1```, ```PaperTrail.update/1``` or ```PaperTrail.delete/1``` functions. Simply these functions wrap your Repo insert, update or destroy actions in a database transaction, so if your database action fails you won't get a new version.
+PaperTrail lets you record every change in your database in a separate database table called ```versions```. Library generates a new version record with associated data every time you run ```PaperTrail.insert/1```, ```PaperTrail.update/1``` or ```PaperTrail.delete/1``` functions. Simply these functions wrap your Repo insert, update or destroy actions in a database transaction, so if your database action fails you won't get a new version.
+
+PaperTrail is assailed with tests for each release. Data integrity is an important purpose of this project, please refer to the strict_mode if you want to ensure data correctness and integrity of your versions. For simpler use cases the default mode of PaperTrail should suffice.
 
 ## Example
 
@@ -20,15 +22,14 @@ PaperTrail lets you record every change in your database in a seperate database 
   #     content: "You should try it now!", id: 1, inserted_at: #Ecto.DateTime<2016-09-15 21:42:38>,
   #     updated_at: #Ecto.DateTime<2016-09-15 21:42:38>},
   #    version: %PaperTrail.Version{__meta__: #Ecto.Schema.Metadata<:loaded, "versions">,
-  #     event: "create", id: 1, inserted_at: #Ecto.DateTime<2016-09-15 21:42:38>,
+  #     event: "insert", id: 1, inserted_at: #Ecto.DateTime<2016-09-15 21:42:38>,
   #     item_changes: %{title: "Word on the street is Elixir got its own database versioning library",
   #       content: "You should try it now!", id: 1, inserted_at: #Ecto.DateTime<2016-09-15 21:42:38>,
   #       updated_at: #Ecto.DateTime<2016-09-15 21:42:38>},
   #     item_id: 1, item_type: "Post", meta: nil}}}
 
-  # => on error:
-  # {:error, :model,
-  #  Ecto.Changeset<action: :insert,
+  # => on error(it matches Repo.insert\2):
+  # {:error, Ecto.Changeset<action: :insert,
   #  changes: %{title: "Word on the street is Elixir got its own database versioning library", content: "You should try it now!"},
   #  errors: [content: {"is too short", []}], data: #Post<>,
   #  valid?: false>, %{}}
@@ -52,9 +53,8 @@ PaperTrail lets you record every change in your database in a seperate database 
   #     item_id: 1, item_type: "Post",
   #     meta: nil}}}
 
-  # => on error:
-  # {:error, :model,
-  #  Ecto.Changeset<action: :update,
+  # => on error(it matches Repo.update\2):
+  # {:error, Ecto.Changeset<action: :update,
   #  changes: %{title: "Elixir matures fast", content: "Future is already here, you deserve to be awesome!"},
   #  errors: [title: {"is too short", []}], data: #Post<>,
   #  valid?: false>, %{}}
@@ -75,7 +75,7 @@ PaperTrail lets you record every change in your database in a seperate database 
   #     id: 1, inserted_at: #Ecto.DateTime<2016-09-15 21:42:38>,
   #     updated_at: #Ecto.DateTime<2016-09-15 22:00:59>},
   #    version: %PaperTrail.Version{__meta__: #Ecto.Schema.Metadata<:loaded, "versions">,
-  #     event: "destroy", id: 3, inserted_at: #Ecto.DateTime<2016-09-15 22:22:12>,
+  #     event: "delete", id: 3, inserted_at: #Ecto.DateTime<2016-09-15 22:22:12>,
   #     item_changes: %{title: "Elixir matures fast", content: "Future is already here, you deserve to be awesome!",
   #       id: 1, inserted_at: #Ecto.DateTime<2016-09-15 21:42:38>,
   #       updated_at: #Ecto.DateTime<2016-09-15 22:00:59>},
@@ -86,7 +86,7 @@ PaperTrail lets you record every change in your database in a seperate database 
 
   last(PaperTrail.Version, :id) |> Repo.one
   #  %PaperTrail.Version{__meta__: #Ecto.Schema.Metadata<:loaded, "versions">,
-  #   event: "destroy", id: 3, inserted_at: #Ecto.DateTime<2016-09-15 22:22:12>,
+  #   event: "delete", id: 3, inserted_at: #Ecto.DateTime<2016-09-15 22:22:12>,
   #   item_changes: %{"title" => "Elixir matures fast", content: "Future is already here, you deserve to be awesome!", "id" => 1,
   #     "inserted_at" => "2016-09-15T21:42:38",
   #     "updated_at" => "2016-09-15T22:00:59"},
@@ -95,7 +95,7 @@ PaperTrail lets you record every change in your database in a seperate database 
 
 PaperTrail is inspired by the ruby gem ```paper_trail```. However, unlike the ```paper_trail``` gem this library actually results in less data duplication, faster and more explicit programming model to version your record changes.
 
-The library source code is minimal and tested. It is highly suggested that you check it out, it isn't rocket science.
+The library source code is minimal and tested. It is highly suggested that you check it out.
 
 ## Installation
 
@@ -121,10 +121,6 @@ The library source code is minimal and tested. It is highly suggested that you c
 
   ```mix papertrail.install```
 
-  5. If you do not wish to use `:utc_datetime` for storing your timestamps, change the migration to `:naive_datetime`.
-     This was changed in Ecto 2.1, see the [CHANGELOG.md](https://github.com/elixir-ecto/ecto/blob/v2.1/CHANGELOG.md) for
-     more details.
-
   5. run the migration:
 
   ```mix ecto.migrate```
@@ -135,17 +131,44 @@ Your application is now ready to collect some history!
 
 YES! Make sure you do the steps.
 
-TODO AREA:
+# Introduction of Strict mode
+This is a feature needed for larger applications where every change needs to have an owner reference. This mode adds the following behavior:
 
-** remove wrong Elixir compiler errors
+1 - PaperTrail records get a required string field called ````set_by```. PaperTrail.insert/1, PaperTrail.update/1, PaperTrail.delete/1 functions accepts a second argument for the originator. Example:
+```elixir
+PaperTrail.update(changeset, set_by: "migration")
+# or:
+PaperTrail.update(changeset, set_by: "user:1234")
+# or:
+PaperTrail.delete(changeset, set_by: "worker:delete_inactive_users")
+```
+If the set_by field isn't provided set_by field will be "unknown" by default. Set_by column has a null constraint on strict_mode on purpose thus you should really put a set_by to reference who initiated this change in the database.
 
-** explain the columns
+2 - Strict mode expects tracked models to have foreign-key reference to their first_version and current_version. These columns should be named ```first_version_id```, and ```current_version_id``` in their respective model tables. Example migration:
+
+TODO: give here a migration example
+
+When you run PaperTrail.insert/1 transaction, insert_version_id and current_version_id gets assigned for the model. Example:
+
+When you update a model, current_version_id gets updated during the transaction. Example:
+
+## Storing setter relationships
+You could specify setter relationship to `paper_trail` versions. This is doable by specifying `:setter` keyword list for your application:
+
+```elixir
+  config :paper_trail, setter: [name: :user, model: YourApp.User]
+  # For most application setter will be user, models can be updated/created/deleted by several users.
+```
+
+
 
 ## Storing version meta data
-
-Your versions don't need a model lifecycle callbacks like before_create or before_update for any extra meta data, all your meta data could be stored in one object and that object could be passed as the second optional parameter to PaperTrail.insert || PaperTrail.update || PaperTrail.delete
+Your versions don't need a model lifecycle callbacks like before_create or before_update for any extra meta data, all your meta data could be stored in one object and that object could be passed as the second optional parameter to PaperTrail.insert || PaperTrail.update || PaperTrail.delete :
 
 ## Suggestions
-
 - PaperTrail.Version(s) order matter,
 - don't delete your paper_trail versions, instead you can merge them
+
+## TODO
+** remove wrong Elixir compiler errors
+** explain the columns

@@ -1,6 +1,10 @@
 defmodule PaperTrailTest.VersionQueries do
   use ExUnit.Case
+
   alias PaperTrail.Version
+  alias SimpleCompany, as: Company
+  alias SimplePerson, as: Person
+
   import Ecto.Query
 
   @repo PaperTrail.RepoClient.repo
@@ -8,13 +12,13 @@ defmodule PaperTrailTest.VersionQueries do
   setup_all do
     @repo.delete_all(Person)
     @repo.delete_all(Company)
-    @repo.delete_all(PaperTrail.Version)
+    @repo.delete_all(Version)
 
     Company.changeset(%Company{}, %{
-      name: "Acme LLC", is_active: true, city: "Greenwich", people: []
+      name: "Acme LLC", is_active: true, city: "Greenwich"
     }) |> PaperTrail.insert
 
-    old_company = first(Company, :id) |> preload(:people) |> @repo.one
+    old_company = first(Company, :id) |> @repo.one
 
     Company.changeset(old_company, %{
       city: "Hong Kong",
@@ -22,7 +26,7 @@ defmodule PaperTrailTest.VersionQueries do
       facebook: "acme.llc"
     }) |> PaperTrail.update
 
-    first(Company, :id) |> preload(:people) |> @repo.one |> PaperTrail.delete
+    first(Company, :id) |> @repo.one |> PaperTrail.delete
 
     Company.changeset(%Company{}, %{
       name: "Acme LLC",
@@ -42,7 +46,7 @@ defmodule PaperTrailTest.VersionQueries do
       last_name: "Nakri",
       gender: true,
       company_id: company.id
-    }) |> PaperTrail.insert(%{originator: "admin"}) # add link name later on
+    }) |> PaperTrail.insert(set_by: "admin") # add link name later on
 
     another_company = @repo.one(
       from c in Company,
@@ -55,7 +59,7 @@ defmodule PaperTrailTest.VersionQueries do
       visit_count: 10,
       birthdate: ~D[1992-04-01],
       company_id: another_company.id
-    }) |> PaperTrail.update(%{ originator: "user:1", linkname: "izelnakri" })
+    }) |> PaperTrail.update(set_by: "user:1", meta: %{linkname: "izelnakri"})
 
     :ok
   end
@@ -72,7 +76,7 @@ defmodule PaperTrailTest.VersionQueries do
     last_person = last(Person, :id) |> @repo.one
     target_versions = @repo.all(
       from version in Version,
-      where: version.item_type == "Person" and version.item_id == ^last_person.id
+      where: version.item_type == "SimplePerson" and version.item_id == ^last_person.id
     )
 
     assert PaperTrail.get_versions(last_person) == target_versions
@@ -81,10 +85,9 @@ defmodule PaperTrailTest.VersionQueries do
 
   test "get_current gives us the current record of a version" do
     person = first(Person, :id) |> @repo.one
-    first_version = Version |> where([v], v.item_type == "Person" and v.item_id == ^person.id) |> first |> @repo.one
+    first_version = Version |> where([v], v.item_type == "SimplePerson" and v.item_id == ^person.id) |> first |> @repo.one
 
     assert PaperTrail.get_current(first_version) == person
   end
   # query meta data!!
-
 end
