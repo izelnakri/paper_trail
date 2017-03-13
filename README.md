@@ -136,19 +136,21 @@ This is a feature needed for larger applications where every change needs to hav
 
 1 - PaperTrail records get a required string field called ````set_by```. PaperTrail.insert/1, PaperTrail.update/1, PaperTrail.delete/1 functions accepts a second argument for the originator. Example:
 ```elixir
-PaperTrail.update(changeset, "migration")
+PaperTrail.update(changeset, set_by: "migration")
 # or:
-PaperTrail.update(changeset, "user:1234")
+PaperTrail.update(changeset, set_by: "user:1234")
+# or:
+PaperTrail.delete(changeset, set_by: "worker:delete_inactive_users")
 ```
-If the set_by field isn't provided set_by field will be "unknown" by default.
+If the set_by field isn't provided set_by field will be "unknown" by default. Set_by column has a null constraint on strict_mode on purpose thus you should really put a set_by to reference who initiated this change in the database.
 
-2 - Strict mode expects tracked models to have foreign-key reference to their insert_version and current_version. These columns should be named ```insert_version_id```, and ```current_version_id``` in their respective model tables. Example migration:
+2 - Strict mode expects tracked models to have foreign-key reference to their first_version and current_version. These columns should be named ```first_version_id```, and ```current_version_id``` in their respective model tables. Example migration:
 
 TODO: give here a migration example
 
 When you run PaperTrail.insert/1 transaction, insert_version_id and current_version_id gets assigned for the model. Example:
 
-When you delete a model, current_version_id gets updated during the transaction. Example:
+When you update a model, current_version_id gets updated during the transaction. Example:
 
 ** remove wrong Elixir compiler errors
 
