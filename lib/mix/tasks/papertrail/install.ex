@@ -22,7 +22,7 @@ defmodule Mix.Tasks.Papertrail.Install do
           add :item_id,      :integer
           add :item_changes, :map, null: false
           add :originator_id, references(:users) # you can change :users to your own foreign key constraint
-          #{origin_by_field()}
+          add :origin,       :string, size: 50
           add :meta,         :map
 
           add :inserted_at,  :utc_datetime, null: false
@@ -36,13 +36,6 @@ defmodule Mix.Tasks.Papertrail.Install do
       end
     end
     """
-  end
-
-  defp origin_by_field do
-    case PaperTrail.RepoClient.strict_mode() do
-      true -> "add :origin, :string, size: 50, null: false, default: \"unknown\""
-      _ -> "add :origin, :string, size: 50"
-    end
   end
 
   defp timestamp do

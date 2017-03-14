@@ -4,7 +4,7 @@
 
 PaperTrail lets you record every change in your database in a separate database table called ```versions```. Library generates a new version record with associated data every time you run ```PaperTrail.insert/1```, ```PaperTrail.update/1``` or ```PaperTrail.delete/1``` functions. Simply these functions wrap your Repo insert, update or destroy actions in a database transaction, so if your database action fails you won't get a new version.
 
-PaperTrail is assailed with hundreds of test assertions for each release. Data integrity is an important purpose of this project, please refer to the strict_mode if you want to ensure data correctness and integrity of your versions. For simpler use cases the default mode of PaperTrail should suffice.
+PaperTrail is assailed with hundreds of test assertions for each release. Data integrity is an important aim of this project, please refer to the strict_mode if you want to ensure data correctness and integrity of your versions. For simpler use cases the default mode of PaperTrail should suffice.
 
 ## Example
 
@@ -201,8 +201,8 @@ defmodule Repo.Migrations.AddVersions do
       timestamps()
     end
 
-    create index(:companies, [:first_version_id])
-    create index(:companies, [:current_version_id])
+    create unique_index(:companies, [:first_version_id])
+    create unique_index(:companies, [:current_version_id])
   end
 end
 
@@ -256,7 +256,7 @@ edited_company = Company.changeset(company, %{name: "Acme Inc."}) |> PaperTrail.
 #      item_changes: %{name: "Acme Inc."}, originator_id: nil, origin: "documentation", meta: nil}}}
 ```
 
-If the version ```origin``` field isn't provided with a value, default ```origin``` will be "unknown". Origin column has a null constraint on strict_mode by design, you should put an ```origin``` reference to describe who makes the change. This is important for big applications because a model can change from many sources.
+Additionally, you can put a null constraint on ```origin``` column, you should always put an ```origin``` reference to describe who makes the change. This is important for big applications because a model can change from many sources.
 
 ### Storing version meta data
 You might want to add some meta data that doesn't belong to ``originator_id`` and ``origin`` fields. Such data could be stored in one object named ```meta``` in paper_trail versions. Meta field could be passed as the second optional parameter to PaperTrail.insert\\2, PaperTrail.update\\2, PaperTrail.delete\\2 functions:

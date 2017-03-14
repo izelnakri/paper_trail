@@ -29,6 +29,6 @@ defmodule PaperTrail.Version do
   end
 
   def count do
-    from(version in __MODULE__, select: count(version.id)) |> PaperTrail.RepoClient.repo.all
+    from(version in __MODULE__, select: count(version.id)) |> PaperTrail.RepoClient.repo.one
   end
 end
