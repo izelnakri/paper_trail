@@ -146,7 +146,7 @@ YES! Make sure you do the steps above.
 | inserted_at   | Date    | inserted_at timestamp       | Ecto generates |
 
 ### Version origin references:
-PaperTrail records have a string field called ````origin```. PaperTrail.insert/1, PaperTrail.update/1, PaperTrail.delete/1 functions accepts a second argument to describe the origin of this version. Example:
+PaperTrail records have a string field called ``origin```. ```PaperTrail.insert/1```, ```PaperTrail.update/1```, ```PaperTrail.delete/1``` functions accept a second argument to describe the origin of this version. Example:
 ```elixir
 PaperTrail.update(changeset, origin: "migration")
 # or:
@@ -156,7 +156,7 @@ PaperTrail.delete(changeset, origin: "worker:delete_inactive_users")
 ```
 
 ### Originator relationships
-You can specify setter/originator foreign key relationship to paper_trail versions. By default versions have a nil ```originator_id```. This is doable by specifying `:originator` keyword list for your application configuration:
+You can specify setter/originator relationship to paper_trail versions with ```originator_id``` assignment during PaperTrail operations. This feature is only possible by specifying `:originator` keyword list for your application configuration:
 
 ```elixir
   # in your config/config.exs
@@ -174,15 +174,17 @@ result[:version] |> Repo.preload(:user) |> Map.get(:user) # we can access the us
 PaperTrail.delete(edit_changeset, originator_id: user.id)
 ```
 
+Also make sure you have the foreign-key constraint in the database and in your version migration file.
+
 # Strict mode
-This is a feature more suitable for larger applications where models keep their version references via foreign key constraints. Thus it would be impossible to delete the first and current version of a model, makes querying easier more relational database/SQL friendly. In order to enable this:
+This is a feature more suitable for larger applications. Models can keep their version references via foreign key constraints. Therefore it would be impossible to delete the first and current version of a model, it also makes querying easier and the whole design more relational database/SQL friendly. In order to enable strict mode:
 
 ```elixir
 # in your config/config.exs
 config :paper_trail, strict_mode: true
 ```
 
-Strict mode expects tracked models to have foreign-key reference to their first_version and current_version. These columns should be named ```first_version_id```, and ```current_version_id``` in their respective model tables. A tracked model example with a migration file:
+Strict mode expects tracked models to have foreign-key reference to their first_version and current_version. These columns must be named ```first_version_id```, and ```current_version_id``` in their respective model tables. A tracked model example with a migration file:
 
 ```elixir
 # in the migration file: priv/repo/migrations/create_company.exs
@@ -215,8 +217,7 @@ defmodule Company do
     field :founded_in, :string
 
     belongs_to :first_version, PaperTrail.Version
-    belongs_to :current_version, PaperTrail.Version, on_replace: :update
-    # on_replace: :update is important!
+    belongs_to :current_version, PaperTrail.Version, on_replace: :update # on_replace: is important!
 
     timestamps()
   end
@@ -261,12 +262,15 @@ If the version ```origin``` field isn't provided with a value, default ```origin
 You might want to add some meta data that doesn't belong to ``originator_id`` and ``origin`` fields. Such data could be stored in one object named ```meta``` in paper_trail versions. Meta field could be passed as the second optional parameter to PaperTrail.insert\\2, PaperTrail.update\\2, PaperTrail.delete\\2 functions:
 
 ```elixir
-company = Company.changeset(%Company{}, %{name: "Acme Inc."}) |> PaperTrail.insert(meta: %{slug: "acme-llc"})
+company = Company.changeset(%Company{}, %{name: "Acme Inc."})
+  |> PaperTrail.insert(meta: %{slug: "acme-llc"})
 # you can also combine this with an origin:
-edited_company = Company.changeset(company, %{name: "Acme LLC"}) |> PaperTrail.update(origin: "documentation", meta: %{slug: "acme-llc"})
+edited_company = Company.changeset(company, %{name: "Acme LLC"})
+  |> PaperTrail.update(origin: "documentation", meta: %{slug: "acme-llc"})
 # or even with an originator:
 user = create_user()
-deleted_company = Company.changeset(edited_company, %{}) |> PaperTrail.delete(origin: "worker:github", originator: user.id, meta: %{slug: "acme-llc", important: true})
+deleted_company = Company.changeset(edited_company, %{})
+  |> PaperTrail.delete(origin: "worker:github", originator: user.id, meta: %{slug: "acme-llc", important: true})
 ```
 
 ## Suggestions
