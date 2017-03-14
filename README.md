@@ -1,3 +1,5 @@
+TODO: update the example, update the code examples, setter relationships
+
 [![Build Status](https://circleci.com/gh/izelnakri/paper_trail.svg?style=shield&circle-token=:circle-token)](https://circleci.com/gh/izelnakri/paper_trail) [![Hex Version](http://img.shields.io/hexpm/v/paper_trail.svg?style=flat)](https://hex.pm/packages/paper_trail) [![Hex docs](http://img.shields.io/badge/hex.pm-docs-green.svg?style=flat)](https://hexdocs.pm/paper_trail/PaperTrail.html)
 
 # How does it work?
@@ -131,8 +133,13 @@ Your application is now ready to collect some history!
 
 YES! Make sure you do the steps.
 
+## %PaperTrail.Version{} fields:
+
+Explain the fields:
+
+
 ## Version set_by references:
-1 - PaperTrail records get a required string field called ````set_by```. PaperTrail.insert/1, PaperTrail.update/1, PaperTrail.delete/1 functions accepts a second argument for the originator. Example:
+PaperTrail records have a string field called ````set_by```. PaperTrail.insert/1, PaperTrail.update/1, PaperTrail.delete/1 functions accepts a second argument for the originator. Example:
 ```elixir
 PaperTrail.update(changeset, set_by: "migration")
 # or:
@@ -149,33 +156,36 @@ You could specify setter relationship to `paper_trail` versions. This is doable 
   # For most application setter will be user, models can be updated/created/deleted by several users.
 ```
 
-# PaperTrail Strict mode
+```elixir
+
+```
+
+# Strict mode
 This is a feature more suitable for larger applications where models keep their version references via foreign key constraints. Thus it would be impossible to delete the first and current version of a model. In order to enable this:
 
 ```elixir
 # in your config/config.exs
 config :paper_trail, strict_mode: true
 ```
-
-This mode adds the following behavior:
-
-1- Strict mode expects tracked models to have foreign-key reference to their first_version and current_version. These columns should be named ```first_version_id```, and ```current_version_id``` in their respective model tables. Example migration:
+Strict mode expects tracked models to have foreign-key reference to their first_version and current_version. These columns should be named ```first_version_id```, and ```current_version_id``` in their respective model tables. A tracked model example with a migration file:
 
 ```elixir
-# in the migration file:
-def change do
-  create table(:companies) do
-    add :name,       :string, null: false
-    add :founded_in, :string
+# in the migration file: priv/repo/migrations/create_company.exs
+defmodule Repo.Migrations.AddVersions do
+  def change do
+    create table(:companies) do
+      add :name,       :string, null: false
+      add :founded_in, :string
 
-    add :first_version_id, references(:versions), null: false
-    add :current_version_id, references(:versions), null: false
+      add :first_version_id, references(:versions), null: false
+      add :current_version_id, references(:versions), null: false
 
-    timestamps()
+      timestamps()
+    end
+
+    create index(:companies, [:first_version_id])
+    create index(:companies, [:current_version_id])
   end
-
-  create index(:companies, [:first_version_id])
-  create index(:companies, [:current_version_id])
 end
 
 # in the model definition:
@@ -195,8 +205,6 @@ defmodule StrictCompany do
 end
 ```
 
-2- If the version set_by field isn't provided with a value default set_by be "unknown". Set_by column has a null constraint on strict_mode on purpose, you should really put a set_by to reference who initiated this change in the database.
-
 When you run PaperTrail.insert/1 transaction, insert_version_id and current_version_id gets assigned for the model. Example:
 
 ```elixir
@@ -209,8 +217,14 @@ When you update a model, current_version_id gets updated during the transaction.
 
 ```
 
+If the version set_by field isn't provided with a value default set_by be "unknown". Set_by column has a null constraint on strict_mode on purpose, you should really put a set_by to reference who initiated this change in the database.
+
 ## Storing version meta data
-Your versions don't need a model lifecycle callbacks like before_create or before_update for any extra meta data, all your meta data could be stored in one object and that object could be passed as the second optional parameter to PaperTrail.insert || PaperTrail.update || PaperTrail.delete :
+You might want to add some meta data that doesnt belong to ``setter_id``, ``set_by`` fields. Such data could be stored in one object name meta in papertrail versions. Meta field could be passed as the second optional parameter to PaperTrail.insert || PaperTrail.update || PaperTrail.delete functions:
+
+```elixir
+
+```
 
 ## Suggestions
 - PaperTrail.Version(s) order matter,

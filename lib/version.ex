@@ -11,9 +11,9 @@ defmodule PaperTrail.Version do
     field :item_type, :string
     field :item_id, :integer
     field :item_changes, :map
+    field :setter_id, :integer
     field :set_by,   :string
     field :meta, :map
-    field :setter_id, :integer
 
     if @setter do
       belongs_to @setter[:name], @setter[:model], define_field: false, foreign_key: :originator_id
