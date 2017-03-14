@@ -41,8 +41,8 @@ defmodule PaperTrailTest do
     version = result[:version] |> serialize
 
     assert Map.keys(result) == [:model, :version]
-    assert company_count == [1]
-    assert version_count == [1]
+    assert company_count == 1
+    assert version_count == 1
     assert Map.drop(company, [:id, :inserted_at, :updated_at]) == %{
       name: "Acme LLC",
       is_active: true,
@@ -86,8 +86,8 @@ defmodule PaperTrailTest do
     version = result[:version] |> serialize
 
     assert Map.keys(result) == [:model, :version]
-    assert company_count == [1]
-    assert version_count == [2]
+    assert company_count == 1
+    assert version_count == 2
     assert Map.drop(company, [:id, :inserted_at, :updated_at]) == %{
       name: "Acme LLC",
       is_active: true,
@@ -137,8 +137,8 @@ defmodule PaperTrailTest do
     version = result[:version] |> serialize
 
     assert Map.keys(result) == [:model, :version]
-    assert company_count == [0]
-    assert version_count == [3]
+    assert company_count == 0
+    assert version_count == 3
     assert Map.drop(company, [:id, :inserted_at, :updated_at]) == %{
       name: "Acme LLC",
       is_active: true,
@@ -208,8 +208,8 @@ defmodule PaperTrailTest do
     version = result[:version] |> serialize
 
     assert Map.keys(result) == [:model, :version]
-    assert person_count == [1]
-    assert version_count == [3]
+    assert person_count == 1
+    assert version_count == 3
     assert  Map.drop(person, [:id, :inserted_at, :updated_at]) == %{
       first_name: "Izel",
       last_name: "Nakri",
@@ -257,8 +257,8 @@ defmodule PaperTrailTest do
     version = result[:version] |> serialize
 
     assert Map.keys(result) == [:model, :version]
-    assert person_count == [1]
-    assert version_count == [4]
+    assert person_count == 1
+    assert version_count == 4
     assert Map.drop(person, [:id, :inserted_at, :updated_at]) == %{
       company_id: initial_company_insertion[:model].id,
       first_name: "Isaac",
@@ -313,8 +313,8 @@ defmodule PaperTrailTest do
     old_person = update_result[:model] |> serialize
     version = result[:version] |> serialize
 
-    assert person_count == [0]
-    assert version_count == [5]
+    assert person_count == 0
+    assert version_count == 5
     assert Map.drop(version, [:id, :inserted_at]) == %{
       event: "delete",
       item_type: "SimplePerson",

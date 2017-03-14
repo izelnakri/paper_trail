@@ -32,7 +32,7 @@ defmodule StrictCompany do
   end
 
   def count do
-    from(record in __MODULE__, select: count(record.id)) |> PaperTrail.RepoClient.repo.all
+    from(record in __MODULE__, select: count(record.id)) |> PaperTrail.RepoClient.repo.one
   end
 end
 
@@ -65,6 +65,6 @@ defmodule StrictPerson do
   end
 
   def count do
-    from(record in __MODULE__, select: count(record.id)) |> PaperTrail.RepoClient.repo.all
+    from(record in __MODULE__, select: count(record.id)) |> PaperTrail.RepoClient.repo.one
   end
 end
