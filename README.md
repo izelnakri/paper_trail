@@ -1,5 +1,3 @@
-TODO: update the example, update the code examples, setter relationships
-
 [![Build Status](https://circleci.com/gh/izelnakri/paper_trail.svg?style=shield&circle-token=:circle-token)](https://circleci.com/gh/izelnakri/paper_trail) [![Hex Version](http://img.shields.io/hexpm/v/paper_trail.svg?style=flat)](https://hex.pm/packages/paper_trail) [![Hex docs](http://img.shields.io/badge/hex.pm-docs-green.svg?style=flat)](https://hexdocs.pm/paper_trail/PaperTrail.html)
 
 # How does it work?
@@ -233,3 +231,5 @@ You might want to add some meta data that doesnt belong to ``setter_id``, ``set_
 ## TODO
 ** remove wrong Elixir compiler errors
 ** explain the columns
+
+TODO: update the example, update the code examples, setter relationships
