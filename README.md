@@ -192,7 +192,7 @@ defmodule Repo.Migrations.AddVersions do
   def change do
     create table(:companies) do
       add :name,       :string, null: false
-      add :founded_in, :string
+      add :founded_in, :date
 
       # null constraints are highly suggested:
       add :first_version_id, references(:versions), null: false
@@ -214,7 +214,7 @@ defmodule Company do
 
   schema "companies" do
     field :name, :string
-    field :founded_in, :string
+    field :founded_in, :date
 
     belongs_to :first_version, PaperTrail.Version
     belongs_to :current_version, PaperTrail.Version, on_replace: :update # on_replace: is important!

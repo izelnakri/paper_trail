@@ -160,7 +160,6 @@ defmodule PaperTrail do
     end
   end
 
-  defp make_version_struct(event_list, model, options \\ [])
   defp make_version_struct(%{event: "insert"}, model, options) do
     %Version{
       event: "insert",

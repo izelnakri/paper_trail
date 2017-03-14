@@ -188,7 +188,7 @@ defmodule PaperTrailStrictModeTest do
 
   test "PaperTrail.delete\\2 with an error returns and error tuple like Repo.delete\\2" do
     {:ok, insert_company_result} = create_company_with_version()
-    {:ok, insert_person_result} = Person.changeset(%Person{}, %{
+    Person.changeset(%Person{}, %{
       first_name: "Izel",
       last_name: "Nakri",
       gender: true,
