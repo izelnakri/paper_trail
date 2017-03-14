@@ -22,8 +22,8 @@ defmodule Mix.Tasks.Papertrail.Install do
           add :item_type,    :string, null: false
           add :item_id,      :integer
           add :item_changes, :map, null: false
-          add :setter_id, references(:users) # you can change :users to your own foreign key constraint
-          #{set_by_field()}
+          add :originator_id, references(:users) # you can change :users to your own foreign key constraint
+          #{origin_by_field()}
           add :meta,         :map
 
           add :inserted_at,  :utc_datetime, null: false
@@ -39,10 +39,10 @@ defmodule Mix.Tasks.Papertrail.Install do
     """
   end
 
-  defp set_by_field do
+  defp origin_by_field do
     case @strict_mode do
-      true -> "add :set_by, :string, size: 50, null: false, default: \"unknown\""
-      _ -> "add :set_by, :string, size: 50"
+      true -> "add :origin, :string, size: 50, null: false, default: \"unknown\""
+      _ -> "add :origin, :string, size: 50"
     end
   end
 

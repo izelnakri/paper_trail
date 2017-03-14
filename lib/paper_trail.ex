@@ -47,7 +47,7 @@ defmodule PaperTrail do
   @doc """
   Inserts a record to the database with a related version insertion in one transaction
   """
-  def insert(changeset, options \\ [set_by: nil, meta: nil, setter_id: nil]) do
+  def insert(changeset, options \\ [origin: nil, meta: nil, originator_id: nil]) do
     case @client.strict_mode() do
       true ->
         transaction = Multi.new
@@ -98,7 +98,7 @@ defmodule PaperTrail do
   @doc """
   Updates a record from the database with a related version insertion in one transaction
   """
-  def update(changeset, options \\ [set_by: nil, meta: nil, setter_id: nil]) do
+  def update(changeset, options \\ [origin: nil, meta: nil, originator_id: nil]) do
     case @client.strict_mode() do
       true ->
         transaction = Multi.new
@@ -145,7 +145,7 @@ defmodule PaperTrail do
   @doc """
   Deletes a record from the database with a related version insertion in one transaction
   """
-  def delete(struct, options \\ [set_by: nil, meta: nil, setter_id: nil]) do
+  def delete(struct, options \\ [origin: nil, meta: nil, originator_id: nil]) do
     transaction = Multi.new
     |> Multi.delete(:model, struct)
     |> Multi.run(:version, fn %{} ->
@@ -167,8 +167,8 @@ defmodule PaperTrail do
       item_type: model.__struct__ |> Module.split |> List.last,
       item_id: model.id,
       item_changes: serialize(model),
-      setter_id: options[:setter_id],
-      set_by: options[:set_by],
+      originator_id: options[:originator_id],
+      origin: options[:origin],
       meta: options[:meta]
     }
   end
@@ -178,8 +178,8 @@ defmodule PaperTrail do
       item_type: changeset.data.__struct__ |> Module.split |> List.last,
       item_id: changeset.data.id,
       item_changes: changeset.changes,
-      setter_id: options[:setter_id],
-      set_by: options[:set_by],
+      originator_id: options[:originator_id],
+      origin: options[:origin],
       meta: options[:meta]
     }
   end
@@ -189,8 +189,8 @@ defmodule PaperTrail do
       item_type: model.__struct__ |> Module.split |> List.last,
       item_id: model.id,
       item_changes: serialize(model),
-      setter_id: options[:setter_id],
-      set_by: options[:set_by],
+      originator_id: options[:originator_id],
+      origin: options[:origin],
       meta: options[:meta]
     }
   end

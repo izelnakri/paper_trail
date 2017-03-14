@@ -4,15 +4,15 @@ defmodule PaperTrail.Version do
   import Ecto.Changeset
   import Ecto.Query
 
-  @setter PaperTrail.RepoClient.setter
+  @setter PaperTrail.RepoClient.originator || nil
 
   schema "versions" do
     field :event, :string
     field :item_type, :string
     field :item_id, :integer
     field :item_changes, :map
-    field :setter_id, :integer
-    field :set_by,   :string
+    field :originator_id, :integer
+    field :origin, :string, read_after_writes: true
     field :meta, :map
 
     if @setter do
@@ -24,7 +24,7 @@ defmodule PaperTrail.Version do
 
   def changeset(model, params \\ :empty) do
     model
-    |> cast(params, [:item_type, :item_id, :item_changes, :set_by, :setter_id, :meta])
+    |> cast(params, [:item_type, :item_id, :item_changes, :origin, :originator_id, :meta])
     |> validate_required([:event, :item_type, :item_id, :item_changes])
   end
 

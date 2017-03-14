@@ -32,7 +32,7 @@ defmodule PaperTrailStrictModeTest do
 
   test "creating a company creates a company version with correct attributes" do
     user = create_user()
-    {:ok, result} = create_company_with_version(@create_company_params, setter_id: user.id)
+    {:ok, result} = create_company_with_version(@create_company_params, originator_id: user.id)
 
     company_count = Company.count()
     version_count = Version.count()
@@ -60,8 +60,8 @@ defmodule PaperTrailStrictModeTest do
       item_type: "StrictCompany",
       item_id: company.id,
       item_changes: company,
-      setter_id: user.id,
-      set_by: nil,
+      originator_id: user.id,
+      origin: nil,
       meta: nil
     }
     assert company == first(Company, :id) |> @repo.one |> serialize
@@ -78,7 +78,7 @@ defmodule PaperTrailStrictModeTest do
     user = create_user()
     {:ok, insert_company_result} = create_company_with_version()
     {:ok, result} = update_company_with_version(
-      insert_company_result[:model], @update_company_params, setter_id: user.id
+      insert_company_result[:model], @update_company_params, originator_id: user.id
     )
 
     company_count = Company.count()
@@ -112,8 +112,8 @@ defmodule PaperTrailStrictModeTest do
         facebook: "acme.llc",
         current_version_id: version.id
       },
-      setter_id: user.id,
-      set_by: nil,
+      originator_id: user.id,
+      origin: nil,
       meta: nil
     }
     assert company == first(Company, :id) |> @repo.one |> serialize
@@ -137,7 +137,7 @@ defmodule PaperTrailStrictModeTest do
     {:ok, insert_company_result} = create_company_with_version()
     {:ok, update_company_result} = update_company_with_version(insert_company_result[:model])
     company_before_deletion = first(Company, :id) |> @repo.one |> serialize
-    {:ok, result} = PaperTrail.delete(update_company_result[:model], setter_id: user.id)
+    {:ok, result} = PaperTrail.delete(update_company_result[:model], originator_id: user.id)
 
     company_count = Company.count()
     version_count = Version.count()
@@ -179,8 +179,8 @@ defmodule PaperTrailStrictModeTest do
         first_version_id: insert_company_result[:version].id,
         current_version_id: update_company_result[:version].id
       },
-      setter_id: user.id,
-      set_by: nil,
+      originator_id: user.id,
+      origin: nil,
       meta: nil
     }
     assert old_company == company_before_deletion
@@ -212,7 +212,7 @@ defmodule PaperTrailStrictModeTest do
       last_name: "Nakri",
       gender: true,
       company_id: insert_company_result[:model].id
-    }) |> PaperTrail.insert(set_by: "admin", meta: %{linkname: "izelnakri"})
+    }) |> PaperTrail.insert(origin: "admin", meta: %{linkname: "izelnakri"})
 
     person_count = Person.count()
     version_count = Version.count()
@@ -238,8 +238,8 @@ defmodule PaperTrailStrictModeTest do
       item_type: "StrictPerson",
       item_id: person.id,
       item_changes: person,
-      setter_id: nil,
-      set_by: "admin",
+      originator_id: nil,
+      origin: "admin",
       meta: %{linkname: "izelnakri"}
     }
     assert person == first(Person, :id) |> @repo.one |> serialize
@@ -257,13 +257,13 @@ defmodule PaperTrailStrictModeTest do
       last_name: "Nakri",
       gender: true,
       company_id: target_company_insertion[:model].id
-    }) |> PaperTrail.insert(set_by: "admin")
+    }) |> PaperTrail.insert(origin: "admin")
     {:ok, result} = Person.changeset(insert_person_result[:model], %{
       first_name: "Isaac",
       visit_count: 10,
       birthdate: ~D[1992-04-01],
       company_id: insert_company_result[:model].id
-    }) |> PaperTrail.update(set_by: "scraper", meta: %{linkname: "izelnakri"})
+    }) |> PaperTrail.update(origin: "scraper", meta: %{linkname: "izelnakri"})
 
     person_count = Person.count()
     version_count = Version.count()
@@ -295,8 +295,8 @@ defmodule PaperTrailStrictModeTest do
         current_version_id: version.id,
         company_id: insert_company_result[:model].id
       },
-      setter_id: nil,
-      set_by: "scraper",
+      originator_id: nil,
+      origin: "scraper",
       meta: %{linkname: "izelnakri"}
     }
     assert person == first(Person, :id) |> @repo.one |> serialize
@@ -312,15 +312,15 @@ defmodule PaperTrailStrictModeTest do
       last_name: "Nakri",
       gender: true,
       company_id: target_company_insertion[:model].id
-    }) |> PaperTrail.insert(set_by: "admin")
+    }) |> PaperTrail.insert(origin: "admin")
     {:ok, update_person_result} = Person.changeset(insert_person_result[:model], %{
       first_name: "Isaac",
       visit_count: 10,
       birthdate: ~D[1992-04-01]
-    }) |> PaperTrail.update(set_by: "scraper", meta: %{linkname: "izelnakri"})
+    }) |> PaperTrail.update(origin: "scraper", meta: %{linkname: "izelnakri"})
     person_before_deletion = first(Person, :id) |> @repo.one |> serialize
     {:ok, result} = PaperTrail.delete(
-      update_person_result[:model], set_by: "admin", meta: %{linkname: "izelnakri"}
+      update_person_result[:model], origin: "admin", meta: %{linkname: "izelnakri"}
     )
 
     person_count = Person.count()
@@ -349,8 +349,8 @@ defmodule PaperTrailStrictModeTest do
         first_version_id: insert_person_result[:version].id,
         current_version_id: update_person_result[:version].id
       },
-      setter_id: nil,
-      set_by: "admin",
+      originator_id: nil,
+      origin: "admin",
       meta: %{linkname: "izelnakri"}
     }
     assert old_person == person_before_deletion
