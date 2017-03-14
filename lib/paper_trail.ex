@@ -112,7 +112,7 @@ defmodule PaperTrail do
           updated_changeset = changeset |> change(%{current_version_id: initial_version.id})
           @repo.update(updated_changeset)
         end)
-        |> Multi.run(:version, fn %{initial_version: initial_version, model: model} ->
+        |> Multi.run(:version, fn %{initial_version: initial_version} ->
           new_item_changes = initial_version.item_changes |> Map.merge(%{
             current_version_id: initial_version.id
           })
