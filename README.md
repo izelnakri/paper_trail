@@ -146,7 +146,7 @@ YES! Make sure you do the steps above.
 | inserted_at   | Date    | inserted_at timestamp       | Ecto generates |
 
 ### Version origin references:
-PaperTrail records have a string field called ``origin```. ```PaperTrail.insert/1```, ```PaperTrail.update/1```, ```PaperTrail.delete/1``` functions accept a second argument to describe the origin of this version. Example:
+PaperTrail records have a string field called ```origin```. ```PaperTrail.insert/1```, ```PaperTrail.update/1```, ```PaperTrail.delete/1``` functions accept a second argument to describe the origin of this version:
 ```elixir
 PaperTrail.update(changeset, origin: "migration")
 # or:
@@ -156,7 +156,7 @@ PaperTrail.delete(changeset, origin: "worker:delete_inactive_users")
 ```
 
 ### Originator relationships
-You can specify setter/originator relationship to paper_trail versions with ```originator_id``` assignment during PaperTrail operations. This feature is only possible by specifying `:originator` keyword list for your application configuration:
+You can specify setter/originator relationship to paper_trail versions with ```originator_id``` assignment. This feature is only possible by specifying `:originator` keyword list for your application configuration:
 
 ```elixir
   # in your config/config.exs
@@ -194,7 +194,7 @@ defmodule Repo.Migrations.AddVersions do
       add :name,       :string, null: false
       add :founded_in, :string
 
-      # null constraint is optional to make model insertion impossible without a version:
+      # null constraints are highly suggested:
       add :first_version_id, references(:versions), null: false
       add :current_version_id, references(:versions), null: false
 
