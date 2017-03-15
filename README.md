@@ -28,7 +28,7 @@ PaperTrail is assailed with hundreds of test assertions for each release. Data i
   #       updated_at: #Ecto.DateTime<2016-09-15 21:42:38>},
   #     item_id: 1, item_type: "Post", originator_id: nil, originator: nil, meta: nil}}}
 
-  # => on error(it matches Repo.insert\2):
+  # => on error(it matches Repo.insert/2):
   # {:error, Ecto.Changeset<action: :insert,
   #  changes: %{title: "Word on the street is Elixir got its own database versioning library", content: "You should try it now!"},
   #  errors: [content: {"is too short", []}], data: #Post<>,
@@ -53,7 +53,7 @@ PaperTrail is assailed with hundreds of test assertions for each release. Data i
   #     item_id: 1, item_type: "Post", originator_id: nil, originator: nil
   #     meta: nil}}}
 
-  # => on error(it matches Repo.update\2):
+  # => on error(it matches Repo.update/2):
   # {:error, Ecto.Changeset<action: :update,
   #  changes: %{title: "Elixir matures fast", content: "Future is already here, you deserve to be awesome!"},
   #  errors: [title: {"is too short", []}], data: #Post<>,
@@ -116,7 +116,7 @@ The library source code is minimal and well tested. It is suggested to read the 
 
   3. install and compile your dependency:
 
-  ```mix deps.compile```
+  ```mix deps.get && mix deps.compile```
 
   4. run this command to generate the migration:
 
@@ -142,7 +142,7 @@ YES! Make sure you do the steps above.
 | item_changes  | Map     | all the changes in this version as a map | Library generates |
 | originator_id | Integer | foreign key reference to the creator/owner of this change | Optionally set |
 | origin        | String  | short reference to origin(eg. worker:activity-checker, migration, admin:33) | Optionally set |
-| meta          | Map     | any extra optional meta information about the version(eg. %{slug: "ausername"}) | Optionally set |
+| meta          | Map     | any extra optional meta information about the version(eg. %{slug: "ausername", important: true}) | Optionally set |
 | inserted_at   | Date    | inserted_at timestamp       | Ecto generates |
 
 ### Version origin references:
@@ -153,6 +153,10 @@ PaperTrail.update(changeset, origin: "migration")
 PaperTrail.update(changeset, origin: "user:1234")
 # or:
 PaperTrail.delete(changeset, origin: "worker:delete_inactive_users")
+# or:
+PaperTrail.insert(new_user_changeset, origin: "password_registration")
+# or:
+PaperTrail.insert(new_user_changeset, origin: "facebook_registration")
 ```
 
 ### Originator relationships
@@ -259,7 +263,7 @@ edited_company = Company.changeset(company, %{name: "Acme Inc."}) |> PaperTrail.
 Additionally, you can put a null constraint on ```origin``` column, you should always put an ```origin``` reference to describe who makes the change. This is important for big applications because a model can change from many sources.
 
 ### Storing version meta data
-You might want to add some meta data that doesn't belong to ``originator_id`` and ``origin`` fields. Such data could be stored in one object named ```meta``` in paper_trail versions. Meta field could be passed as the second optional parameter to PaperTrail.insert\\2, PaperTrail.update\\2, PaperTrail.delete\\2 functions:
+You might want to add some meta data that doesn't belong to ``originator_id`` and ``origin`` fields. Such data could be stored in one object named ```meta``` in paper_trail versions. Meta field could be passed as the second optional parameter to PaperTrail.insert/2, PaperTrail.update/2, PaperTrail.delete/2 functions:
 
 ```elixir
 company = Company.changeset(%Company{}, %{name: "Acme Inc."})
@@ -278,5 +282,15 @@ deleted_company = Company.changeset(edited_company, %{})
 - don't delete your paper_trail versions, instead you can merge them
 - If you have a question or a problem, do not hesitate to create an issue or submit a pull request
 
-## TODO:
-** remove wrong Elixir compiler errors
+# Credits
+Many thanks to:
+
+[Jose Pablo Castro](https://github.com/josepablocastro) - Built the repo configuration for paper_trail
+[Alex Antonov](https://github.com/asiniy) - Original inventor of the originator feature
+[Josh Taylor](https://github.com/joshuataylor) - Maintenance and new feature suggestions
+[Mitchell Henke](https://github.com/mitchellhenke) - Fixed weird elixir compiler warnings
+[Izel Nakri](https://github.com/izelnakri) - The Originator of this library. See what I did there ;)
+
+Additional thanks to:
+[Ruby paper_trail gem](https://github.com/airblade/paper_trail) - Initial inspiration of this project.
+[Ecto](https://github.com/elixir-ecto/ecto) - For the great API.
