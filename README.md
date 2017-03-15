@@ -285,12 +285,12 @@ deleted_company = Company.changeset(edited_company, %{})
 # Credits
 Many thanks to:
 
-[Jose Pablo Castro](https://github.com/josepablocastro) - Built the repo configuration for paper_trail
-[Alex Antonov](https://github.com/asiniy) - Original inventor of the originator feature
-[Josh Taylor](https://github.com/joshuataylor) - Maintenance and new feature suggestions
-[Mitchell Henke](https://github.com/mitchellhenke) - Fixed weird elixir compiler warnings
-[Izel Nakri](https://github.com/izelnakri) - The Originator of this library. See what I did there ;)
+- [Jose Pablo Castro](https://github.com/josepablocastro) - Built the repo configuration for paper_trail
+- [Alex Antonov](https://github.com/asiniy) - Original inventor of the originator feature
+- [Josh Taylor](https://github.com/joshuataylor) - Maintenance and new feature suggestions
+- [Mitchell Henke](https://github.com/mitchellhenke) - Fixed weird elixir compiler warnings
+- [Izel Nakri](https://github.com/izelnakri) - The Originator of this library. See what I did there ;)
 
 Additional thanks to:
-[Ruby paper_trail gem](https://github.com/airblade/paper_trail) - Initial inspiration of this project.
-[Ecto](https://github.com/elixir-ecto/ecto) - For the great API.
+- [Ruby paper_trail gem](https://github.com/airblade/paper_trail) - Initial inspiration of this project.
+- [Ecto](https://github.com/elixir-ecto/ecto) - For the great API.
