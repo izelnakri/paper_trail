@@ -175,7 +175,7 @@ user = create_user()
 # all these set originator_id's for the version records
 PaperTrail.insert(changeset, originator: user)
 {:ok, result} = PaperTrail.update(edit_changeset, originator: user)
-# or you can use :user instead of :originator if this is your config:
+# or you can use :user in the params instead of :originator if this is your config:
 # paper_trail originator: [name: :user, model: YourApplication.User]
 {:ok, result} = PaperTrail.update(edit_changeset, user: user)
 result[:version] |> Repo.preload(:user) |> Map.get(:user) # we can access the user who made the change from the version thanks to originator relationships!
@@ -278,7 +278,7 @@ edited_company = Company.changeset(company, %{name: "Acme LLC"})
 # or even with an originator:
 user = create_user()
 deleted_company = Company.changeset(edited_company, %{})
-  |> PaperTrail.delete(origin: "worker:github", originator: user.id, meta: %{slug: "acme-llc", important: true})
+  |> PaperTrail.delete(origin: "worker:github", originator: user, meta: %{slug: "acme-llc", important: true})
 ```
 
 ## Suggestions

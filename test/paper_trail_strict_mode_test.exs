@@ -33,7 +33,7 @@ defmodule PaperTrailStrictModeTest do
 
   test "creating a company creates a company version with correct attributes" do
     user = create_user()
-    {:ok, result} = create_company_with_version(@create_company_params, originator: user)
+    {:ok, result} = create_company_with_version(@create_company_params, user: user)
 
     company_count = Company.count()
     version_count = Version.count()
@@ -138,7 +138,7 @@ defmodule PaperTrailStrictModeTest do
     {:ok, insert_company_result} = create_company_with_version()
     {:ok, update_company_result} = update_company_with_version(insert_company_result[:model])
     company_before_deletion = first(Company, :id) |> @repo.one |> serialize
-    {:ok, result} = PaperTrail.delete(update_company_result[:model], originator: user)
+    {:ok, result} = PaperTrail.delete(update_company_result[:model], user: user)
 
     company_count = Company.count()
     version_count = Version.count()

@@ -1,4 +1,3 @@
-# test one with user:, one with originator
 defmodule PaperTrailTest do
   use ExUnit.Case
 
@@ -73,7 +72,46 @@ defmodule PaperTrailTest do
     assert result == ecto_result
   end
 
-  test "updating a company creates a company version with correct item_changes" do
+  test "updating a company with originator creates a correct company version" do
+    user = create_user()
+    {:ok, insert_result} = create_company_with_version()
+    {:ok, result} = update_company_with_version(
+      insert_result[:model], @update_company_params, user: user
+    )
+
+    company_count = Company.count()
+    version_count = Version.count()
+
+    company = result[:model] |> serialize
+    version = result[:version] |> serialize
+
+    assert Map.keys(result) == [:model, :version]
+    assert company_count == 1
+    assert version_count == 2
+    assert Map.drop(company, [:id, :inserted_at, :updated_at]) == %{
+      name: "Acme LLC",
+      is_active: true,
+      city: "Hong Kong",
+      website: "http://www.acme.com",
+      address: nil,
+      facebook: "acme.llc",
+      twitter: nil,
+      founded_in: nil
+    }
+    assert Map.drop(version, [:id, :inserted_at]) == %{
+      event: "update",
+      item_type: "SimpleCompany",
+      item_id: company.id,
+      item_changes: %{city: "Hong Kong", website: "http://www.acme.com", facebook: "acme.llc"},
+      originator_id: user.id,
+      origin: nil,
+      meta: nil
+    }
+    assert company == first(Company, :id) |> @repo.one |> serialize
+  end
+
+
+  test "updating a company with originator[user] creates a correct company version" do
     user = create_user()
     {:ok, insert_result} = create_company_with_version()
     {:ok, result} = update_company_with_version(
