@@ -103,7 +103,7 @@ The library source code is minimal and well tested. It is suggested to read the 
 
   ```elixir
     def deps do
-      [{:paper_trail, "~> 0.6.0"}]
+      [{:paper_trail, "~> 0.6.3"}]
     end
   ```
 
@@ -116,7 +116,7 @@ The library source code is minimal and well tested. It is suggested to read the 
 
   3. install and compile your dependency:
 
-  ```mix deps.get && mix deps.compile```
+  ```mix deps.get && mix compile```
 
   4. run this command to generate the migration:
 
