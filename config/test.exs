@@ -2,7 +2,7 @@ use Mix.Config
 
 config :paper_trail, ecto_repos: [PaperTrail.Repo]
 
-config :paper_trail, repo: PaperTrail.Repo
+config :paper_trail, repo: PaperTrail.Repo, originator: [name: :user, model: User]
 
 config :paper_trail, PaperTrail.Repo,
   adapter: Ecto.Adapters.Postgres,
