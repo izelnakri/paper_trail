@@ -1,3 +1,4 @@
+# test one with user:, one with originator
 defmodule PaperTrailStrictModeTest do
   use ExUnit.Case
 
@@ -32,7 +33,7 @@ defmodule PaperTrailStrictModeTest do
 
   test "creating a company creates a company version with correct attributes" do
     user = create_user()
-    {:ok, result} = create_company_with_version(@create_company_params, originator_id: user.id)
+    {:ok, result} = create_company_with_version(@create_company_params, originator: user)
 
     company_count = Company.count()
     version_count = Version.count()
@@ -78,7 +79,7 @@ defmodule PaperTrailStrictModeTest do
     user = create_user()
     {:ok, insert_company_result} = create_company_with_version()
     {:ok, result} = update_company_with_version(
-      insert_company_result[:model], @update_company_params, originator_id: user.id
+      insert_company_result[:model], @update_company_params, originator: user
     )
 
     company_count = Company.count()
@@ -137,7 +138,7 @@ defmodule PaperTrailStrictModeTest do
     {:ok, insert_company_result} = create_company_with_version()
     {:ok, update_company_result} = update_company_with_version(insert_company_result[:model])
     company_before_deletion = first(Company, :id) |> @repo.one |> serialize
-    {:ok, result} = PaperTrail.delete(update_company_result[:model], originator_id: user.id)
+    {:ok, result} = PaperTrail.delete(update_company_result[:model], originator: user)
 
     company_count = Company.count()
     version_count = Version.count()

@@ -6,7 +6,8 @@ defmodule PaperTrail do
   alias Ecto.Multi
   alias PaperTrail.Version
 
-  @repo PaperTrail.RepoClient.repo
+  @repo PaperTrail.RepoClient.repo()
+  @originator PaperTrail.RepoClient.originator()
   @client PaperTrail.RepoClient
 
   @doc """
@@ -47,7 +48,7 @@ defmodule PaperTrail do
   @doc """
   Inserts a record to the database with a related version insertion in one transaction
   """
-  def insert(changeset, options \\ [origin: nil, meta: nil, originator_id: nil]) do
+  def insert(changeset, options \\ [origin: nil, meta: nil, originator: nil]) do
     case @client.strict_mode() do
       true ->
         transaction = Multi.new
@@ -98,7 +99,7 @@ defmodule PaperTrail do
   @doc """
   Updates a record from the database with a related version insertion in one transaction
   """
-  def update(changeset, options \\ [origin: nil, meta: nil, originator_id: nil]) do
+  def update(changeset, options \\ [origin: nil, meta: nil, originator: nil]) do
     case @client.strict_mode() do
       true ->
         transaction = Multi.new
@@ -145,7 +146,7 @@ defmodule PaperTrail do
   @doc """
   Deletes a record from the database with a related version insertion in one transaction
   """
-  def delete(struct, options \\ [origin: nil, meta: nil, originator_id: nil]) do
+  def delete(struct, options \\ [origin: nil, meta: nil, originator: nil]) do
     transaction = Multi.new
     |> Multi.delete(:model, struct)
     |> Multi.run(:version, fn %{} ->
@@ -161,34 +162,49 @@ defmodule PaperTrail do
   end
 
   defp make_version_struct(%{event: "insert"}, model, options) do
+    originator_ref = options[@originator[:name]] || options[:originator]
+    originator_id = case originator_ref do
+      nil -> nil
+      _ -> originator_ref |> Map.get(:id)
+    end
     %Version{
       event: "insert",
       item_type: model.__struct__ |> Module.split |> List.last,
       item_id: model.id,
       item_changes: serialize(model),
-      originator_id: options[:originator_id],
+      originator_id: originator_id,
       origin: options[:origin],
       meta: options[:meta]
     }
   end
   defp make_version_struct(%{event: "update"}, changeset, options) do
+    originator_ref = options[@originator[:name]] || options[:originator]
+    originator_id = case originator_ref do
+      nil -> nil
+      _ -> originator_ref |> Map.get(:id)
+    end
     %Version{
       event: "update",
       item_type: changeset.data.__struct__ |> Module.split |> List.last,
       item_id: changeset.data.id,
       item_changes: changeset.changes,
-      originator_id: options[:originator_id],
+      originator_id: originator_id,
       origin: options[:origin],
       meta: options[:meta]
     }
   end
   defp make_version_struct(%{event: "delete"}, model, options) do
+    originator_ref = options[@originator[:name]] || options[:originator]
+    originator_id = case originator_ref do
+      nil -> nil
+      _ -> originator_ref |> Map.get(:id)
+    end
     %Version{
       event: "delete",
       item_type: model.__struct__ |> Module.split |> List.last,
       item_id: model.id,
       item_changes: serialize(model),
-      originator_id: options[:originator_id],
+      originator_id: originator_id,
       origin: options[:origin],
       meta: options[:meta]
     }

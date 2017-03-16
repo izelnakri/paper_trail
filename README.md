@@ -160,7 +160,7 @@ PaperTrail.insert(new_user_changeset, origin: "facebook_registration")
 ```
 
 ### Originator relationships
-You can specify setter/originator relationship to paper_trail versions with ```originator_id``` assignment. This feature is only possible by specifying `:originator` keyword list for your application configuration:
+You can specify setter/originator relationship to paper_trail versions with ```originator``` assignment. This feature is only possible by specifying `:originator` keyword list for your application configuration:
 
 ```elixir
   # in your config/config.exs
@@ -168,14 +168,18 @@ You can specify setter/originator relationship to paper_trail versions with ```o
   # For most applications originator should be the user since models can be updated/created/deleted by several users.
 ```
 
-Then originator name could be used for querying and preloading however originator setting must be done via originator_id:
+Then originator name could be used for querying and preloading. Originator setting must be done via ```:originator``` or originator name that is defined in the paper_trail configuration:
 
 ```elixir
 user = create_user()
-PaperTrail.insert(changeset, originator_id: user.id)
-{:ok, result} = PaperTrail.update(edit_changeset, originator_id: user.id)
+# all these set originator_id's for the version records
+PaperTrail.insert(changeset, originator: user)
+{:ok, result} = PaperTrail.update(edit_changeset, originator: user)
+# or you can use :user instead of :originator if this is your config:
+# paper_trail originator: [name: :user, model: YourApplication.User]
+{:ok, result} = PaperTrail.update(edit_changeset, user: user)
 result[:version] |> Repo.preload(:user) |> Map.get(:user) # we can access the user who made the change from the version thanks to originator relationships!
-PaperTrail.delete(edit_changeset, originator_id: user.id)
+PaperTrail.delete(edit_changeset, user: user)
 ```
 
 Also make sure you have the foreign-key constraint in the database and in your version migration file.
@@ -263,7 +267,7 @@ edited_company = Company.changeset(company, %{name: "Acme Inc."}) |> PaperTrail.
 Additionally, you can put a null constraint on ```origin``` column, you should always put an ```origin``` reference to describe who makes the change. This is important for big applications because a model can change from many sources.
 
 ### Storing version meta data
-You might want to add some meta data that doesn't belong to ``originator_id`` and ``origin`` fields. Such data could be stored in one object named ```meta``` in paper_trail versions. Meta field could be passed as the second optional parameter to PaperTrail.insert/2, PaperTrail.update/2, PaperTrail.delete/2 functions:
+You might want to add some meta data that doesn't belong to ``originator`` and ``origin`` fields. Such data could be stored in one object named ```meta``` in paper_trail versions. Meta field could be passed as the second optional parameter to PaperTrail.insert/2, PaperTrail.update/2, PaperTrail.delete/2 functions:
 
 ```elixir
 company = Company.changeset(%Company{}, %{name: "Acme Inc."})
