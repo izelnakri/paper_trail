@@ -1,4 +1,4 @@
-# document hashbangs in docs, README, write tests for both normal mode and strict mode
+# document bang function in README, write tests for both normal mode and strict mode
 defmodule PaperTrail do
   import Ecto.Changeset
 
@@ -100,9 +100,11 @@ defmodule PaperTrail do
     end
   end
 
-  # add doc
+  @doc """
+  Same as insert/2 but returns only the model struct or raises if the changeset is invalid.
+  """
   def insert!(changeset, options \\ [origin: nil, meta: nil, originator: nil]) do
-    {:ok, _model} = @repo.transaction(fn ->
+    @repo.transaction(fn ->
       case @client.strict_mode() do
         true ->
           version_id = get_sequence_id("versions") + 1
@@ -179,8 +181,11 @@ defmodule PaperTrail do
     end
   end
 
+  @doc """
+  Same as update/2 but returns only the model struct or raises if the changeset is invalid.
+  """
   def update!(changeset, options \\ [origin: nil, meta: nil, originator: nil]) do
-    {:ok, _model} = @repo.transaction(fn ->
+    @repo.transaction(fn ->
       case @client.strict_mode() do
         true ->
           version_data = changeset.data |> Map.merge(%{
@@ -198,7 +203,7 @@ defmodule PaperTrail do
         _ ->
           model = @repo.update!(changeset)
           version_struct = make_version_struct(%{event: "update"}, changeset, options)
-          @repo.insert(version_struct)
+          @repo.insert!(version_struct)
       end
       model
     end) |> elem(1)
@@ -222,11 +227,14 @@ defmodule PaperTrail do
     end
   end
 
+  @doc """
+  Same as delete/2 but returns only the model struct or raises if the changeset is invalid.
+  """
   def delete!(struct, options \\ [origin: nil, meta: nil, originator: nil]) do
-    {:ok, _model} = @repo.transaction(fn ->
+    @repo.transaction(fn ->
       model = @repo.delete!(struct)
       version_struct = make_version_struct(%{event: "delete"}, struct, options)
-      @repo.insert(version_struct)
+      @repo.insert!(version_struct)
     end) |> elem(1)
   end
 
