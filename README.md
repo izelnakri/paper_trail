@@ -37,7 +37,7 @@ PaperTrail is assailed with hundreds of test assertions for each release. Data i
   post = Repo.get!(Post, 1)
   edit_changeset = Post.changeset(post, %{
     title: "Elixir matures fast",
-    content: "Future is already here, you deserve to be awesome!"
+    content: "Future is already here, Elixir is the next step!"
   })
 
   PaperTrail.update(edit_changeset)
@@ -49,20 +49,20 @@ PaperTrail is assailed with hundreds of test assertions for each release. Data i
   #     updated_at: #Ecto.DateTime<2016-09-15 22:00:59>},
   #    version: %PaperTrail.Version{__meta__: #Ecto.Schema.Metadata<:loaded, "versions">,
   #     event: "update", id: 2, inserted_at: #Ecto.DateTime<2016-09-15 22:00:59>,
-  #     item_changes: %{title: "Elixir matures fast", content: "Future is already here, you deserve to be awesome!"},
+  #     item_changes: %{title: "Elixir matures fast", content: "Future is already here, Elixir is the next step!"},
   #     item_id: 1, item_type: "Post", originator_id: nil, originator: nil
   #     meta: nil}}}
 
   # => on error(it matches Repo.update/2):
   # {:error, Ecto.Changeset<action: :update,
-  #  changes: %{title: "Elixir matures fast", content: "Future is already here, you deserve to be awesome!"},
+  #  changes: %{title: "Elixir matures fast", content: "Future is already here, Elixir is the next step!"},
   #  errors: [title: {"is too short", []}], data: #Post<>,
   #  valid?: false>, %{}}
 
   PaperTrail.get_version(post)
   #  %PaperTrail.Version{__meta__: #Ecto.Schema.Metadata<:loaded, "versions">,
   #   event: "update", id: 2, inserted_at: #Ecto.DateTime<2016-09-15 22:00:59>,
-  #   item_changes: %{title: "Elixir matures fast", content: "Future is already here, you deserve to be awesome!"},
+  #   item_changes: %{title: "Elixir matures fast", content: "Future is already here, Elixir is the next step!"},
   #   item_id: 1, item_type: "Post", originator_id: nil, originator: nil, meta: nil}}}
 
   updated_post = Repo.get!(Post, 1)
@@ -71,12 +71,12 @@ PaperTrail is assailed with hundreds of test assertions for each release. Data i
   # => on success:
   # {:ok,
   #  %{model: %Post{__meta__: #Ecto.Schema.Metadata<:deleted, "posts">,
-  #     title: "Elixir matures fast", content: "Future is already here, you deserve to be awesome!",
+  #     title: "Elixir matures fast", content: "Future is already here, Elixir is the next step!",
   #     id: 1, inserted_at: #Ecto.DateTime<2016-09-15 21:42:38>,
   #     updated_at: #Ecto.DateTime<2016-09-15 22:00:59>},
   #    version: %PaperTrail.Version{__meta__: #Ecto.Schema.Metadata<:loaded, "versions">,
   #     event: "delete", id: 3, inserted_at: #Ecto.DateTime<2016-09-15 22:22:12>,
-  #     item_changes: %{title: "Elixir matures fast", content: "Future is already here, you deserve to be awesome!",
+  #     item_changes: %{title: "Elixir matures fast", content: "Future is already here, Elixir is the next step!",
   #       id: 1, inserted_at: #Ecto.DateTime<2016-09-15 21:42:38>,
   #       updated_at: #Ecto.DateTime<2016-09-15 22:00:59>},
   #     item_id: 1, item_type: "Post", originator_id: nil, originator: nil, meta: nil}}}
@@ -87,7 +87,7 @@ PaperTrail is assailed with hundreds of test assertions for each release. Data i
   last(PaperTrail.Version, :id) |> Repo.one
   #  %PaperTrail.Version{__meta__: #Ecto.Schema.Metadata<:loaded, "versions">,
   #   event: "delete", id: 3, inserted_at: #Ecto.DateTime<2016-09-15 22:22:12>,
-  #   item_changes: %{"title" => "Elixir matures fast", content: "Future is already here, you deserve to be awesome!", "id" => 1,
+  #   item_changes: %{"title" => "Elixir matures fast", content: "Future is already here, Elixir is the next step!", "id" => 1,
   #     "inserted_at" => "2016-09-15T21:42:38",
   #     "updated_at" => "2016-09-15T22:00:59"},
   #   item_id: 1, item_type: "Post", originator_id: nil, originator: nil, meta: nil}
@@ -159,7 +159,7 @@ PaperTrail.insert(new_user_changeset, origin: "password_registration")
 PaperTrail.insert(new_user_changeset, origin: "facebook_registration")
 ```
 
-### Originator relationships
+### Version originator relationships
 You can specify setter/originator relationship to paper_trail versions with ```originator``` assignment. This feature is only possible by specifying `:originator` keyword list for your application configuration:
 
 ```elixir
@@ -176,13 +176,29 @@ user = create_user()
 PaperTrail.insert(changeset, originator: user)
 {:ok, result} = PaperTrail.update(edit_changeset, originator: user)
 # or you can use :user in the params instead of :originator if this is your config:
-# paper_trail originator: [name: :user, model: YourApplication.User]
+# config :paper_trail, originator: [name: :user, model: YourApplication.User]
 {:ok, result} = PaperTrail.update(edit_changeset, user: user)
 result[:version] |> Repo.preload(:user) |> Map.get(:user) # we can access the user who made the change from the version thanks to originator relationships!
 PaperTrail.delete(edit_changeset, user: user)
 ```
 
 Also make sure you have the foreign-key constraint in the database and in your version migration file.
+
+
+### Storing version meta data
+You might want to add some meta data that doesn't belong to ``originator`` and ``origin`` fields. Such data could be stored in one object named ```meta``` in paper_trail versions. Meta field could be passed as the second optional parameter to PaperTrail.insert/2, PaperTrail.update/2, PaperTrail.delete/2 functions:
+
+```elixir
+company = Company.changeset(%Company{}, %{name: "Acme Inc."})
+  |> PaperTrail.insert(meta: %{slug: "acme-llc"})
+# you can also combine this with an origin:
+edited_company = Company.changeset(company, %{name: "Acme LLC"})
+  |> PaperTrail.update(origin: "documentation", meta: %{slug: "acme-llc"})
+# or even with an originator:
+user = create_user()
+deleted_company = Company.changeset(edited_company, %{})
+  |> PaperTrail.delete(origin: "worker:github", originator: user, meta: %{slug: "acme-llc", important: true})
+```
 
 # Strict mode
 This is a feature more suitable for larger applications. Models can keep their version references via foreign key constraints. Therefore it would be impossible to delete the first and current version of a model, it also makes querying easier and the whole design more relational database/SQL friendly. In order to enable strict mode:
@@ -266,21 +282,85 @@ edited_company = Company.changeset(company, %{name: "Acme Inc."}) |> PaperTrail.
 
 Additionally, you can put a null constraint on ```origin``` column, you should always put an ```origin``` reference to describe who makes the change. This is important for big applications because a model can change from many sources.
 
-### Storing version meta data
-You might want to add some meta data that doesn't belong to ``originator`` and ``origin`` fields. Such data could be stored in one object named ```meta``` in paper_trail versions. Meta field could be passed as the second optional parameter to PaperTrail.insert/2, PaperTrail.update/2, PaperTrail.delete/2 functions:
+### Bang(!) functions:
+
+PaperTrail supports ```PaperTrail.insert!```, ```PaperTrail.update!```, ```PaperTrail.delete!``` naming of these functions intentionally match ```Repo.insert!```, ```Repo.update!```, ```Repo.delete!``` functions. If PaperTrail is on strict_mode these bang functions will update the version references of the model just like the normal PaperTrail operations.
+
+Bang functions assume the operation will always be successful, otherwise functions will raise ```Ecto.InvalidChangesetError``` just like ``Repo.insert!```, ```Repo.update!``` and ```Repo.delete!```:
 
 ```elixir
-company = Company.changeset(%Company{}, %{name: "Acme Inc."})
-  |> PaperTrail.insert(meta: %{slug: "acme-llc"})
-# you can also combine this with an origin:
-edited_company = Company.changeset(company, %{name: "Acme LLC"})
-  |> PaperTrail.update(origin: "documentation", meta: %{slug: "acme-llc"})
-# or even with an originator:
-user = create_user()
-deleted_company = Company.changeset(edited_company, %{})
-  |> PaperTrail.delete(origin: "worker:github", originator: user, meta: %{slug: "acme-llc", important: true})
-```
+  changeset = Post.changeset(%Post{}, %{
+    title: "Word on the street is Elixir got its own database versioning library",
+    content: "You should try it now!"
+  })
 
+  inserted_post = PaperTrail.insert!(changeset)
+  # => on success:
+  # %Post{__meta__: #Ecto.Schema.Metadata<:loaded, "posts">,
+  #   title: "Word on the street is Elixir got its own database versioning library",
+  #   content: "You should try it now!", id: 1, inserted_at: #Ecto.DateTime<2016-09-15 21:42:38>,
+  #   updated_at: #Ecto.DateTime<2016-09-15 21:42:38>
+  # }
+  #
+  # => on error raises: Ecto.InvalidChangesetError !!
+
+  inserted_post_version = PaperTrail.get_version(inserted_post)
+  # %PaperTrail.Version{__meta__: #Ecto.Schema.Metadata<:loaded, "versions">,
+  #   event: "insert", id: 1, inserted_at: #Ecto.DateTime<2016-09-15 21:42:38>,
+  #   item_changes: %{title: "Word on the street is Elixir got its own database versioning library",
+  #     content: "You should try it now!", id: 1, inserted_at: #Ecto.DateTime<2016-09-15 21:42:38>,
+  #     updated_at: #Ecto.DateTime<2016-09-15 21:42:38>},
+  #   item_id: 1, item_type: "Post", originator_id: nil, originator: nil, meta: nil}
+
+  edit_changeset = Post.changeset(inserted_post, %{
+    title: "Elixir matures fast",
+    content: "Future is already here, Elixir is the next step!"
+  })
+
+  updated_post = PaperTrail.update!(edit_changeset)
+  # => on success:
+  # %Post{__meta__: #Ecto.Schema.Metadata<:loaded, "posts">,
+  #   title: "Elixir matures fast", content: "Future is already here, you deserve to be awesome!",
+  #   id: 1, inserted_at: #Ecto.DateTime<2016-09-15 21:42:38>,
+  #   updated_at: #Ecto.DateTime<2016-09-15 22:00:59>}
+  #
+  # => on error raises: Ecto.InvalidChangesetError !!
+
+  updated_post_version = PaperTrail.get_version(updated_post)
+  # %PaperTrail.Version{__meta__: #Ecto.Schema.Metadata<:loaded, "versions">,
+  #   event: "update", id: 2, inserted_at: #Ecto.DateTime<2016-09-15 22:00:59>,
+  #   item_changes: %{title: "Elixir matures fast", content: "Future is already here, Elixir is the next step!"},
+  #   item_id: 1, item_type: "Post", originator_id: nil, originator: nil
+  #   meta: nil}
+
+  PaperTrail.delete!(updated_post)
+  # => on success:
+  # %Post{__meta__: #Ecto.Schema.Metadata<:deleted, "posts">,
+  #   title: "Elixir matures fast", content: "Future is already here, Elixir is the next step!",
+  #   id: 1, inserted_at: #Ecto.DateTime<2016-09-15 21:42:38>,
+  #   updated_at: #Ecto.DateTime<2016-09-15 22:00:59>}
+  #
+  # => on error raises: Ecto.InvalidChangesetError !!
+
+  PaperTrail.get_version(updated_post)
+  # %PaperTrail.Version{__meta__: #Ecto.Schema.Metadata<:loaded, "versions">,
+  #   event: "delete", id: 3, inserted_at: #Ecto.DateTime<2016-09-15 22:22:12>,
+  #   item_changes: %{title: "Elixir matures fast", content: "Future is already here, Elixir is the next step!",
+  #   id: 1, inserted_at: #Ecto.DateTime<2016-09-15 21:42:38>,
+  #   updated_at: #Ecto.DateTime<2016-09-15 22:00:59>},
+  #   item_id: 1, item_type: "Post", originator_id: nil, originator: nil, meta: nil}
+
+  Repo.aggregate(Post, :count, :id) # => 0
+  Repo.aggregate(PaperTrail.Version, :count, :id) # => 3
+
+  last(PaperTrail.Version, :id) |> Repo.one
+  #  %PaperTrail.Version{__meta__: #Ecto.Schema.Metadata<:loaded, "versions">,
+  #   event: "delete", id: 3, inserted_at: #Ecto.DateTime<2016-09-15 22:22:12>,
+  #   item_changes: %{"title" => "Elixir matures fast", content: "Future is already here, Elixir is the next step!", "id" => 1,
+  #     "inserted_at" => "2016-09-15T21:42:38",
+  #     "updated_at" => "2016-09-15T22:00:59"},
+  #   item_id: 1, item_type: "Post", originator_id: nil, originator: nil, meta: nil}
+```
 ## Suggestions
 - PaperTrail.Version(s) order matter,
 - don't delete your paper_trail versions, instead you can merge them
@@ -288,7 +368,6 @@ deleted_company = Company.changeset(edited_company, %{})
 
 # Credits
 Many thanks to:
-
 - [Jose Pablo Castro](https://github.com/josepablocastro) - Built the repo configuration for paper_trail
 - [Alex Antonov](https://github.com/asiniy) - Original inventor of the originator feature
 - [Josh Taylor](https://github.com/joshuataylor) - Maintenance and new feature suggestions

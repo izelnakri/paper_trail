@@ -37,9 +37,9 @@ defmodule PaperTrail.VersionQueries do
   end
 
   @doc """
-  Gets the current record of a version
+  Gets the current model record/struct of a version
   """
-  def get_current(version) do
+  def get_current_model(version) do
     @repo.get("Elixir." <> version.item_type |> String.to_existing_atom, version.item_id)
   end
 
