@@ -5,12 +5,12 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.14.5">
-    <title>PaperTrail – paper_trail v0.7.0</title>
+    <title>PaperTrail – paper_trail v0.7.2</title>
     <link rel="stylesheet" href="dist/app-a07cea761b.css" />
     
       <link rel="canonical" href="https://hexdocs.pm/paper_trail/PaperTrail.html" />
     
-    <script src="dist/sidebar_items-4a0bb5a622.js"></script>
+    <script src="dist/sidebar_items-7c98857fb6.js"></script>
   </head>
   <body data-type="modules">
     <script>if(localStorage.getItem('night-mode')) document.body.className += ' night-mode';</script>
@@ -28,7 +28,7 @@
         paper_trail
       </h1>
       <h2 class="sidebar-projectVersion">
-        v0.7.0
+        v0.7.2
       </h2>
     </div>
     
@@ -60,7 +60,7 @@
 
 
       <h1>
-        <small class="visible-xs">paper_trail v0.7.0</small>
+        <small class="visible-xs">paper_trail v0.7.2</small>
         PaperTrail
         
         
@@ -94,10 +94,19 @@
 </div>
 <div class="summary-row">
   <div class="summary-signature">
-    <a href="#get_current/1">get_current(version)</a>
+    <a href="#delete!/2">delete!(struct, options \\ [origin: nil, meta: nil, originator: nil])</a>
   </div>
   
-    <div class="summary-synopsis"><p>Gets the current record of a version</p>
+    <div class="summary-synopsis"><p>Same as delete/2 but returns only the model struct or raises if the changeset is invalid</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#get_current_model/1">get_current_model(version)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Gets the current model record/struct of a version</p>
 </div>
   
 </div>
@@ -148,10 +157,28 @@
 </div>
 <div class="summary-row">
   <div class="summary-signature">
+    <a href="#insert!/2">insert!(changeset, options \\ [origin: nil, meta: nil, originator: nil])</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Same as insert/2 but returns only the model struct or raises if the changeset is invalid</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
     <a href="#update/2">update(changeset, options \\ [origin: nil, meta: nil, originator: nil])</a>
   </div>
   
     <div class="summary-synopsis"><p>Updates a record from the database with a related version insertion in one transaction</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#update!/2">update!(changeset, options \\ [origin: nil, meta: nil, originator: nil])</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Same as update/2 but returns only the model struct or raises if the changeset is invalid</p>
 </div>
   
 </div>
@@ -194,19 +221,37 @@
 
   </section>
 </div>
-<div class="detail" id="get_current/1">
+<div class="detail" id="delete!/2">
+  
+    <span id="delete!/1" />
   
   <div class="detail-header">
-    <a href="#get_current/1" class="detail-link" title="Link to this function">
+    <a href="#delete!/2" class="detail-link" title="Link to this function">
       <i class="icon-link"></i>
     </a>
-    <span class="signature">get_current(version)</span>
+    <span class="signature">delete!(struct, options \\ [origin: nil, meta: nil, originator: nil])</span>
     
     
     
   </div>
   <section class="docstring">
-    <p>Gets the current record of a version</p>
+    <p>Same as delete/2 but returns only the model struct or raises if the changeset is invalid.</p>
+
+  </section>
+</div>
+<div class="detail" id="get_current_model/1">
+  
+  <div class="detail-header">
+    <a href="#get_current_model/1" class="detail-link" title="Link to this function">
+      <i class="icon-link"></i>
+    </a>
+    <span class="signature">get_current_model(version)</span>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Gets the current model record/struct of a version</p>
 
   </section>
 </div>
@@ -292,6 +337,24 @@
 
   </section>
 </div>
+<div class="detail" id="insert!/2">
+  
+    <span id="insert!/1" />
+  
+  <div class="detail-header">
+    <a href="#insert!/2" class="detail-link" title="Link to this function">
+      <i class="icon-link"></i>
+    </a>
+    <span class="signature">insert!(changeset, options \\ [origin: nil, meta: nil, originator: nil])</span>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Same as insert/2 but returns only the model struct or raises if the changeset is invalid.</p>
+
+  </section>
+</div>
 <div class="detail" id="update/2">
   
     <span id="update/1" />
@@ -307,6 +370,24 @@
   </div>
   <section class="docstring">
     <p>Updates a record from the database with a related version insertion in one transaction</p>
+
+  </section>
+</div>
+<div class="detail" id="update!/2">
+  
+    <span id="update!/1" />
+  
+  <div class="detail-header">
+    <a href="#update!/2" class="detail-link" title="Link to this function">
+      <i class="icon-link"></i>
+    </a>
+    <span class="signature">update!(changeset, options \\ [origin: nil, meta: nil, originator: nil])</span>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Same as update/2 but returns only the model struct or raises if the changeset is invalid.</p>
 
   </section>
 </div>
