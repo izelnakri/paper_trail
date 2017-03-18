@@ -40,10 +40,10 @@ defmodule PaperTrail do
   end
 
   @doc """
-  Gets the current record of a version
+  Gets the current model record/struct of a version
   """
-  def get_current(version) do
-    VersionQueries.get_current(version)
+  def get_current_model(version) do
+    VersionQueries.get_current_model(version)
   end
 
   @doc """

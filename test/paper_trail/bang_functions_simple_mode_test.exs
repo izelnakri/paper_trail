@@ -150,7 +150,7 @@ defmodule PaperTrailTest.SimpleModeBangFunctions do
   test "PaperTrail.update!/2 with an error raises Ecto.InvalidChangesetError" do
     assert_raise(Ecto.InvalidChangesetError, fn ->
       inserted_company = create_company_with_version()
-      updated_company = update_company_with_version(inserted_company, %{
+      update_company_with_version(inserted_company, %{
         name: nil, city: "Hong Kong", website: "http://www.acme.com", facebook: "acme.llc"
       })
     end)
