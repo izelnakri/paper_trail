@@ -176,7 +176,7 @@ user = create_user()
 PaperTrail.insert(changeset, originator: user)
 {:ok, result} = PaperTrail.update(edit_changeset, originator: user)
 # or you can use :user in the params instead of :originator if this is your config:
-# paper_trail originator: [name: :user, model: YourApplication.User]
+# config :paper_trail, originator: [name: :user, model: YourApplication.User]
 {:ok, result} = PaperTrail.update(edit_changeset, user: user)
 result[:version] |> Repo.preload(:user) |> Map.get(:user) # we can access the user who made the change from the version thanks to originator relationships!
 PaperTrail.delete(edit_changeset, user: user)
