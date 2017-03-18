@@ -253,14 +253,14 @@ defmodule Company do
 end
 ```
 
-When you run PaperTrail.insert/2 transaction, ```insert_version_id``` and ```current_version_id``` automagically gets assigned for the model. Example:
+When you run PaperTrail.insert/2 transaction, ```first_version_id``` and ```current_version_id``` automagically gets assigned for the model. Example:
 
 ```elixir
 company = Company.changeset(%Company{}, %{name: "Acme LLC"}) |> PaperTrail.insert
 # {:ok,
 #  %{model: %Company{__meta__: #Ecto.Schema.Metadata<:loaded, "companies">,
 #     name: "Acme LLC", founded_in: nil, id: 1, inserted_at: #Ecto.DateTime<2016-09-15 21:42:38>,
-#     updated_at: #Ecto.DateTime<2016-09-15 21:42:38>, insert_version_id: 1, current_version_id: 1},
+#     updated_at: #Ecto.DateTime<2016-09-15 21:42:38>, first_version_id: 1, current_version_id: 1},
 #    version: %PaperTrail.Version{__meta__: #Ecto.Schema.Metadata<:loaded, "versions">,
 #      event: "insert", id: 1, inserted_at: #Ecto.DateTime<2016-09-15 22:22:12>,
 #      item_changes: %{name: "Acme LLC", founded_in: nil, id: 1, inserted_at: #Ecto.DateTime<2016-09-15 21:42:38>},
@@ -274,7 +274,7 @@ edited_company = Company.changeset(company, %{name: "Acme Inc."}) |> PaperTrail.
 # {:ok,
 #  %{model: %Company{__meta__: #Ecto.Schema.Metadata<:loaded, "companies">,
 #     name: "Acme Inc.", founded_in: nil, id: 1, inserted_at: #Ecto.DateTime<2016-09-15 21:42:38>,
-#     updated_at: #Ecto.DateTime<2016-09-15 23:22:12>, insert_version_id: 1, current_version_id: 2},
+#     updated_at: #Ecto.DateTime<2016-09-15 23:22:12>, first_version_id: 1, current_version_id: 2},
 #    version: %PaperTrail.Version{__meta__: #Ecto.Schema.Metadata<:loaded, "versions">,
 #      event: "update", id: 2, inserted_at: #Ecto.DateTime<2016-09-15 23:22:12>,
 #      item_changes: %{name: "Acme Inc."}, originator_id: nil, origin: "documentation", meta: nil}}}
@@ -286,7 +286,7 @@ Additionally, you can put a null constraint on ```origin``` column, you should a
 
 PaperTrail supports ```PaperTrail.insert!```, ```PaperTrail.update!```, ```PaperTrail.delete!``` naming of these functions intentionally match ```Repo.insert!```, ```Repo.update!```, ```Repo.delete!``` functions. If PaperTrail is on strict_mode these bang functions will update the version references of the model just like the normal PaperTrail operations.
 
-Bang functions assume the operation will always be successful, otherwise functions will raise ```Ecto.InvalidChangesetError``` just like ``Repo.insert!```, ```Repo.update!``` and ```Repo.delete!```:
+Bang functions assume the operation will always be successful, otherwise functions will raise ```Ecto.InvalidChangesetError``` just like ```Repo.insert!```, ```Repo.update!``` and ```Repo.delete!```:
 
 ```elixir
   changeset = Post.changeset(%Post{}, %{
