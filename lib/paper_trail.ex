@@ -113,19 +113,20 @@ defmodule PaperTrail do
             first_version_id: version_id,
             current_version_id: version_id
           })
-          initial_version_struct = make_version_struct(%{event: "insert"}, changeset_data, options)
-          initial_version = @repo.insert!(initial_version_struct)
+          initial_version = make_version_struct(%{event: "insert"}, changeset_data, options)
+            |> @repo.insert!
           updated_changeset = changeset |> change(%{
             first_version_id: initial_version.id, current_version_id: initial_version.id
           })
           model = @repo.insert!(updated_changeset)
           target_version = make_version_struct(%{event: "insert"}, model, options) |> serialize()
           Version.changeset(initial_version, target_version) |> @repo.update!
+          model
         _ ->
           model = @repo.insert!(changeset)
           make_version_struct(%{event: "insert"}, model, options) |> @repo.insert!
+          model
       end
-      model
     end) |> elem(1)
   end
 
@@ -200,12 +201,13 @@ defmodule PaperTrail do
             current_version_id: initial_version.id
           })
           initial_version |> change(%{item_changes: new_item_changes}) |> @repo.update!
+          model
         _ ->
           model = @repo.update!(changeset)
           version_struct = make_version_struct(%{event: "update"}, changeset, options)
           @repo.insert!(version_struct)
+          model
       end
-      model
     end) |> elem(1)
   end
 
@@ -235,53 +237,51 @@ defmodule PaperTrail do
       model = @repo.delete!(struct)
       version_struct = make_version_struct(%{event: "delete"}, struct, options)
       @repo.insert!(version_struct)
+      model
     end) |> elem(1)
   end
 
   defp make_version_struct(%{event: "insert"}, model, options) do
     originator_ref = options[@originator[:name]] || options[:originator]
-    originator_id = case originator_ref do
-      nil -> nil
-      _ -> originator_ref |> Map.get(:id)
-    end
     %Version{
       event: "insert",
       item_type: model.__struct__ |> Module.split |> List.last,
       item_id: model.id,
       item_changes: serialize(model),
-      originator_id: originator_id,
+      originator_id: case originator_ref do
+        nil -> nil
+        _ -> originator_ref |> Map.get(:id)
+      end,
       origin: options[:origin],
       meta: options[:meta]
     }
   end
   defp make_version_struct(%{event: "update"}, changeset, options) do
     originator_ref = options[@originator[:name]] || options[:originator]
-    originator_id = case originator_ref do
-      nil -> nil
-      _ -> originator_ref |> Map.get(:id)
-    end
     %Version{
       event: "update",
       item_type: changeset.data.__struct__ |> Module.split |> List.last,
       item_id: changeset.data.id,
       item_changes: changeset.changes,
-      originator_id: originator_id,
+      originator_id: case originator_ref do
+        nil -> nil
+        _ -> originator_ref |> Map.get(:id)
+      end,
       origin: options[:origin],
       meta: options[:meta]
     }
   end
   defp make_version_struct(%{event: "delete"}, model, options) do
     originator_ref = options[@originator[:name]] || options[:originator]
-    originator_id = case originator_ref do
-      nil -> nil
-      _ -> originator_ref |> Map.get(:id)
-    end
     %Version{
       event: "delete",
       item_type: model.__struct__ |> Module.split |> List.last,
       item_id: model.id,
       item_changes: serialize(model),
-      originator_id: originator_id,
+      originator_id: case originator_ref do
+        nil -> nil
+        _ -> originator_ref |> Map.get(:id)
+      end,
       origin: options[:origin],
       meta: options[:meta]
     }

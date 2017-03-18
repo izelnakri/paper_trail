@@ -68,7 +68,7 @@ defmodule PaperTrailStrictModeTest do
     assert company == first(Company, :id) |> @repo.one |> serialize
   end
 
-  test "PaperTrail.insert\\2 with an error returns and error tuple like Repo.insert\\2" do
+  test "PaperTrail.insert/2 with an error returns and error tuple like Repo.insert/2" do
     result = create_company_with_version(%{name: nil, is_active: true, city: "Greenwich"})
     ecto_result = Company.changeset(%Company{}, %{name: nil, is_active: true, city: "Greenwich"})
       |> @repo.insert
@@ -120,7 +120,7 @@ defmodule PaperTrailStrictModeTest do
     assert company == first(Company, :id) |> @repo.one |> serialize
   end
 
-  test "PaperTrail.update\\2 with an error returns and error tuple like Repo.update\\2" do
+  test "PaperTrail.update/2 with an error returns and error tuple like Repo.update/2" do
     {:ok, insert_result} = create_company_with_version()
     company = insert_result[:model]
     result = update_company_with_version(company, %{
@@ -187,7 +187,7 @@ defmodule PaperTrailStrictModeTest do
     assert old_company == company_before_deletion
   end
 
-  test "PaperTrail.delete\\2 with an error returns and error tuple like Repo.delete\\2" do
+  test "PaperTrail.delete/2 with an error returns and error tuple like Repo.delete/2" do
     {:ok, insert_company_result} = create_company_with_version()
     Person.changeset(%Person{}, %{
       first_name: "Izel",
