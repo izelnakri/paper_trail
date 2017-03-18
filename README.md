@@ -103,7 +103,7 @@ The library source code is minimal and well tested. It is suggested to read the 
 
   ```elixir
     def deps do
-      [{:paper_trail, "~> 0.7.0"}]
+      [{:paper_trail, "~> 0.7.2"}]
     end
   ```
 
