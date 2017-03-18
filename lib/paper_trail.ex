@@ -1,4 +1,4 @@
-# document bang function in README, write tests for both normal mode and strict mode
+# document bang function in README
 defmodule PaperTrail do
   import Ecto.Changeset
 
