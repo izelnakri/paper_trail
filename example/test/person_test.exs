@@ -62,7 +62,7 @@ defmodule PersonTest do
     }
 
     assert Map.drop(version, [:id]) == %{
-      event: "create",
+      event: "insert",
       item_type: "Person",
       item_id: Repo.one(first(Person, :id)).id,
       item_changes: Map.drop(result[:model], [:__meta__, :__struct__, :company]),
@@ -155,7 +155,7 @@ defmodule PersonTest do
     assert version_count == [3]
 
     assert Map.drop(version, [:id]) == %{
-      event: "destroy",
+      event: "delete",
       item_type: "Person",
       item_id: person.id,
       item_changes: %{

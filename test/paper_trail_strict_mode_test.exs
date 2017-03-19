@@ -68,6 +68,40 @@ defmodule PaperTrailStrictModeTest do
     assert company == first(Company, :id) |> @repo.one |> serialize
   end
 
+  test "creating a company without changeset creates a company version with correct attributes" do
+    {:ok, result} = PaperTrail.insert(%Company{name: "Acme LLC"})
+    company_count = Company.count()
+    version_count = Version.count()
+
+    company = result[:model] |> serialize
+    version = result[:version] |> serialize
+
+    assert Map.keys(result) == [:model, :version]
+    assert company_count == 1
+    assert version_count == 1
+    assert Map.drop(company, [:id, :inserted_at, :updated_at]) == %{
+      name: "Acme LLC",
+      is_active: nil,
+      city: nil,
+      website: nil,
+      address: nil,
+      facebook: nil,
+      twitter: nil,
+      founded_in: nil,
+      first_version_id: version.id,
+      current_version_id: version.id
+    }
+    assert Map.drop(version, [:id, :inserted_at]) == %{
+      event: "insert",
+      item_type: "StrictCompany",
+      item_id: company.id,
+      item_changes: company,
+      originator_id: nil,
+      origin: nil,
+      meta: nil
+    }
+  end
+
   test "PaperTrail.insert/2 with an error returns and error tuple like Repo.insert/2" do
     result = create_company_with_version(%{name: nil, is_active: true, city: "Greenwich"})
     ecto_result = Company.changeset(%Company{}, %{name: nil, is_active: true, city: "Greenwich"})

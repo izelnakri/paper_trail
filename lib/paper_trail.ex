@@ -1,4 +1,3 @@
-# document bang function in README
 defmodule PaperTrail do
   import Ecto.Changeset
 
@@ -7,9 +6,9 @@ defmodule PaperTrail do
   alias Ecto.Multi
   alias PaperTrail.Version
 
-  @repo PaperTrail.RepoClient.repo()
-  @originator PaperTrail.RepoClient.originator()
   @client PaperTrail.RepoClient
+  @originator @client.originator()
+  @repo @client.repo()
 
   @doc """
   Gets all the versions of a record given a module and its id
@@ -55,11 +54,18 @@ defmodule PaperTrail do
         Multi.new
         |> Multi.run(:initial_version, fn %{} ->
           version_id = get_sequence_id("versions") + 1
-          changeset_data = changeset.data |> Map.merge(%{
-            id: get_sequence_from_model(changeset) + 1,
-            first_version_id: version_id,
-            current_version_id: version_id
-          })
+          changeset_data = case Map.get(changeset, :data) do
+            nil -> changeset |> Map.merge(%{
+              id: get_sequence_from_model(changeset) + 1,
+              first_version_id: version_id,
+              current_version_id: version_id
+            })
+            _ -> changeset.data |> Map.merge(%{
+              id: get_sequence_from_model(changeset) + 1,
+              first_version_id: version_id,
+              current_version_id: version_id
+            })
+          end
           initial_version = make_version_struct(%{event: "insert"}, changeset_data, options)
           @repo.insert(initial_version)
         end)
@@ -108,11 +114,18 @@ defmodule PaperTrail do
       case @client.strict_mode() do
         true ->
           version_id = get_sequence_id("versions") + 1
-          changeset_data = changeset.data |> Map.merge(%{
-            id: get_sequence_from_model(changeset) + 1,
-            first_version_id: version_id,
-            current_version_id: version_id
-          })
+          changeset_data = case Map.get(changeset, :data) do
+            nil -> changeset |> Map.merge(%{
+              id: get_sequence_from_model(changeset) + 1,
+              first_version_id: version_id,
+              current_version_id: version_id
+            })
+            _ -> changeset.data |> Map.merge(%{
+              id: get_sequence_from_model(changeset) + 1,
+              first_version_id: version_id,
+              current_version_id: version_id
+            })
+          end
           initial_version = make_version_struct(%{event: "insert"}, changeset_data, options)
             |> @repo.insert!
           updated_changeset = changeset |> change(%{
@@ -288,7 +301,10 @@ defmodule PaperTrail do
   end
 
   defp get_sequence_from_model(changeset) do
-    table_name = changeset.data.__struct__.__schema__(:source)
+    table_name = case Map.get(changeset, :data) do
+      nil -> changeset.__struct__.__schema__(:source)
+      _ -> changeset.data.__struct__.__schema__(:source)
+    end
     get_sequence_id(table_name)
   end
 

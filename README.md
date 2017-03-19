@@ -2,7 +2,7 @@
 
 # How does it work?
 
-PaperTrail lets you record every change in your database in a separate database table called ```versions```. Library generates a new version record with associated data every time you run ```PaperTrail.insert/1```, ```PaperTrail.update/1``` or ```PaperTrail.delete/1``` functions. Simply these functions wrap your Repo insert, update or destroy actions in a database transaction, so if your database action fails you won't get a new version.
+PaperTrail lets you record every change in your database in a separate database table called ```versions```. Library generates a new version record with associated data every time you run ```PaperTrail.insert/2```, ```PaperTrail.update/2``` or ```PaperTrail.delete/2``` functions. Simply these functions wrap your Repo insert, update or destroy actions in a database transaction, so if your database action fails you won't get a new version.
 
 PaperTrail is assailed with hundreds of test assertions for each release. Data integrity is an important aim of this project, please refer to the strict_mode if you want to ensure data correctness and integrity of your versions. For simpler use cases the default mode of PaperTrail should suffice.
 
@@ -103,7 +103,7 @@ The library source code is minimal and well tested. It is suggested to read the 
 
   ```elixir
     def deps do
-      [{:paper_trail, "~> 0.7.2"}]
+      [{:paper_trail, "~> 0.7.3"}]
     end
   ```
 
@@ -146,7 +146,7 @@ YES! Make sure you do the steps above.
 | inserted_at   | Date    | inserted_at timestamp       | Ecto generates |
 
 ### Version origin references:
-PaperTrail records have a string field called ```origin```. ```PaperTrail.insert/1```, ```PaperTrail.update/1```, ```PaperTrail.delete/1``` functions accept a second argument to describe the origin of this version:
+PaperTrail records have a string field called ```origin```. ```PaperTrail.insert/2```, ```PaperTrail.update/2```, ```PaperTrail.delete/2``` functions accept a second argument to describe the origin of this version:
 ```elixir
 PaperTrail.update(changeset, origin: "migration")
 # or:
@@ -201,7 +201,7 @@ deleted_company = Company.changeset(edited_company, %{})
 ```
 
 # Strict mode
-This is a feature more suitable for larger applications. Models can keep their version references via foreign key constraints. Therefore it would be impossible to delete the first and current version of a model, it also makes querying easier and the whole design more relational database/SQL friendly. In order to enable strict mode:
+This is a feature more suitable for larger applications. Models can keep their version references via foreign key constraints. Therefore it would be impossible to delete the first and current version of a model if the model exists in the database, it also makes querying easier and the whole design more relational database/SQL friendly. In order to enable strict mode:
 
 ```elixir
 # in your config/config.exs
@@ -212,7 +212,7 @@ Strict mode expects tracked models to have foreign-key reference to their first_
 
 ```elixir
 # in the migration file: priv/repo/migrations/create_company.exs
-defmodule Repo.Migrations.AddVersions do
+defmodule Repo.Migrations.CreateCompany do
   def change do
     create table(:companies) do
       add :name,       :string, null: false
@@ -246,7 +246,7 @@ defmodule Company do
     timestamps()
   end
 
-  def changeset(struct, params) do
+  def changeset(struct, params \\ %{}) do
     struct
     |> cast(params, [:name, :founded_in])
   end
@@ -267,7 +267,7 @@ company = Company.changeset(%Company{}, %{name: "Acme LLC"}) |> PaperTrail.inser
 #      originator_id: nil, origin: "unknown", meta: nil}}}
 ```
 
-When you PaperTrail.update/2 a model, ```current_version_id``` gets updated during the transaction!:
+When you PaperTrail.update/2 a model, ```current_version_id``` gets updated during the transaction:
 
 ```elixir
 edited_company = Company.changeset(company, %{name: "Acme Inc."}) |> PaperTrail.update(origin: "documentation")
@@ -284,7 +284,7 @@ Additionally, you can put a null constraint on ```origin``` column, you should a
 
 ### Bang(!) functions:
 
-PaperTrail supports ```PaperTrail.insert!```, ```PaperTrail.update!```, ```PaperTrail.delete!``` naming of these functions intentionally match ```Repo.insert!```, ```Repo.update!```, ```Repo.delete!``` functions. If PaperTrail is on strict_mode these bang functions will update the version references of the model just like the normal PaperTrail operations.
+PaperTrail also supports ```PaperTrail.insert!```, ```PaperTrail.update!```, ```PaperTrail.delete!```. Naming of these functions intentionally match ```Repo.insert!```, ```Repo.update!```, ```Repo.delete!``` functions. If PaperTrail is on strict_mode these bang functions will update the version references of the model just like the normal PaperTrail operations.
 
 Bang functions assume the operation will always be successful, otherwise functions will raise ```Ecto.InvalidChangesetError``` just like ```Repo.insert!```, ```Repo.update!``` and ```Repo.delete!```:
 
