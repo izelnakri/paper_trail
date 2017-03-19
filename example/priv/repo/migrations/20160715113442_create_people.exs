@@ -11,7 +11,7 @@ defmodule Example.Repo.Migrations.CreatePeople do
 
       add :company_id, references(:companies), null: false
 
-      timestamps
+      timestamps()
     end
 
     create index(:people, [:company_id])

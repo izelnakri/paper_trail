@@ -33,7 +33,7 @@ defmodule PersonTest do
       company_id: company.id
     })
 
-    {:ok, result} = PaperTrail.insert(new_person, %{originator: "admin"}) # add link name later on
+    {:ok, result} = PaperTrail.insert(new_person, origin: "admin", meta: %{}) # add link name later on
 
     person_count = Repo.all(
       from person in Person,
@@ -66,7 +66,9 @@ defmodule PersonTest do
       item_type: "Person",
       item_id: Repo.one(first(Person, :id)).id,
       item_changes: Map.drop(result[:model], [:__meta__, :__struct__, :company]),
-      meta: %{originator: "admin"}
+      origin: "admin",
+      originator_id: nil,
+      meta: %{}
     }
   end
 
@@ -86,8 +88,7 @@ defmodule PersonTest do
       company_id: target_company.id
     })
 
-    {:ok, result} = PaperTrail.update(new_person, %{
-      originator: "user:1",
+    {:ok, result} = PaperTrail.update(new_person, origin: "user:1", meta: %{
       linkname: "izelnakri"
     })
 
@@ -127,8 +128,9 @@ defmodule PersonTest do
         birthdate: elem(Ecto.Date.cast(~D[1992-04-01]), 1),
         company_id: target_company.id
       },
+      origin: "user:1",
+      originator_id: nil,
       meta: %{
-        originator: "user:1",
         linkname: "izelnakri"
       }
     }
@@ -169,6 +171,8 @@ defmodule PersonTest do
         birthdate: elem(Ecto.Date.cast(~D[1992-04-01]), 1),
         company_id: person.company.id
       },
+      origin: nil,
+      originator_id: nil,
       meta: nil
     }
   end

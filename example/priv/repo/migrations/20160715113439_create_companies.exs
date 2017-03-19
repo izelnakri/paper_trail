@@ -12,7 +12,7 @@ defmodule Example.Repo.Migrations.CreateCompanies do
       add :twitter,    :string
       add :founded_in, :string
 
-      timestamps
+      timestamps()
     end
   end
 end

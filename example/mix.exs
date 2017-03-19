@@ -32,9 +32,9 @@ defmodule Example.Mixfile do
   defp deps do
     [
       {:postgrex, ">= 0.0.0"},
-      {:ecto, "~> 2.0.2"},
-      {:poison, "2.1.0"},
-      {:paper_trail, ">= 0.0.0"}
+      {:ecto, ">= 2.0.2"},
+      {:poison, ">= 2.1.0"},
+      {:paper_trail, ">= 0.7.3"}
     ]
   end
 end

@@ -16,7 +16,7 @@ defmodule CompanyTest do
       name: "Acme LLC", is_active: true, city: "Greenwich", people: []
     })
 
-    {:ok, result} = PaperTrail.insert(new_company)
+    {:ok, result} = PaperTrail.insert(new_company, origin: "test")
 
     company_count = Repo.all(
       from company in Company,
@@ -52,6 +52,8 @@ defmodule CompanyTest do
       item_type: "Company",
       item_id: Repo.one(first(Company, :id)).id,
       item_changes: Map.drop(result[:model], [:__meta__, :__struct__, :people]),
+      origin: "test",
+      originator_id: nil,
       meta: nil
     }
   end
@@ -100,6 +102,8 @@ defmodule CompanyTest do
       item_type: "Company",
       item_id: Repo.one(first(Company, :id)).id,
       item_changes: %{city: "Hong Kong", website: "http://www.acme.com", facebook: "acme.llc"},
+      origin: nil,
+      originator_id: nil,
       meta: nil
     }
   end
@@ -155,6 +159,8 @@ defmodule CompanyTest do
         twitter: nil,
         founded_in: nil
       },
+      origin: nil,
+      originator_id: nil,
       meta: nil
     }
   end

@@ -7,9 +7,13 @@ defmodule Repo.Migrations.AddVersions do
       add :item_type,    :string
       add :item_id,      :integer
       add :item_changes, :map
+      add :origin,       :string
+      add :originator_id, references(:people)
       add :meta,         :map
 
-      add :inserted_at,  :datetime, null: false
+      add :inserted_at,  :utc_datetime, null: false
     end
+
+    create index(:versions, [:originator_id])
   end
 end
