@@ -28,7 +28,26 @@ defmodule PaperTrail.Version do
     |> validate_required([:event, :item_type, :item_id, :item_changes])
   end
 
+  @doc """
+  Returns the count of all version records in the database
+  """
   def count do
     from(version in __MODULE__, select: count(version.id)) |> PaperTrail.RepoClient.repo.one
+  end
+
+  @doc """
+  Returns the first version record in the database by :inserted_at
+  """
+  def first do
+    from(record in __MODULE__, limit: 1, order_by: [asc: :inserted_at])
+    |> PaperTrail.RepoClient.repo.one
+  end
+
+  @doc """
+  Returns the last version record in the database by :inserted_at
+  """
+  def last do
+    from(record in __MODULE__, limit: 1, order_by: [desc: :inserted_at])
+    |> PaperTrail.RepoClient.repo.one
   end
 end

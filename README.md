@@ -82,9 +82,10 @@ PaperTrail is assailed with hundreds of test assertions for each release. Data i
   #     item_id: 1, item_type: "Post", originator_id: nil, originator: nil, meta: nil}}}
 
   Repo.aggregate(Post, :count, :id) # => 0
-  Repo.aggregate(PaperTrail.Version, :count, :id) # => 3
+  PaperTrail.Version.count() # => 3
+  # same as Repo.aggregate(PaperTrail.Version, :count, :id)
 
-  last(PaperTrail.Version, :id) |> Repo.one
+  PaperTrail.Version.last() # returns the last version in the db by inserted_at
   #  %PaperTrail.Version{__meta__: #Ecto.Schema.Metadata<:loaded, "versions">,
   #   event: "delete", id: 3, inserted_at: #Ecto.DateTime<2016-09-15 22:22:12>,
   #   item_changes: %{"title" => "Elixir matures fast", content: "Future is already here, Elixir is the next step!", "id" => 1,
@@ -351,9 +352,10 @@ Bang functions assume the operation will always be successful, otherwise functio
   #   item_id: 1, item_type: "Post", originator_id: nil, originator: nil, meta: nil}
 
   Repo.aggregate(Post, :count, :id) # => 0
-  Repo.aggregate(PaperTrail.Version, :count, :id) # => 3
+  PaperTrail.Version.count() # => 3
+  # same as Repo.aggregate(PaperTrail.Version, :count, :id)
 
-  last(PaperTrail.Version, :id) |> Repo.one
+  PaperTrail.Version.last() # returns the last version in the db by inserted_at
   #  %PaperTrail.Version{__meta__: #Ecto.Schema.Metadata<:loaded, "versions">,
   #   event: "delete", id: 3, inserted_at: #Ecto.DateTime<2016-09-15 22:22:12>,
   #   item_changes: %{"title" => "Elixir matures fast", content: "Future is already here, Elixir is the next step!", "id" => 1,
