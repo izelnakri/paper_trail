@@ -44,7 +44,7 @@ PaperTrail is assailed with hundreds of test assertions for each release. Data i
   # => on success:
   # {:ok,
   #  %{model: %Post{__meta__: #Ecto.Schema.Metadata<:loaded, "posts">,
-  #     title: "Elixir matures fast", content: "Future is already here, you deserve to be awesome!",
+  #     title: "Elixir matures fast", content: "Future is already here, Elixir is the next step!",
   #     id: 1, inserted_at: #Ecto.DateTime<2016-09-15 21:42:38>,
   #     updated_at: #Ecto.DateTime<2016-09-15 22:00:59>},
   #    version: %PaperTrail.Version{__meta__: #Ecto.Schema.Metadata<:loaded, "versions">,
