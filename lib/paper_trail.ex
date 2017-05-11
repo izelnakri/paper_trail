@@ -275,7 +275,7 @@ defmodule PaperTrail do
       event: "update",
       item_type: changeset.data.__struct__ |> Module.split |> List.last,
       item_id: changeset.data.id,
-      item_changes: changeset.changes,
+      item_changes: serialize_changes(changeset),
       originator_id: case originator_ref do
         nil -> nil
         _ -> originator_ref |> Map.get(:id)
@@ -317,5 +317,10 @@ defmodule PaperTrail do
   defp serialize(model) do
     relationships = model.__struct__.__schema__(:associations)
     Map.drop(model, [:__struct__, :__meta__] ++ relationships)
+  end
+
+  defp serialize_changes(changeset) do
+    relationships = changeset.data.__struct__.__schema__(:associations)
+    Map.drop(changeset.changes, relationships)
   end
 end
