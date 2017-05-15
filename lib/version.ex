@@ -6,12 +6,16 @@ defmodule PaperTrail.Version do
 
   @setter PaperTrail.RepoClient.originator || nil
 
+  #types
+  @item_type Application.get_env(:paper_trail, :item_type, :integer)
+  @originator_type Application.get_env(:paper_trail, :originator_type, :integer)
+
   schema "versions" do
     field :event, :string
     field :item_type, :string
-    field :item_id, :integer
+    field :item_id, @item_type
     field :item_changes, :map
-    field :originator_id, :integer
+    field :originator_id, @originator_type
     field :origin, :string, read_after_writes: true
     field :meta, :map
 

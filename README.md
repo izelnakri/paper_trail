@@ -123,6 +123,10 @@ The library source code is minimal and well tested. It is suggested to read the 
 
   ```mix papertrail.install```
 
+  You might want to edit the types for `:event_id` and `:originator_id` if you're
+  using UUID or other types for your primary keys before you execute
+  `mix ecto.migrate`.
+
   5. run the migration:
 
   ```mix ecto.migrate```
@@ -139,12 +143,24 @@ YES! Make sure you do the steps above.
 | ------------- | ------- | -------------------------- | ------------------------ |
 | event         | String  | either insert, update or delete  | Library generates |
 | item_type     | String  | model name of the reference record | Library generates |
-| item_id       | Integer | model id of the reference record | Library generates |
+| item_id       | configurable (Integer by default) | model id of the reference record | Library generates |
 | item_changes  | Map     | all the changes in this version as a map | Library generates |
-| originator_id | Integer | foreign key reference to the creator/owner of this change | Optionally set |
+| originator_id | configurable (Integer by default) | foreign key reference to the creator/owner of this change | Optionally set |
 | origin        | String  | short reference to origin(eg. worker:activity-checker, migration, admin:33) | Optionally set |
 | meta          | Map     | any extra optional meta information about the version(eg. %{slug: "ausername", important: true}) | Optionally set |
 | inserted_at   | Date    | inserted_at timestamp       | Ecto generates |
+
+#### Configuring the types
+
+If you are using UUID or another type for your primary keys, you can configure
+the PaperTrail.Version schema to use it.
+
+```elixir
+config :paper_trail, item_type: Ecto.UUID,
+                     originator_type: Ecto.UUID
+```
+
+Remember to edit the types accordingly in the generated migration.
 
 ### Version origin references:
 PaperTrail records have a string field called ```origin```. ```PaperTrail.insert/2```, ```PaperTrail.update/2```, ```PaperTrail.delete/2``` functions accept a second argument to describe the origin of this version:
