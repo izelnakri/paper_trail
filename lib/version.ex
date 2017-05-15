@@ -20,7 +20,7 @@ defmodule PaperTrail.Version do
     field :meta, :map
 
     if @setter do
-      belongs_to @setter[:name], @setter[:model], define_field: false, foreign_key: :originator_id
+      belongs_to @setter[:name], @setter[:model], define_field: false, foreign_key: :originator_id, type: @originator_type
     end
 
     timestamps(updated_at: false)
