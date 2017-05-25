@@ -1,5 +1,6 @@
-Mix.Task.run "ecto.create"
-Mix.Task.run "ecto.migrate"
+Mix.Task.run "ecto.create", ~w(-r PaperTrail.Repo)
+Mix.Task.run "ecto.migrate", ~w(-r PaperTrail.Repo)
+Mix.Task.run "ecto.migrate", ~w(-r PaperTrail.UUIDRepo)
 
 PaperTrail.Repo.start_link
 PaperTrail.UUIDRepo.start_link
