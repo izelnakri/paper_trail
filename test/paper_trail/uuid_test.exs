@@ -4,7 +4,7 @@ defmodule PaperTrailTest.UUIDTest do
   alias PaperTrail.Version
   import Ecto.Query
 
-  setup do
+  setup_all do
     Application.put_env(:paper_trail, :repo, PaperTrail.UUIDRepo)
     Application.put_env(:paper_trail, :originator, [name: :admin, model: Admin])
     Application.put_env(:paper_trail, :originator_type, Ecto.UUID)
@@ -23,7 +23,7 @@ defmodule PaperTrailTest.UUIDTest do
       |> Product.changeset(%{name: "Hair Cream"})
       |> PaperTrail.insert!
 
-    version = Version |> last |> repo.one
+    version = Version |> last |> repo().one
 
     assert version.item_id == product.id
     assert version.item_type == "Product"
@@ -43,8 +43,8 @@ defmodule PaperTrailTest.UUIDTest do
     version =
       Version
       |> last
-      |> repo.one
-      |> repo.preload(:admin)
+      |> repo().one
+      |> repo().preload(:admin)
 
     assert version.admin == admin
   end
