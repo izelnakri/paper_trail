@@ -17,6 +17,8 @@ defmodule PaperTrailTest.Version do
 
   setup_all do
     Application.put_env(:paper_trail, :strict_mode, false)
+    Code.eval_file("lib/paper_trail.ex")
+    Code.eval_file("lib/version.ex")
     :ok
   end
 
