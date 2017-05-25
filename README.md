@@ -388,6 +388,8 @@ Bang functions assume the operation will always be successful, otherwise functio
 Many thanks to:
 - [Jose Pablo Castro](https://github.com/josepablocastro) - Built the repo configuration for paper_trail
 - [Alex Antonov](https://github.com/asiniy) - Original inventor of the originator feature
+- [Moritz Schmale](https://github.com/narrowtux) - UUID primary keys feature
+- [Jason Draper](https://github.com/drapergeek) - UUID primary keys feature
 - [Josh Taylor](https://github.com/joshuataylor) - Maintenance and new feature suggestions
 - [Mitchell Henke](https://github.com/mitchellhenke) - Fixed weird elixir compiler warnings
 - [Izel Nakri](https://github.com/izelnakri) - The Originator of this library. See what I did there ;)
