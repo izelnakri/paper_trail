@@ -15,6 +15,7 @@ defmodule PaperTrailTest.StrictModeBangFunctions do
 
   setup_all do
     Application.put_env(:paper_trail, :strict_mode, true)
+    Application.put_env(:paper_trail, :repo, PaperTrail.Repo)
     Code.eval_file("lib/paper_trail.ex")
     Code.eval_file("lib/version.ex")
     :ok
