@@ -4,7 +4,6 @@ defmodule PaperTrailTest.UUIDTest do
   alias PaperTrail.Version
   import Ecto.Query
 
-
   setup do
     Application.put_env(:paper_trail, :repo, PaperTrail.UUIDRepo)
     Application.put_env(:paper_trail, :originator, [name: :admin, model: Admin])
