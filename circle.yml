@@ -30,7 +30,5 @@ dependencies:
     - cd example && mix deps.compile
 test:
   override:
-    - mix ecto.migrate -r PaperTrail.Repo
-    - mix ecto.migrate -r PaperTrail.UUIDRepo
-    - mix test
+    - MIX_ENV=test mix test
     - cd example && mix test
