@@ -30,5 +30,5 @@ dependencies:
     - cd example && mix deps.compile
 test:
   override:
-    - MIX_ENV=test mix test
-    - cd example && mix test
+    - MIX_ENV=test mix test --trace
+    - cd example && mix test --trace
