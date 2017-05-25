@@ -2,6 +2,10 @@ defmodule PaperTrail.Repo do
   use Ecto.Repo, otp_app: :paper_trail
 end
 
+defmodule PaperTrail.UUIDRepo do
+  use Ecto.Repo, otp_app: :paper_trail
+end
+
 defmodule User do
   use Ecto.Schema
 

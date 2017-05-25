@@ -6,7 +6,6 @@ defmodule PaperTrail.Version do
 
   @setter PaperTrail.RepoClient.originator || nil
 
-  #types
   @item_type Application.get_env(:paper_trail, :item_type, :integer)
   @originator_type Application.get_env(:paper_trail, :originator_type, :integer)
 
