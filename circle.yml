@@ -5,7 +5,9 @@ machine:
 
 database:
   override:
+    - createdb paper_trail_test
     - createdb paper_trail_example_test
+    - createdb paper_trail_uuid_test
 
 dependencies:
   cache_directories:
