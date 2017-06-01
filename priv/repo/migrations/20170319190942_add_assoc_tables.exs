@@ -1,4 +1,4 @@
-defmodule Repo.Migrations.CreateStrictPeople do
+defmodule Repo.Migrations.CreateAssocTables do
   use Ecto.Migration
 
   def change do
