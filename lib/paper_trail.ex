@@ -83,8 +83,13 @@ defmodule PaperTrail do
         Multi.new
         |> Multi.insert(:model, changeset)
         |> Multi.run(:version, fn %{model: model} ->
-          version = make_version_struct(%{event: "insert"}, model, options)
-          @repo.insert(version)
+          results = make_version_structs(%{event: "insert"}, model, changeset, options)
+          |> Enum.map(&@repo.insert/1)
+
+          case Keyword.get_values(results, :error) do
+            [] -> {:ok, Keyword.get_values(results, :ok)}
+            errors -> {:error, errors}
+          end
         end)
     end
 
@@ -252,6 +257,38 @@ defmodule PaperTrail do
       @repo.insert!(version_struct)
       model
     end) |> elem(1)
+  end
+
+  defp make_version_structs(%{event: event}, model, changeset, options) do
+    model_version = make_version_struct(%{event: event}, model, options)
+
+    assoc_versions =
+      changeset.changes
+      |> Enum.flat_map(fn {key, value} ->
+        model = Map.get(model, key)
+        case value do
+          %Ecto.Changeset{} = changeset ->
+            {changeset, model}
+          list when is_list(list) ->
+            [list, model]
+            |> List.zip()
+            |> Enum.filter(fn
+              {%Ecto.Changeset{}, _} -> true
+              _ -> false
+            end)
+          _ -> []
+        end
+      end)
+      |> Enum.flat_map(fn {changeset, model} ->
+        make_version_structs(
+          %{event: changeset.action |> Atom.to_string},
+          model,
+          changeset,
+          options
+        )
+      end)
+
+    [ model_version | assoc_versions ]
   end
 
   defp make_version_struct(%{event: "insert"}, model, options) do
