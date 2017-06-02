@@ -192,10 +192,7 @@ defmodule PaperTrail do
             |> make_version_structs(model, changeset, options)
             |> Enum.map(&@repo.insert/1)
 
-          case Keyword.get_values(results, :error) do
-            [] -> {:ok, Keyword.get_values(results, :ok)}
-            errors -> {:error, errors}
-          end
+          format_multiple_results(results)
         end)
     end
 
@@ -268,18 +265,18 @@ defmodule PaperTrail do
         @repo.insert(version)
       end)
       |> Multi.run(:assoc_versions, fn %{} ->
-        oks = deleted_assocs
-        |> Enum.map(fn
-          {:delete_all, _, struct} ->
-            make_version_struct(%{event: "delete"}, struct, options)
-          {:nilify_all, owner_field, struct} ->
-            changeset = Ecto.Changeset.change(struct, [{owner_field, nil}])
-            make_version_struct(%{event: "update"}, changeset, options)
-        end)
-        |> Enum.map(&@repo.insert/1)
-        |> Keyword.get_values(:ok)
+        results =
+          deleted_assocs
+          |> Enum.map(fn
+            {:delete_all, _, struct} ->
+              make_version_struct(%{event: "delete"}, struct, options)
+            {:nilify_all, owner_field, struct} ->
+              changeset = Ecto.Changeset.change(struct, [{owner_field, nil}])
+              make_version_struct(%{event: "update"}, changeset, options)
+          end)
+          |> Enum.map(&@repo.insert/1)
 
-        {:ok, oks}
+        format_multiple_results(results)
       end)
       |> @repo.transaction
 
@@ -380,6 +377,13 @@ defmodule PaperTrail do
       origin: options[:origin],
       meta: options[:meta]
     }
+  end
+
+  defp format_multiple_results(results) do
+    case Keyword.get_values(results, :error) do
+      [] -> {:ok, Keyword.get_values(results, :ok)}
+      errors -> {:error, errors}
+    end
   end
 
   defp get_sequence_from_model(changeset) do

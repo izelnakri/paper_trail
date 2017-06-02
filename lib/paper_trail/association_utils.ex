@@ -2,6 +2,9 @@ defmodule PaperTrail.AssociationUtils do
   @client PaperTrail.RepoClient
   @repo @client.repo()
 
+  def get_all_children(%Ecto.Changeset{} = changeset) do
+    get_all_children(changeset.data)
+  end
   def get_all_children(struct) do
     struct.__struct__
     |> get_child_assocs()
