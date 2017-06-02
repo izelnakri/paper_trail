@@ -284,7 +284,13 @@ defmodule PaperTrail do
       end)
       |> Multi.run(:assoc_versions, fn repo, %{} ->
         oks = deleted_assocs
-        |> Enum.map(&make_version_struct(%{event: "delete"}, &1, options))
+        |> Enum.map(fn
+          {:delete_all, _, struct} ->
+            make_version_struct(%{event: "delete"}, struct, options)
+          {:nilify_all, owner_field, struct} ->
+            changeset = Ecto.Changeset.change(struct, [{owner_field, nil}])
+            make_version_struct(%{event: "update"}, changeset, options)
+        end)
         |> Enum.map(&@repo.insert/1)
         |> Keyword.get_values(:ok)
 
