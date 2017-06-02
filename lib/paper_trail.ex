@@ -189,10 +189,7 @@ defmodule PaperTrail do
               |> make_version_structs(model, changeset, options)
               |> Enum.map(&repo.insert/1)
 
-            case Keyword.get_values(results, :error) do
-              [] -> {:ok, Keyword.get_values(results, :ok)}
-              errors -> {:error, errors}
-            end
+              format_multiple_results(results)
           end)
       end
 
@@ -281,19 +278,19 @@ defmodule PaperTrail do
         version = make_version_struct(%{event: "delete"}, struct, options)
         repo.insert(version, options)
       end)
-      |> Multi.run(:assoc_versions, fn repo, %{} ->
-        oks = deleted_assocs
-        |> Enum.map(fn
-          {:delete_all, _, struct} ->
-            make_version_struct(%{event: "delete"}, struct, options)
-          {:nilify_all, owner_field, struct} ->
-            changeset = Ecto.Changeset.change(struct, [{owner_field, nil}])
-            make_version_struct(%{event: "update"}, changeset, options)
-        end)
-        |> Enum.map(&repo.insert/1)
-        |> Keyword.get_values(:ok)
+      |> Multi.run(:assoc_versions, fn %{} ->
+        results =
+          deleted_assocs
+          |> Enum.map(fn
+            {:delete_all, _, struct} ->
+              make_version_struct(%{event: "delete"}, struct, options)
+            {:nilify_all, owner_field, struct} ->
+              changeset = Ecto.Changeset.change(struct, [{owner_field, nil}])
+              make_version_struct(%{event: "update"}, changeset, options)
+          end)
+          |> Enum.map(&repo.insert/1)
 
-        {:ok, oks}
+        format_multiple_results(results)
       end)
       |> repo.transaction(options)
 
@@ -411,6 +408,13 @@ defmodule PaperTrail do
       meta: options[:meta]
     }
     |> add_prefix(options[:prefix])
+  end
+
+  defp format_multiple_results(results) do
+    case Keyword.get_values(results, :error) do
+      [] -> {:ok, Keyword.get_values(results, :ok)}
+      errors -> {:error, errors}
+    end
   end
 
   defp get_sequence_from_model(changeset) do
