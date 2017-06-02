@@ -21,3 +21,5 @@ config :paper_trail, PaperTrail.UUIDRepo,
   database: "paper_trail_uuid_test",
   hostname: System.get_env("POSTGRES_HOST"),
   poolsize: 10
+
+config :logger, level: :info
