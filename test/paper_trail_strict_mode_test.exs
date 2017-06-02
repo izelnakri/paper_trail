@@ -183,7 +183,7 @@ defmodule PaperTrailStrictModeTest do
     old_company = result[:model] |> serialize()
     version = result[:version] |> serialize()
 
-    assert Map.keys(result) == [:model, :version]
+    assert Map.keys(result) == [:assoc_versions, :model, :version]
     assert company_count == 0
     assert version_count == 3
     assert Map.drop(old_company, [:id, :inserted_at, :updated_at]) == %{
@@ -367,7 +367,7 @@ defmodule PaperTrailStrictModeTest do
     old_person = result[:model] |> serialize
     version = result[:version] |> serialize
 
-    assert Map.keys(result) == [:model, :version]
+    assert Map.keys(result) == [:assoc_versions, :model, :version]
     assert person_count == 0
     assert version_count == 5
     assert Map.drop(version, [:id, :inserted_at]) == %{

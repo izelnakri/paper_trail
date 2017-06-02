@@ -43,17 +43,17 @@ defmodule PaperTrailTest.Version do
 
   test "count works" do
     versions = add_three_versions()
-    Version.count() == length(versions)
+    assert Version.count() == length(versions)
   end
 
   test "first works" do
-    versions = add_three_versions()
-    Version.first() |> serialize == @valid_attrs
+    _versions = add_three_versions()
+    assert Version.first() |> serialize == @valid_attrs
   end
 
   test "last works" do
-    versions = add_three_versions()
-    Version.last() |> serialize != %{
+    _versions = add_three_versions()
+     assert Version.last() |> serialize != %{
       event: "insert",
       item_type: "Person",
       item_id: 3,

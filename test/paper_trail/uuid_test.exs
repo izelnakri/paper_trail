@@ -33,9 +33,9 @@ defmodule PaperTrailTest.UUIDTest do
     admin =
       %Admin{}
       |> Admin.changeset(%{email: "admin@example.com"})
-      |> repo.insert!
+      |> repo().insert!
 
-    product =
+    _product =
       %Product{}
       |> Product.changeset(%{name: "Hair Cream"})
       |> PaperTrail.insert!(originator: admin)

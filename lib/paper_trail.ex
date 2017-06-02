@@ -45,70 +45,6 @@ defmodule PaperTrail do
     VersionQueries.get_current_model(version)
   end
 
-  defp perforrm_action(action, changeset, options) do
-    event = Atom.to_string(action)
-    transaction_order = case @client.strict_mode() do
-      true ->
-        Multi.new
-        |> Multi.run(:initial_version, fn %{} ->
-          version_id = get_sequence_id("versions") + 1
-          changeset_data = case Map.get(changeset, :data) do
-            nil -> changeset |> Map.merge(%{
-              id: get_sequence_from_model(changeset) + 1,
-              first_version_id: version_id,
-              current_version_id: version_id
-            })
-            _ -> changeset.data |> Map.merge(%{
-              id: get_sequence_from_model(changeset) + 1,
-              first_version_id: version_id,
-              current_version_id: version_id
-            })
-          end
-          initial_version = make_version_struct(%{event: event}, changeset_data, options)
-          @repo.insert(initial_version)
-        end)
-        |> Multi.run(:model, fn %{initial_version: initial_version} ->
-          updated_changeset = changeset |> change(%{
-            first_version_id: initial_version.id, current_version_id: initial_version.id
-          })
-          apply(@repo, action, [updated_changeset])
-        end)
-        |> Multi.run(:version, fn %{initial_version: initial_version, model: model} ->
-          target_version = make_version_struct(%{event: event}, model, options) |> serialize()
-          Version.changeset(initial_version, target_version) |> @repo.update
-        end)
-      _ ->
-        multi = Multi.new
-        apply(Multi, action, [multi, :model, changeset])
-        |> Multi.run(:version, fn %{model: model} ->
-          results = make_version_structs(%{event: event}, model, changeset, options)
-          |> Enum.map(&@repo.insert/1)
-
-          case Keyword.get_values(results, :error) do
-            [] -> {:ok, Keyword.get_values(results, :ok)}
-            errors -> {:error, errors}
-          end
-        end)
-    end
-
-    transaction = @repo.transaction(transaction_order)
-
-    case @client.strict_mode() do
-      true ->
-        case transaction do
-          {:error, :model, changeset, %{}} ->
-            filtered_changes = Map.drop(changeset.changes, [:current_version_id, :first_version_id])
-            {:error, Map.merge(changeset, %{repo: @repo, changes: filtered_changes})}
-          {:ok, map} -> {:ok, Map.drop(map, [:initial_version])}
-        end
-      _ ->
-        case transaction do
-          {:error, :model, changeset, %{}} -> {:error, Map.merge(changeset, %{repo: @repo})}
-          _ -> transaction
-        end
-    end
-  end
-
   @doc """
   Inserts a record to the database with a related version insertion in one transaction
   """
@@ -311,10 +247,9 @@ defmodule PaperTrail do
           model
         _ ->
           model = @repo.update!(changeset)
-          version_struct =
-            %{event: "update"}
-            |> make_version_structs(model, changeset, options)
-            |> Enum.each(&@repo.insert!/1)
+          %{event: "update"}
+          |> make_version_structs(model, changeset, options)
+          |> Enum.each(&@repo.insert!/1)
           model
       end
     end) |> elem(1)
