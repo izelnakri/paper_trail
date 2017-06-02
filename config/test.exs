@@ -19,3 +19,5 @@ config :paper_trail, PaperTrail.UUIDRepo,
   database: "paper_trail_uuid_test",
   hostname: "localhost",
   poolsize: 10
+
+config :logger, level: :info
