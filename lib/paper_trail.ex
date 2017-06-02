@@ -58,7 +58,7 @@ defmodule PaperTrail do
           |> Multi.insert(:model, changeset)
           |> Multi.run(:version, fn repo, %{model: model} ->
             results = make_version_structs(%{event: "insert"}, model, changeset, options)
-            |> Enum.map(&@repo.insert/1)
+            |> Enum.map(&repo.insert/1)
 
             case Keyword.get_values(results, :error) do
               [] -> {:ok, Keyword.get_values(results, :ok)}
@@ -85,6 +85,14 @@ defmodule PaperTrail do
       _ ->
         case transaction do
           {:error, :model, changeset, %{}} -> {:error, Map.merge(changeset, %{repo: repo})}
+          {:ok, map} ->
+            versions = Map.get(map, :version)
+
+            map =
+              map
+              |> Map.put(:version, hd(versions))
+              |> Map.put(:assoc_versions, tl(versions))
+            {:ok, map}
           _ -> transaction
         end
     end
@@ -127,7 +135,9 @@ defmodule PaperTrail do
 
         _ ->
           model = repo.insert!(changeset)
-          make_version_struct(%{event: "insert"}, model, options) |> repo.insert!
+          %{event: "insert"}
+          |> make_version_structs(model, changeset, options)
+          |> Enum.each(&repo.insert!/1)
           model
       end
     end)
@@ -173,9 +183,16 @@ defmodule PaperTrail do
         _ ->
           Multi.new()
           |> Multi.update(:model, changeset)
-          |> Multi.run(:version, fn repo, %{model: _model} ->
-            version = make_version_struct(%{event: "update"}, changeset, options)
-            repo.insert(version)
+          |> Multi.run(:version, fn repo, %{model: model} ->
+            results =
+              %{event: "update"}
+              |> make_version_structs(model, changeset, options)
+              |> Enum.map(&repo.insert/1)
+
+            case Keyword.get_values(results, :error) do
+              [] -> {:ok, Keyword.get_values(results, :ok)}
+              errors -> {:error, errors}
+            end
           end)
       end
 
@@ -195,6 +212,14 @@ defmodule PaperTrail do
       _ ->
         case transaction do
           {:error, :model, changeset, %{}} -> {:error, Map.merge(changeset, %{repo: repo})}
+          {:ok, map} ->
+            versions = Map.get(map, :version)
+
+            map =
+              map
+              |> Map.put(:version, hd(versions))
+              |> Map.put(:assoc_versions, tl(versions))
+            {:ok, map}
           _ -> transaction
         end
     end
@@ -233,8 +258,10 @@ defmodule PaperTrail do
 
         _ ->
           model = repo.update!(changeset)
-          version_struct = make_version_struct(%{event: "update"}, changeset, options)
-          repo.insert!(version_struct)
+          version_struct =
+            %{event: "update"}
+            |> make_version_structs(model, changeset, options)
+            |> Enum.each(&@repo.insert!/1)
           model
       end
     end)
@@ -278,7 +305,10 @@ defmodule PaperTrail do
   end
 
   defp make_version_structs(%{event: event}, model, changeset, options) do
-    model_version = make_version_struct(%{event: event}, model, options)
+    model_version = case event do
+      "update" -> make_version_struct(%{event: event}, changeset, options)
+      _ -> make_version_struct(%{event: event}, model, options)
+    end
 
     assoc_versions =
       changeset.changes
