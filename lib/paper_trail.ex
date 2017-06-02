@@ -324,11 +324,21 @@ defmodule PaperTrail do
   Deletes a record from the database with a related version insertion in one transaction
   """
   def delete(struct, options \\ [origin: nil, meta: nil, originator: nil]) do
+    deleted_assocs = PaperTrail.AssociationUtils.get_all_children(struct)
+
     transaction = Multi.new
       |> Multi.delete(:model, struct)
       |> Multi.run(:version, fn %{} ->
         version = make_version_struct(%{event: "delete"}, struct, options)
         @repo.insert(version)
+      end)
+      |> Multi.run(:assoc_versions, fn %{} ->
+        oks = deleted_assocs
+        |> Enum.map(&make_version_struct(%{event: "delete"}, &1, options))
+        |> Enum.map(&@repo.insert/1)
+        |> Keyword.get_values(:ok)
+
+        {:ok, oks}
       end)
       |> @repo.transaction
 

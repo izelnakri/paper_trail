@@ -11,7 +11,7 @@ defmodule Repo.Migrations.CreateAssocTables do
 
     create table(:assoc_comments) do
       add :content, :string
-      add :post_id, references(:assoc_posts)
+      add :post_id, references(:assoc_posts), on_delete: :delete_all
 
       timestamps()
     end

@@ -60,4 +60,36 @@ defmodule PaperTrailTest.AssocTest do
         assert false
     end
   end
+
+  test "deleting a post should create deletion records for its comments" do
+    params = %{
+      name: "Shitpost",
+      content: "Emacs is better than vi",
+      comments: [%{
+        content: "I respectfully disagree."
+      }, %{
+        content: "Just because you can't quit vi?"
+      }]
+    }
+
+    changeset = Assoc.Post.changeset(%Assoc.Post{}, params)
+
+    case PaperTrail.insert(changeset) do
+      {:ok, %{model: %{id: post_id, comments: comments}}} ->
+        comment_ids = Enum.map(comments, &(&1.id))
+
+        post = Repo.get(Assoc.Post, post_id)
+
+        PaperTrail.delete(post) |> IO.inspect
+
+        query = from v in PaperTrail.Version,
+          where: v.item_id in ^comment_ids,
+          where: v.item_type == "Comment",
+          where: v.event == "delete"
+
+        assert query |> Repo.all() |> length() == 2
+      {:error, _} ->
+        assert false
+    end
+  end
 end
