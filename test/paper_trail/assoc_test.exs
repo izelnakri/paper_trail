@@ -95,4 +95,48 @@ defmodule PaperTrailTest.AssocTest do
         assert false
     end
   end
+
+  test "deleting a make should only nilify the car's make" do
+    params = %{
+      name: "Tesla Motors",
+      cars: [
+        %{
+          model: "Model S"
+        }, %{
+          model: "Model X"
+        }, %{
+          model: "Model 3"
+        }, %{
+          model: "Roadster"
+        }
+      ]
+    }
+
+    %Embed.Make{}
+    |> Embed.Make.changeset(params)
+    |> PaperTrail.insert()
+    |> case do
+      {:ok, %{model: %{cars: cars} = make}} ->
+        car_ids = Enum.map(cars, &(&1.id))
+
+        assert length(cars) == 4
+
+        PaperTrail.delete(make)
+
+        query = from v in PaperTrail.Version,
+          where: v.item_id in ^car_ids,
+          where: v.item_type == "Car",
+          where: v.event == "update"
+
+        updated_car_versions = Repo.all(query)
+
+        assert length(updated_car_versions) == 4
+
+        assert Enum.at(updated_car_versions, 0).item_changes["make_id"] == nil
+      _ ->
+        assert false
+    end
+
+
+  end
 end

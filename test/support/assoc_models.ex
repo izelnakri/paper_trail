@@ -41,3 +41,58 @@ defmodule Assoc do
     end
   end
 end
+
+defmodule Embed do
+  defmodule Make do
+    use Ecto.Schema
+    import Ecto.Changeset
+
+    schema "embed_makes" do
+      field :name, :string
+      has_many :cars, Embed.Car, on_delete: :nilify_all, foreign_key: :make_id
+
+      timestamps()
+    end
+
+    def changeset(struct, params \\ %{}) do
+      struct
+      |> cast(params, [:name])
+      |> cast_assoc(:cars)
+    end
+  end
+
+  defmodule Car do
+    use Ecto.Schema
+    import Ecto.Changeset
+
+    schema "embed_cars" do
+      field :model, :string
+      belongs_to :make, Embed.Make
+      embeds_many :extras, Embed.Extra
+
+      timestamps()
+    end
+
+    def changeset(struct, params \\ %{}) do
+      struct
+      |> cast(params, [:model])
+      |> cast_assoc(:make)
+      |> cast_embed(:extras)
+    end
+  end
+
+  defmodule Extra do
+    use Ecto.Schema
+    import Ecto.Changeset
+
+    embedded_schema do
+      field :name, :string
+      field :price, :float
+    end
+
+    def changeset(struct, params \\ %{}) do
+      struct
+      |> cast(params, [:name, :price])
+    end
+  end
+end
