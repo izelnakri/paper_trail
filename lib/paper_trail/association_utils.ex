@@ -16,7 +16,7 @@ defmodule PaperTrail.AssociationUtils do
         # when this struct is deleted, we need to cascade the effect down to its
         # children
         [entry | get_all_children(struct)]
-      {:nilify_all, _field, struct} = entry ->
+      {:nilify_all, _field, _struct} = entry ->
         # when the association field on this struct is set to nil, we don't need
         # to cascade further down
         [entry]
