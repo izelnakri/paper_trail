@@ -43,7 +43,7 @@ defmodule PaperTrailTest do
     company = result[:model] |> serialize
     version = result[:version] |> serialize
 
-    assert Map.keys(result) == [:model, :version]
+    assert Map.keys(result) == [:assoc_versions, :model, :version]
     assert company_count == 1
     assert version_count == 1
     assert Map.drop(company, [:id, :inserted_at, :updated_at]) == %{
@@ -88,7 +88,7 @@ defmodule PaperTrailTest do
     company = result[:model] |> serialize
     version = result[:version] |> serialize
 
-    assert Map.keys(result) == [:model, :version]
+    assert Map.keys(result) == [:assoc_versions, :model, :version]
     assert company_count == 1
     assert version_count == 2
     assert Map.drop(company, [:id, :inserted_at, :updated_at]) == %{
@@ -127,7 +127,7 @@ defmodule PaperTrailTest do
     company = result[:model] |> serialize
     version = result[:version] |> serialize
 
-    assert Map.keys(result) == [:model, :version]
+    assert Map.keys(result) == [:assoc_versions, :model, :version]
     assert company_count == 1
     assert version_count == 2
     assert Map.drop(company, [:id, :inserted_at, :updated_at]) == %{
@@ -249,7 +249,7 @@ defmodule PaperTrailTest do
     person = result[:model] |> serialize
     version = result[:version] |> serialize
 
-    assert Map.keys(result) == [:model, :version]
+    assert Map.keys(result) == [:assoc_versions, :model, :version]
     assert person_count == 1
     assert version_count == 3
     assert  Map.drop(person, [:id, :inserted_at, :updated_at]) == %{
@@ -298,7 +298,7 @@ defmodule PaperTrailTest do
     person = result[:model] |> serialize
     version = result[:version] |> serialize
 
-    assert Map.keys(result) == [:model, :version]
+    assert Map.keys(result) == [:assoc_versions, :model, :version]
     assert person_count == 1
     assert version_count == 4
     assert Map.drop(person, [:id, :inserted_at, :updated_at]) == %{
