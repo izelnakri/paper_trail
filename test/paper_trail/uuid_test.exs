@@ -9,8 +9,12 @@ defmodule PaperTrailTest.UUIDTest do
     Application.put_env(:paper_trail, :originator, name: :admin, model: Admin)
     Application.put_env(:paper_trail, :originator_type, Ecto.UUID)
     Application.put_env(:paper_trail, :item_type, (if System.get_env("STRING_TEST") == nil, do: Ecto.UUID, else: :string))
+
+    Code.compiler_options(ignore_module_conflict: true)
     Code.eval_file("lib/paper_trail.ex")
     Code.eval_file("lib/version.ex")
+    Code.compiler_options(ignore_module_conflict: false)
+
     repo().delete_all(Version)
     repo().delete_all(Admin)
     repo().delete_all(Product)

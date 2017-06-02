@@ -9,8 +9,11 @@ defmodule PaperTrailTest.AssocTest do
   setup_all do
     Application.put_env(:paper_trail, :strict_mode, false)
     Application.put_env(:paper_trail, :repo, PaperTrail.Repo)
+
+    Code.compiler_options(ignore_module_conflict: true)
     Code.eval_file("lib/paper_trail.ex")
     Code.eval_file("lib/version.ex")
+    Code.compiler_options(ignore_module_conflict: false)
     :ok
   end
 
