@@ -258,10 +258,9 @@ defmodule PaperTrail do
 
         _ ->
           model = repo.update!(changeset)
-          version_struct =
-            %{event: "update"}
-            |> make_version_structs(model, changeset, options)
-            |> Enum.each(&@repo.insert!/1)
+          %{event: "update"}
+          |> make_version_structs(model, changeset, options)
+          |> Enum.each(&repo.insert!/1)
           model
       end
     end)
@@ -291,7 +290,7 @@ defmodule PaperTrail do
             changeset = Ecto.Changeset.change(struct, [{owner_field, nil}])
             make_version_struct(%{event: "update"}, changeset, options)
         end)
-        |> Enum.map(&@repo.insert/1)
+        |> Enum.map(&repo.insert/1)
         |> Keyword.get_values(:ok)
 
         {:ok, oks}

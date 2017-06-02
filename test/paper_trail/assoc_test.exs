@@ -80,7 +80,7 @@ defmodule PaperTrailTest.AssocTest do
 
         post = Repo.get(Assoc.Post, post_id)
 
-        PaperTrail.delete(post) |> IO.inspect
+        PaperTrail.delete(post)
 
         query = from v in PaperTrail.Version,
           where: v.item_id in ^comment_ids,

@@ -222,7 +222,7 @@ defmodule PaperTrailTest do
     company = result[:model] |> serialize
     version = result[:version] |> serialize
 
-    assert Map.keys(result) == [:model, :version]
+    assert Map.keys(result) == [:assoc_versions, :model, :version]
     assert company_count == 0
     assert version_count == 3
 
@@ -496,7 +496,7 @@ defmodule PaperTrailTest do
     person_count = Person.count()
     version_count = Version.count()
 
-    assert Map.keys(result) == [:model, :version]
+    assert Map.keys(result) == [:assoc_versions, :model, :version]
     old_person = update_result[:model] |> serialize
     version = result[:version] |> serialize
 
