@@ -273,6 +273,7 @@ defmodule PaperTrail do
   """
   def delete(struct, options \\ [origin: nil, meta: nil, originator: nil, prefix: nil]) do
     repo = PaperTrail.RepoClient.repo()
+    deleted_assocs = PaperTrail.AssociationUtils.get_all_children(struct)
 
     transaction =
       Multi.new()
@@ -280,6 +281,14 @@ defmodule PaperTrail do
       |> Multi.run(:version, fn repo, %{} ->
         version = make_version_struct(%{event: "delete"}, struct, options)
         repo.insert(version, options)
+      end)
+      |> Multi.run(:assoc_versions, fn repo, %{} ->
+        oks = deleted_assocs
+        |> Enum.map(&make_version_struct(%{event: "delete"}, &1, options))
+        |> Enum.map(&@repo.insert/1)
+        |> Keyword.get_values(:ok)
+
+        {:ok, oks}
       end)
       |> repo.transaction(options)
 

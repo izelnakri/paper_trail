@@ -6,7 +6,7 @@ defmodule Assoc do
     schema "assoc_posts" do
       field :name, :string
       field :content, :string
-      has_many :comments, Assoc.Comment
+      has_many :comments, Assoc.Comment, on_delete: :delete_all
 
       timestamps()
     end
