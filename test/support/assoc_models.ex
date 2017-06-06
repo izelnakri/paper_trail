@@ -1,3 +1,8 @@
+item_type = case Application.get_env(:paper_trail, :item_type, :integer) do
+  :integer -> {:id, :id, autogenerate: true}
+  Ecto.UUID -> {:id, :binary_id, autogenerate: true}
+end
+
 defmodule Assoc do
   defmodule Post do
     use Ecto.Schema
@@ -43,10 +48,12 @@ defmodule Assoc do
 end
 
 defmodule Embed do
+
   defmodule Make do
     use Ecto.Schema
     import Ecto.Changeset
 
+    @primary_key item_type
     schema "embed_makes" do
       field :name, :string
       has_many :cars, Embed.Car, on_delete: :nilify_all, foreign_key: :make_id
@@ -65,6 +72,7 @@ defmodule Embed do
     use Ecto.Schema
     import Ecto.Changeset
 
+    @primary_key item_type
     schema "embed_cars" do
       field :model, :string
       belongs_to :make, Embed.Make

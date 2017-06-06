@@ -13,6 +13,7 @@ defmodule PaperTrailTest.AssocTest do
     Code.compiler_options(ignore_module_conflict: true)
     Code.eval_file("lib/paper_trail.ex")
     Code.eval_file("lib/version.ex")
+    Code.eval_file("test/support/assoc_models.ex")
     Code.compiler_options(ignore_module_conflict: false)
     :ok
   end
@@ -142,7 +143,7 @@ defmodule PaperTrailTest.AssocTest do
     params = %{
       model: "Model S",
       extras: [
-        %{name: "Ludicrus mode", price: 10_000},
+        %{name: "Ludicrous mode", price: 10_000},
         %{name: "Autopilot", price: 5_000}
       ]
     }
@@ -152,7 +153,6 @@ defmodule PaperTrailTest.AssocTest do
     |> PaperTrail.insert()
     |> case do
       {:ok, %{version: version}} ->
-        IO.inspect version
         assert version.item_changes.extras |> length() == 2
       _ ->
         assert false
