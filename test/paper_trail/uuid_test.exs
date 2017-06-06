@@ -63,14 +63,38 @@ defmodule PaperTrailTest.UUIDTest do
       ]
     }
 
-    %Embed.Car{}
-    |> Embed.Car.changeset(params)
-    |> PaperTrail.insert()
-    |> case do
-      {:ok, %{assoc_versions: versions}} ->
-        assert length(versions) == 2
-      _ ->
-        assert false
-    end
+    car =
+      %Embed.Car{}
+      |> Embed.Car.changeset(params)
+      |> PaperTrail.insert()
+      |> case do
+        {:ok, %{assoc_versions: versions, model: car}} ->
+          assert length(versions) == 2
+          car
+        _ ->
+          assert false
+      end
+
+    # update the extras with doubled price
+    params = %{
+      extras: Enum.map(car.extras, fn %{id: id, price: price} ->
+        %{
+          id: id,
+          price: price * 2
+        }
+      end)
+    }
+
+    car =
+      car
+      |> Embed.Car.changeset(params)
+      |> PaperTrail.update()
+      |> case do
+        {:ok, ret} ->
+          assert ret.version == nil
+          assert ret.assoc_versions |> length() == 2
+        _ ->
+          assert false
+      end
   end
 end
