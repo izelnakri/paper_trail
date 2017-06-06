@@ -136,7 +136,26 @@ defmodule PaperTrailTest.AssocTest do
       _ ->
         assert false
     end
+  end
 
+  test "using embeds without UUID should render inside item_changes" do
+    params = %{
+      model: "Model S",
+      extras: [
+        %{name: "Ludicrus mode", price: 10_000},
+        %{name: "Autopilot", price: 5_000}
+      ]
+    }
 
+    %Embed.Car{}
+    |> Embed.Car.changeset(params)
+    |> PaperTrail.insert()
+    |> case do
+      {:ok, %{version: version}} ->
+        IO.inspect version
+        assert version.item_changes.extras |> length() == 2
+      _ ->
+        assert false
+    end
   end
 end

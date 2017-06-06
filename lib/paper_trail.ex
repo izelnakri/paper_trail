@@ -9,6 +9,16 @@ defmodule PaperTrail do
   @client PaperTrail.RepoClient
   @originator @client.originator()
   @repo @client.repo()
+  @item_type Application.get_env(:paper_trail, :item_type, :integer)
+
+  @embed_mode (case @item_type do
+    Ecto.UUID ->
+      :extract_version
+    _ ->
+      :embed_into_item_changes
+  end)
+  @embed_mode Application.get_env(:paper_trail, :embed_mode, @embed_mode)
+
 
   @doc """
   Gets all the versions of a record given a module and its id
@@ -318,6 +328,10 @@ defmodule PaperTrail do
               {%Ecto.Changeset{}, _} -> true
               _ -> false
             end)
+            |> Enum.filter(fn
+              {_, %{__struct__: schema}} -> not(is_embed?(schema)) or @embed_mode == :extract_version
+              _ -> false
+            end)
           _ -> []
         end
       end)
@@ -402,6 +416,38 @@ defmodule PaperTrail do
 
   defp serialize(model) do
     relationships = model.__struct__.__schema__(:associations)
-    Map.drop(model, [:__struct__, :__meta__] ++ relationships)
+    relationships = if @embed_mode == :embed_into_item_changes do
+      relationships -- model.__struct__.__schema__(:embeds)
+    else
+      relationships
+    end
+
+    model
+    |> Map.drop([:__struct__, :__meta__] ++ relationships)
+    |> Enum.filter(fn
+      {_, %Ecto.Association.NotLoaded{}} -> false
+      _ -> true
+    end)
+    |> Enum.into(%{}, fn
+      {key, %{__struct__: struct} = model} ->
+        if :functions |> struct.__info__ |> Keyword.get(:__schema__, :undef) != :undef do
+          {key, serialize(model)}
+        else
+          {key, model}
+        end
+      {key, list} when is_list(list) ->
+        list = Enum.map(list, fn
+          %{__struct__: struct} = model ->
+          if :functions |> struct.__info__ |> Keyword.get(:__schema__, :undef) != :undef do
+            serialize(model)
+          else
+            model
+          end
+        end)
+        {key, list}
+      other -> other
+    end)
   end
+
+  defp is_embed?(schema), do: is_nil(schema.__schema__(:source))
 end
