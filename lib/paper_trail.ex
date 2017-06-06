@@ -5,7 +5,6 @@ defmodule PaperTrail do
   alias PaperTrail.Version
   alias PaperTrail.RepoClient
 
-<<<<<<< HEAD
   defdelegate get_version(record), to: PaperTrail.VersionQueries
   defdelegate get_version(model_or_record, id_or_options), to: PaperTrail.VersionQueries
   defdelegate get_version(model, id, options), to: PaperTrail.VersionQueries
@@ -13,11 +12,6 @@ defmodule PaperTrail do
   defdelegate get_versions(model_or_record, id_or_options), to: PaperTrail.VersionQueries
   defdelegate get_versions(model, id, options), to: PaperTrail.VersionQueries
   defdelegate get_current_model(version), to: PaperTrail.VersionQueries
-=======
-  @client PaperTrail.RepoClient
-  @originator @client.originator()
-  @repo @client.repo()
-  @item_type Application.get_env(:paper_trail, :item_type, :integer)
 
   @embed_mode (case @item_type do
     Ecto.UUID ->
@@ -26,8 +20,6 @@ defmodule PaperTrail do
       :embed_into_item_changes
   end)
   @embed_mode Application.get_env(:paper_trail, :embed_mode, @embed_mode)
-
->>>>>>> :embed_into_item_changes mode WIP
 
   @doc """
   Inserts a record to the database with a related version insertion in one transaction
@@ -73,8 +65,12 @@ defmodule PaperTrail do
           Multi.new()
           |> Multi.insert(:model, changeset)
           |> Multi.run(:version, fn repo, %{model: model} ->
-            results = make_version_structs(%{event: "insert"}, model, changeset, options)
-            |> Enum.map(&repo.insert/1)
+            versions = make_version_structs(%{event: "insert"}, model, changeset, options)
+
+            results = case versions do
+              [nil | rest] -> [{:ok, nil} | Enum.map(rest, &@repo.insert/1)]
+              _ -> Enum.map(versions, &@repo.insert/1)
+            end
 
             case Keyword.get_values(results, :error) do
               [] -> {:ok, Keyword.get_values(results, :ok)}
@@ -200,12 +196,14 @@ defmodule PaperTrail do
           Multi.new()
           |> Multi.update(:model, changeset)
           |> Multi.run(:version, fn repo, %{model: model} ->
-            results =
-              %{event: "update"}
-              |> make_version_structs(model, changeset, options)
-              |> Enum.map(&repo.insert/1)
+            versions = make_version_structs(%{event: "update"}, model, changeset, options)
 
-              format_multiple_results(results)
+            results = case versions do
+              [nil | rest] -> [{:ok, nil} | Enum.map(rest, &@repo.insert/1)]
+              _ -> Enum.map(versions, &@repo.insert/1)
+            end
+
+            format_multiple_results(results)
           end)
       end
 
@@ -456,9 +454,12 @@ defmodule PaperTrail do
   defp serialize(%Ecto.Changeset{data: data}), do: serialize(data)
 
   defp serialize(model) do
-    relationships = model.__struct__.__schema__(:associations)
-    relationships = if @embed_mode == :embed_into_item_changes do
-      relationships -- model.__struct__.__schema__(:embeds)
+    serialize(model.__struct__, model)
+  end
+  defp serialize(struct, model) do
+    relationships = struct.__schema__(:associations)
+    relationships = if @embed_mode == :extract_version do
+      relationships ++ struct.__schema__(:embeds)
     else
       relationships
     end
@@ -476,14 +477,18 @@ defmodule PaperTrail do
         else
           {key, model}
         end
+      {key, %Ecto.Changeset{} = changeset} ->
+        {key, serialize(changeset)}
       {key, list} when is_list(list) ->
         list = Enum.map(list, fn
+          %Ecto.Changeset{} = changeset ->
+            serialize(changeset)
           %{__struct__: struct} = model ->
-          if is_schema?(struct) do
-            serialize(model)
-          else
-            model
-          end
+            if is_schema?(struct) do
+              serialize(model)
+            else
+              model
+            end
         end)
         {key, list}
       other -> other
