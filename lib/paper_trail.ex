@@ -471,7 +471,7 @@ defmodule PaperTrail do
     end)
     |> Enum.into(%{}, fn
       {key, %{__struct__: struct} = model} ->
-        if :functions |> struct.__info__ |> Keyword.get(:__schema__, :undef) != :undef do
+        if is_schema?(struct) do
           {key, serialize(model)}
         else
           {key, model}
@@ -479,7 +479,7 @@ defmodule PaperTrail do
       {key, list} when is_list(list) ->
         list = Enum.map(list, fn
           %{__struct__: struct} = model ->
-          if :functions |> struct.__info__ |> Keyword.get(:__schema__, :undef) != :undef do
+          if is_schema?(struct) do
             serialize(model)
           else
             model
@@ -508,5 +508,10 @@ defmodule PaperTrail do
         "#{model_id}"
     end
   end
+
+  defp is_schema?(struct) do
+    :functions |> struct.__info__ |> Keyword.get(:__schema__, :undef) != :undef
+  end
+
   defp is_embed?(schema), do: is_nil(schema.__schema__(:source))
 end

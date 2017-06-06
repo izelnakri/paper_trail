@@ -13,6 +13,7 @@ defmodule PaperTrailTest.UUIDTest do
     Code.compiler_options(ignore_module_conflict: true)
     Code.eval_file("lib/paper_trail.ex")
     Code.eval_file("lib/version.ex")
+    Code.eval_file("test/support/assoc_models.ex")
     Code.compiler_options(ignore_module_conflict: false)
 
     repo().delete_all(Version)
@@ -84,6 +85,23 @@ defmodule PaperTrailTest.UUIDTest do
 
       version = Version |> last |> repo().one
       assert version.item_id == item.item_id
+  test "using embeds with UUID enabled should render them in their own version entry" do
+    params = %{
+      model: "Model S",
+      extras: [
+        %{name: "Ludicrous mode", price: 10_000},
+        %{name: "Autopilot", price: 5_000}
+      ]
+    }
+
+    %Embed.Car{}
+    |> Embed.Car.changeset(params)
+    |> PaperTrail.insert()
+    |> case do
+      {:ok, %{assoc_versions: versions}} ->
+        assert length(versions) == 2
+      _ ->
+        assert false
     end
   end
 end
