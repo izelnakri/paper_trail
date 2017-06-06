@@ -133,11 +133,11 @@ The library source code is minimal and well tested. It is suggested to read the 
 
 Your application is now ready to collect some history!
 
-#### Does this work with phoenix?
+### Does this work with phoenix?
 
 YES! Make sure you do the steps above.
 
-### %PaperTrail.Version{} fields:
+## %PaperTrail.Version{} fields:
 
 | Column Name   | Type    | Description                | Entry Method             |
 | ------------- | ------- | -------------------------- | ------------------------ |
@@ -150,7 +150,7 @@ YES! Make sure you do the steps above.
 | meta          | Map     | any extra optional meta information about the version(eg. %{slug: "ausername", important: true}) | Optionally set |
 | inserted_at   | Date    | inserted_at timestamp       | Ecto generates |
 
-#### Configuring the types
+### Configuring the types
 
 If you are using UUID or another type for your primary keys, you can configure
 the PaperTrail.Version schema to use it.
@@ -161,6 +161,24 @@ config :paper_trail, item_type: Ecto.UUID,
 ```
 
 Remember to edit the types accordingly in the generated migration.
+
+## How PaperTrail handles Embeds
+
+PaperTrail can keep track of embeds in your schemas. There are 2 ways it can do so:
+
+ * `:extract_version` If the type of your schema IDs and that of the IDs in the embeds
+   is the same, you can tell PaperTrail to extract a version entry for each of your
+   embeds. This option is automatically used if you configured `:item_type` to
+   be `Ecto.UUID`
+ * `:embed_into_item_changes` (*default*) If the ID types of your schemas and
+   embeds doesn't match, PaperTrail can just render the whole embeds into the
+   `:item_changes` field in the version entry of the parent schema.
+
+Note that you usually don't need to set this option manually.
+
+```elixir
+config :paper_trail, embed_mode: :extract_version
+```
 
 ### Version origin references:
 PaperTrail records have a string field called ```origin```. ```PaperTrail.insert/2```, ```PaperTrail.update/2```, ```PaperTrail.delete/2``` functions accept a second argument to describe the origin of this version:
