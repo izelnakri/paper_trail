@@ -319,6 +319,6 @@ defmodule PaperTrail do
     Map.drop(model, [:__struct__, :__meta__] ++ relationships)
   end
 
-  defp add_prefix(changeset), do: changeset
+  defp add_prefix(changeset, nil), do: changeset
   defp add_prefix(changeset, prefix), do: Ecto.put_meta(changeset, prefix: prefix)
 end
