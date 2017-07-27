@@ -48,7 +48,7 @@ defmodule PaperTrail do
   @doc """
   Inserts a record to the database with a related version insertion in one transaction
   """
-  def insert(changeset, options \\ [origin: nil, meta: nil, originator: nil]) do
+  def insert(changeset, options \\ [origin: nil, meta: nil, originator: nil, prefix: nil]) do
     transaction_order = case @client.strict_mode() do
       true ->
         Multi.new
@@ -109,7 +109,7 @@ defmodule PaperTrail do
   @doc """
   Same as insert/2 but returns only the model struct or raises if the changeset is invalid.
   """
-  def insert!(changeset, options \\ [origin: nil, meta: nil, originator: nil]) do
+  def insert!(changeset, options \\ [origin: nil, meta: nil, originator: nil, prefix: nil]) do
     @repo.transaction(fn ->
       case @client.strict_mode() do
         true ->
@@ -146,7 +146,7 @@ defmodule PaperTrail do
   @doc """
   Updates a record from the database with a related version insertion in one transaction
   """
-  def update(changeset, options \\ [origin: nil, meta: nil, originator: nil]) do
+  def update(changeset, options \\ [origin: nil, meta: nil, originator: nil, prefix: nil]) do
     transaction_order = case @client.strict_mode() do
       true ->
         Multi.new
@@ -198,7 +198,7 @@ defmodule PaperTrail do
   @doc """
   Same as update/2 but returns only the model struct or raises if the changeset is invalid.
   """
-  def update!(changeset, options \\ [origin: nil, meta: nil, originator: nil]) do
+  def update!(changeset, options \\ [origin: nil, meta: nil, originator: nil, prefix: nil]) do
     @repo.transaction(fn ->
       case @client.strict_mode() do
         true ->
@@ -227,7 +227,7 @@ defmodule PaperTrail do
   @doc """
   Deletes a record from the database with a related version insertion in one transaction
   """
-  def delete(struct, options \\ [origin: nil, meta: nil, originator: nil]) do
+  def delete(struct, options \\ [origin: nil, meta: nil, originator: nil, prefix: nil]) do
     transaction = Multi.new
       |> Multi.delete(:model, struct)
       |> Multi.run(:version, fn %{} ->
@@ -245,7 +245,7 @@ defmodule PaperTrail do
   @doc """
   Same as delete/2 but returns only the model struct or raises if the changeset is invalid.
   """
-  def delete!(struct, options \\ [origin: nil, meta: nil, originator: nil]) do
+  def delete!(struct, options \\ [origin: nil, meta: nil, originator: nil, prefix: nil]) do
     @repo.transaction(fn ->
       model = @repo.delete!(struct)
       version_struct = make_version_struct(%{event: "delete"}, struct, options)
