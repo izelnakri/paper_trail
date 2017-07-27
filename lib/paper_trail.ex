@@ -267,7 +267,7 @@ defmodule PaperTrail do
       end,
       origin: options[:origin],
       meta: options[:meta]
-    }
+    } |> add_prefix(options[:prefix])
   end
   defp make_version_struct(%{event: "update"}, changeset, options) do
     originator_ref = options[@originator[:name]] || options[:originator]
@@ -282,7 +282,7 @@ defmodule PaperTrail do
       end,
       origin: options[:origin],
       meta: options[:meta]
-    }
+    } |> add_prefix(options[:prefix])
   end
   defp make_version_struct(%{event: "delete"}, model, options) do
     originator_ref = options[@originator[:name]] || options[:originator]
@@ -297,7 +297,7 @@ defmodule PaperTrail do
       end,
       origin: options[:origin],
       meta: options[:meta]
-    }
+    } |> add_prefix(options[:prefix])
   end
 
   defp get_sequence_from_model(changeset) do
@@ -318,4 +318,7 @@ defmodule PaperTrail do
     relationships = model.__struct__.__schema__(:associations)
     Map.drop(model, [:__struct__, :__meta__] ++ relationships)
   end
+
+  defp add_prefix(changeset), do: changeset
+  defp add_prefix(changeset, prefix), do: Ecto.put_meta(changeset, prefix: prefix)
 end
