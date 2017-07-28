@@ -43,9 +43,14 @@ defmodule PaperTrail.VersionQueries do
     @repo.get("Elixir." <> version.item_type |> String.to_existing_atom, version.item_id)
   end
 
-
   defp version_query(item_type, id) do
-    from v in Version,
-    where: v.item_type == ^item_type and v.item_id == ^id
+    from v in Version, where: v.item_type == ^item_type and v.item_id == ^id
+  end
+  defp version_query(item_type, id, options) do
+    with opts <- Enum.into(options, %{}) do
+      version_query(item_type, id)
+      |> Ecto.Queryable.to_query()
+      |> Map.merge(opts)
+    end
   end
 end
