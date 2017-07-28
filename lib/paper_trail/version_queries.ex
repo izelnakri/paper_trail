@@ -4,36 +4,94 @@ defmodule PaperTrail.VersionQueries do
 
   @repo PaperTrail.RepoClient.repo
 
+  @type result :: Ecto.Query.t
+
+  @doc """
+  Gets all the versions of a record.
+  """
+  @spec get_versions(record :: Ecto.Schema.t) :: result
+  def get_versions(record), do: get_versions(record, [])
+
   @doc """
   Gets all the versions of a record given a module and its id
   """
-  def get_versions(model, id) do
+  @spec get_versions(model :: module, id :: pos_integer) :: result
+  def get_versions(model, id) when is_atom(model) and is_integer(id), do: get_versions(model, id, [])
+
+  @doc """
+  Gets all the versions of a record.
+
+  A list of options is optional, so you can set for example the :prefix of the query,
+  wich allows you to change between different tenants.
+
+  # Usage example:
+
+    iex(1)> PaperTrail.VersionQueries.get_versions(record, [prefix: "tenant_id"])
+  """
+  @spec get_versions(record :: Ecto.Schema.t, options :: []) :: result
+  def get_versions(record, options) when is_map(record) do
+    item_type = record.__struct__ |> Module.split |> List.last
+    version_query(item_type, record.id, options) |> @repo.all
+  end
+
+  @doc """
+  Gets all the versions of a record given a module and its id.
+
+  A list of options is optional, so you can set for example the :prefix of the query,
+  wich allows you to change between different tenants.
+
+  # Usage example:
+
+    iex(1)> PaperTrail.VersionQueries.get_versions(ModelName, id, [prefix: "tenant_id"])
+  """
+  @spec get_versions(model :: module, id :: pos_integer, options :: []) :: result
+  def get_versions(model, id, options) do
     item_type = model |> Module.split |> List.last
-    version_query(item_type, id) |> @repo.all
+    version_query(item_type, id, options) |> @repo.all
   end
 
   @doc """
-  Gets all the versions of a record
+  Gets the last version of a record.
   """
-  def get_versions(record) do
+  @spec get_version(record :: Ecto.Schema.t) :: result
+  def get_version(record), do: get_version(record, [])
+
+  @doc """
+  Gets the last version of a record given its module reference and its id.
+  """
+  @spec get_version(model :: module, id :: pos_integer) :: result
+  def get_version(model, id) when is_atom(model) and is_integer(id), do: get_version(model, id, [])
+
+  @doc """
+  Gets the last version of a record given its module reference and its id.
+
+  A list of options is optional, so you can set for example the :prefix of the query,
+  wich allows you to change between different tenants.
+
+  # Usage example:
+
+    iex(1)> PaperTrail.VersionQueries.get_version(ModelName, id, [prefix: "tenant_id"])
+  """
+  @spec get_version(model :: module, id :: pos_integer, options :: []) :: result
+  def get_version(model, id, options) do
+    item_type = model |> Module.split |> List.last
+    last(version_query(item_type, id, options)) |> @repo.one
+  end
+
+  @doc """
+  Gets the last version of a record.
+
+  A list of options is optional, so you can set for example the :prefix of the query,
+  wich allows you to change between different tenants.
+
+  # Usage example:
+
+    iex(1)> PaperTrail.VersionQueries.get_version(record, [prefix: "tenant_id"])
+  """
+  @spec get_version(record :: Ecto.Schema.t, options :: []) :: result
+  def get_version(record, options) when is_map(record) do
     item_type = record.__struct__ |> Module.split |> List.last
-    version_query(item_type, record.id) |> @repo.all
-  end
-
-  @doc """
-  Gets the last version of a record given its module reference and its id
-  """
-  def get_version(model, id) do
-    item_type = Module.split(model) |> List.last
-    last(version_query(item_type, id)) |> @repo.one
-  end
-
-  @doc """
-  Gets the last version of a record
-  """
-  def get_version(record) do
-    item_type = record.__struct__ |> Module.split |> List.last
-    last(version_query(item_type, record.id)) |> @repo.one
+    last(version_query(item_type, record.id, options)) |> @repo.one
   end
 
   @doc """
