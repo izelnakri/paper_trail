@@ -8,12 +8,12 @@ defmodule PaperTrail do
   @originator @client.originator()
   @repo @client.repo()
 
-  defdelegate get_version(a), to: PaperTrail.VersionQueries
-  defdelegate get_version(a, b), to: PaperTrail.VersionQueries
-  defdelegate get_version(a, b, c), to: PaperTrail.VersionQueries
-  defdelegate get_versions(a), to: PaperTrail.VersionQueries
-  defdelegate get_versions(a, b), to: PaperTrail.VersionQueries
-  defdelegate get_versions(a, b, c), to: PaperTrail.VersionQueries
+  defdelegate get_version(record), to: PaperTrail.VersionQueries
+  defdelegate get_version(model_or_record, id_or_options), to: PaperTrail.VersionQueries
+  defdelegate get_version(model, id, options), to: PaperTrail.VersionQueries
+  defdelegate get_versions(record), to: PaperTrail.VersionQueries
+  defdelegate get_versions(model_or_record, id_or_options), to: PaperTrail.VersionQueries
+  defdelegate get_versions(model, id, options), to: PaperTrail.VersionQueries
   defdelegate get_current_model(version), to: PaperTrail.VersionQueries
 
   @doc """
