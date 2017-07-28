@@ -1,8 +1,6 @@
 defmodule PaperTrail do
   import Ecto.Changeset
 
-  alias PaperTrail.VersionQueries
-
   alias Ecto.Multi
   alias PaperTrail.Version
 
@@ -10,40 +8,13 @@ defmodule PaperTrail do
   @originator @client.originator()
   @repo @client.repo()
 
-  @doc """
-  Gets all the versions of a record given a module and its id
-  """
-  def get_versions(model, id) do
-    VersionQueries.get_versions(model, id)
-  end
-
-  @doc """
-  Gets all the versions of a record
-  """
-  def get_versions(record) do
-    VersionQueries.get_versions(record)
-  end
-
-  @doc """
-  Gets the last version of a record given its module reference and its id
-  """
-  def get_version(model, id) do
-    VersionQueries.get_version(model, id)
-  end
-
-  @doc """
-  Gets the last version of a record
-  """
-  def get_version(record) do
-    VersionQueries.get_version(record)
-  end
-
-  @doc """
-  Gets the current model record/struct of a version
-  """
-  def get_current_model(version) do
-    VersionQueries.get_current_model(version)
-  end
+  defdelegate get_version(a), to: PaperTrail.VersionQueries
+  defdelegate get_version(a, b), to: PaperTrail.VersionQueries
+  defdelegate get_version(a, b, c), to: PaperTrail.VersionQueries
+  defdelegate get_versions(a), to: PaperTrail.VersionQueries
+  defdelegate get_versions(a, b), to: PaperTrail.VersionQueries
+  defdelegate get_versions(a, b, c), to: PaperTrail.VersionQueries
+  defdelegate get_current_model(version), to: PaperTrail.VersionQueries
 
   @doc """
   Inserts a record to the database with a related version insertion in one transaction
