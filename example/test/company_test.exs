@@ -12,24 +12,16 @@ defmodule CompanyTest do
   end
 
   test "creating a company creates a company version with correct attributes" do
-    new_company = Company.changeset(%Company{}, %{
-      name: "Acme LLC", is_active: true, city: "Greenwich", people: []
-    })
+    {:ok, result} =
+      %{name: "Acme LLC", is_active: true, city: "Greenwich", people: []}
+      |> ChangesetHelper.new_company()
+      |> PaperTrail.insert(origin: "test")
 
-    {:ok, result} = PaperTrail.insert(new_company, origin: "test")
-
-    company_count = Repo.all(
-      from company in Company,
-      select: count(company.id)
-    )
+    company_count = QueryHelper.company_count() |> Repo.all()
+    version_count = QueryHelper.version_count() |> Repo.all()
+    first_company = QueryHelper.first_company() |> Repo.one()
 
     company = result[:model] |> Map.drop([:__meta__, :__struct__, :inserted_at, :updated_at, :id])
-
-    version_count = Repo.all(
-      from version in PaperTrail.Version,
-      select: count(version.id)
-    )
-
     version = result[:version] |> Map.drop([:__meta__, :__struct__, :inserted_at])
 
     assert company_count == [1]
@@ -50,7 +42,7 @@ defmodule CompanyTest do
     assert Map.drop(version, [:id]) == %{
       event: "insert",
       item_type: "Company",
-      item_id: Repo.one(first(Company, :id)).id,
+      item_id: first_company.id,
       item_changes: Map.drop(result[:model], [:__meta__, :__struct__, :people]),
       origin: "test",
       originator_id: nil,
@@ -59,27 +51,19 @@ defmodule CompanyTest do
   end
 
   test "updating a company creates a company version with correct item_changes" do
-    old_company = first(Company, :id) |> preload(:people) |> Repo.one
-    new_company = Company.changeset(old_company, %{
-      city: "Hong Kong",
-      website: "http://www.acme.com",
-      facebook: "acme.llc"
-    })
+    first_company = QueryHelper.first_company() |> Repo.one()
 
-    {:ok, result} = PaperTrail.update(new_company)
+    {:ok, result} =
+      ChangesetHelper.update_company(first_company, %{
+        city: "Hong Kong",
+        website: "http://www.acme.com",
+        facebook: "acme.llc"
+      }) |> PaperTrail.update()
 
-    company_count = Repo.all(
-      from company in Company,
-      select: count(company.id)
-    )
+    company_count = QueryHelper.company_count() |> Repo.all()
+    version_count = QueryHelper.version_count() |> Repo.all()
 
     company = result[:model] |> Map.drop([:__meta__, :__struct__, :inserted_at, :updated_at, :id])
-
-    version_count = Repo.all(
-      from version in PaperTrail.Version,
-      select: count(version.id)
-    )
-
     version = result[:version] |> Map.drop([:__meta__, :__struct__, :inserted_at])
 
     assert company_count == [1]
@@ -100,7 +84,7 @@ defmodule CompanyTest do
     assert Map.drop(version, [:id]) == %{
       event: "update",
       item_type: "Company",
-      item_id: Repo.one(first(Company, :id)).id,
+      item_id: first_company.id,
       item_changes: %{city: "Hong Kong", website: "http://www.acme.com", facebook: "acme.llc"},
       origin: nil,
       originator_id: nil,
@@ -109,22 +93,16 @@ defmodule CompanyTest do
   end
 
   test "deleting a company creates a company version with correct attributes" do
-    company = first(Company, :id) |> preload(:people) |> Repo.one
+    company = QueryHelper.first_company() |> Repo.one()
 
-    {:ok, result} = PaperTrail.delete(company)
+    {:ok, result} =
+      company
+      |> PaperTrail.delete()
 
-    company_count = Repo.all(
-      from company in Company,
-      select: count(company.id)
-    )
+    company_count = QueryHelper.company_count() |> Repo.all()
+    version_count = QueryHelper.version_count() |> Repo.all()
 
     company_ref = result[:model] |> Map.drop([:__meta__, :__struct__, :inserted_at, :updated_at, :id])
-
-    version_count = Repo.all(
-      from version in PaperTrail.Version,
-      select: count(version.id)
-    )
-
     version = result[:version] |> Map.drop([:__meta__, :__struct__, :inserted_at])
 
     assert company_count == [0]
