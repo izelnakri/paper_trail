@@ -444,6 +444,7 @@ Many thanks to:
 - [Jason Draper](https://github.com/drapergeek) - UUID primary keys feature
 - [Josh Taylor](https://github.com/joshuataylor) - Maintenance and new feature suggestions
 - [Mitchell Henke](https://github.com/mitchellhenke) - Fixed weird elixir compiler warnings
+- [Iván González](https://github.com/dreamingechoes) - Multi tenancy feature and some minor refactors
 - [Izel Nakri](https://github.com/izelnakri) - The Originator of this library. See what I did there ;)
 
 Additional thanks to:
