@@ -388,14 +388,15 @@ defmodule PaperTrailTest.StrictModeBangFunctions do
 
   # Multi tenant tests
   test "[multi tenant] creating a company creates a company version with correct attributes" do
+    tenant = MultiTenant.tenant()
     user = create_user(:multitenant)
     inserted_company = create_company_with_version_multi(@create_company_params, user: user)
 
     company_count = Company.count(:multitenant)
-    version_count = Version.count(MultiTenant.tenant())
+    version_count = Version.count(prefix: tenant)
 
     company = inserted_company |> serialize()
-    version = PaperTrail.get_version(inserted_company, prefix: MultiTenant.tenant())
+    version = PaperTrail.get_version(inserted_company, prefix: tenant)
       |> serialize()
 
     assert company_count == 1
@@ -425,12 +426,14 @@ defmodule PaperTrailTest.StrictModeBangFunctions do
   end
 
   test "[multi tenant] creating a company without changeset creates a company version with correct attributes" do
+    tenant = MultiTenant.tenant()
+
     inserted_company = create_company_with_version_multi(%{name: "Acme LLC"}, prefix: MultiTenant.tenant())
     company_count = Company.count(:multitenant)
-    version_count = Version.count(MultiTenant.tenant())
+    version_count = Version.count(prefix: tenant)
 
     company = inserted_company |> serialize
-    version = PaperTrail.get_version(inserted_company, prefix: MultiTenant.tenant())
+    version = PaperTrail.get_version(inserted_company, prefix: tenant)
       |> serialize
 
     assert company_count == 1
@@ -476,7 +479,7 @@ defmodule PaperTrailTest.StrictModeBangFunctions do
     )
 
     company_count = Company.count(:multitenant)
-    version_count = Version.count(tenant)
+    version_count = Version.count(prefix: tenant)
 
     company = updated_company |> serialize
     updated_company_version = PaperTrail.get_version(updated_company, prefix: tenant)
@@ -534,7 +537,7 @@ defmodule PaperTrailTest.StrictModeBangFunctions do
     deleted_company = PaperTrail.delete!(updated_company, user: user, prefix: tenant)
 
     company_count = Company.count(:multitenant)
-    version_count = Version.count(tenant)
+    version_count = Version.count(prefix: tenant)
 
     old_company = deleted_company |> serialize
     deleted_company_version = PaperTrail.get_version(deleted_company, prefix: tenant)
@@ -620,7 +623,7 @@ defmodule PaperTrailTest.StrictModeBangFunctions do
     |> PaperTrail.insert!(origin: "admin", meta: %{linkname: "izelnakri"}, prefix: tenant)
 
     person_count = Person.count(:multitenant)
-    version_count = Version.count(tenant)
+    version_count = Version.count(prefix: tenant)
 
     person = inserted_person |> serialize
     version = PaperTrail.get_version(inserted_person, prefix: tenant) |> serialize
@@ -680,7 +683,7 @@ defmodule PaperTrailTest.StrictModeBangFunctions do
 
     person_count = Person.count(:multitenant)
     company_count = Company.count(:multitenant)
-    version_count = Version.count(tenant)
+    version_count = Version.count(prefix: tenant)
 
     person = updated_person |> serialize
     updated_person_version = PaperTrail.get_version(updated_person, prefix: tenant)
@@ -754,7 +757,7 @@ defmodule PaperTrailTest.StrictModeBangFunctions do
 
     person_count = Person.count(:multitenant)
     company_count = Company.count(:multitenant)
-    version_count = Version.count(tenant)
+    version_count = Version.count(prefix: tenant)
 
     assert person_count == 0
     assert company_count == 2

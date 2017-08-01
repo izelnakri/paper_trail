@@ -374,13 +374,14 @@ defmodule PaperTrailTest.SimpleModeBangFunctions do
 
   # Multi tenant tests
   test "[multi tenant] creating a company creates a company version with correct attributes" do
+    tenant = MultiTenant.tenant()
     user = create_user(:multitenant)
     company = create_company_with_version_multi(@create_company_params, originator: user)
 
     company_count = Company.count(:multitenant)
-    version_count = Version.count(MultiTenant.tenant())
+    version_count = Version.count(prefix: tenant)
 
-    version = PaperTrail.get_version(company, prefix: MultiTenant.tenant())
+    version = PaperTrail.get_version(company, prefix: tenant)
       |> serialize
 
     assert company_count == 1
@@ -422,7 +423,7 @@ defmodule PaperTrailTest.SimpleModeBangFunctions do
     )
 
     company_count = Company.count(:multitenant)
-    version_count = Version.count(tenant)
+    version_count = Version.count(prefix: tenant)
 
     company = updated_company |> serialize
     version = PaperTrail.get_version(updated_company, prefix: tenant)
@@ -464,7 +465,7 @@ defmodule PaperTrailTest.SimpleModeBangFunctions do
     )
 
     company_count = Company.count(:multitenant)
-    version_count = Version.count(tenant)
+    version_count = Version.count(prefix: tenant)
 
     company = updated_company |> serialize
     version = PaperTrail.get_version(updated_company, prefix: tenant)
@@ -516,7 +517,7 @@ defmodule PaperTrailTest.SimpleModeBangFunctions do
       prefix: tenant)
 
     company_count = Company.count(:multitenant)
-    version_count = Version.count(tenant)
+    version_count = Version.count(prefix: tenant)
 
     company = deleted_company |> serialize
     version = PaperTrail.get_version(deleted_company, prefix: tenant) |> serialize
@@ -601,7 +602,7 @@ defmodule PaperTrailTest.SimpleModeBangFunctions do
 
     person_count = Person.count(:multitenant)
     company_count = Company.count(:multitenant)
-    version_count = Version.count(tenant)
+    version_count = Version.count(prefix: tenant)
 
     person = inserted_person |> serialize
     version = PaperTrail.get_version(inserted_person, prefix: tenant) |> serialize
@@ -658,7 +659,7 @@ defmodule PaperTrailTest.SimpleModeBangFunctions do
 
     person_count = Person.count(:multitenant)
     company_count = Company.count(:multitenant)
-    version_count = Version.count(tenant)
+    version_count = Version.count(prefix: tenant)
 
     person = updated_person |> serialize
     version = PaperTrail.get_version(updated_person, prefix: tenant) |> serialize
@@ -723,7 +724,7 @@ defmodule PaperTrailTest.SimpleModeBangFunctions do
 
     person_count = Person.count(:multitenant)
     company_count = Company.count(:multitenant)
-    version_count = Version.count(tenant)
+    version_count = Version.count(prefix: tenant)
 
     old_person = updated_person |> serialize
     version = PaperTrail.get_version(deleted_person, prefix: tenant) |> serialize
