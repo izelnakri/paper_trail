@@ -1,6 +1,8 @@
 defmodule StrictCompany do
   use Ecto.Schema
 
+  alias PaperTrailTest.MultiTenantHelper, as: MultiTenant
+
   import Ecto.Changeset
   import Ecto.Query
 
@@ -34,10 +36,17 @@ defmodule StrictCompany do
   def count do
     from(record in __MODULE__, select: count(record.id)) |> PaperTrail.RepoClient.repo.one
   end
+  def count(:multitenant) do
+    from(record in __MODULE__, select: count(record.id))
+    |> MultiTenant.add_prefix_to_query()
+    |> PaperTrail.RepoClient.repo.one
+  end
 end
 
 defmodule StrictPerson do
   use Ecto.Schema
+
+  alias PaperTrailTest.MultiTenantHelper, as: MultiTenant
 
   import Ecto.Changeset
   import Ecto.Query
@@ -66,5 +75,10 @@ defmodule StrictPerson do
 
   def count do
     from(record in __MODULE__, select: count(record.id)) |> PaperTrail.RepoClient.repo.one
+  end
+  def count(:multitenant) do
+    from(record in __MODULE__, select: count(record.id))
+    |> MultiTenant.add_prefix_to_query()
+    |> PaperTrail.RepoClient.repo.one
   end
 end
