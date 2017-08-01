@@ -9,45 +9,32 @@ defmodule PersonTest do
     Repo.delete_all(Company)
     Repo.delete_all(PaperTrail.Version)
 
-    Company.changeset(%Company{}, %{
-      name: "Acme LLC",
-      website: "http://www.acme.com"
-    }) |> Repo.insert
+    %{name: "Acme LLC", website: "http://www.acme.com"}
+    |> ChangesetHelper.new_company()
+    |> Repo.insert()
 
-    Company.changeset(%Company{}, %{
-      name: "Another Company Corp.",
-      is_active: true,
-      address: "Sesame street 100/3, 101010"
-    }) |> Repo.insert
+    %{name: "Another Company Corp.", is_active: true, address: "Sesame street 100/3, 101010"}
+    |> ChangesetHelper.new_company()
+    |> Repo.insert()
 
     :ok
   end
 
-  test "creating a person with meta tag creates a person version with correct attributes" do
-    company = first(Company, :id) |> Repo.one
+  test "[multi tenant] creating a person with meta tag creates a person version with correct attributes" do
+    company = QueryHelper.first_company() |> Repo.one()
 
-    new_person = Person.changeset(%Person{}, %{
-      first_name: "Izel",
-      last_name: "Nakri",
-      gender: true,
-      company_id: company.id
-    })
+    {:ok, result} =
+      %{first_name: "Izel", last_name: "Nakri", gender: true, company_id: company.id}
+      |> ChangesetHelper.new_person()
+      |> PaperTrail.insert(origin: "admin", meta: %{})
 
-    {:ok, result} = PaperTrail.insert(new_person, origin: "admin", meta: %{}) # add link name later on
-
-    person_count = Repo.all(
-      from person in Person,
-      select: count(person.id)
-    )
+    person_count = QueryHelper.person_count() |> Repo.all()
+    version_count = QueryHelper.version_count() |> Repo.all()
 
     person = result[:model] |> Map.drop([:__meta__, :__struct__, :inserted_at, :updated_at, :id])
-
-    version_count = Repo.all(
-      from version in PaperTrail.Version,
-      select: count(version.id)
-    )
-
     version = result[:version] |> Map.drop([:__meta__, :__struct__, :inserted_at])
+
+    first_person = QueryHelper.first_person() |> Repo.one()
 
     assert person_count == [1]
     assert version_count == [1]
@@ -64,7 +51,7 @@ defmodule PersonTest do
     assert Map.drop(version, [:id]) == %{
       event: "insert",
       item_type: "Person",
-      item_id: Repo.one(first(Person, :id)).id,
+      item_id: first_person.id,
       item_changes: Map.drop(result[:model], [:__meta__, :__struct__, :company]),
       origin: "admin",
       originator_id: nil,
@@ -72,38 +59,27 @@ defmodule PersonTest do
     }
   end
 
-  test "updating a person creates a person version with correct attributes" do
-    old_person = first(Person, :id) |> Repo.one
+  test "[multi tenant] updating a person creates a person version with correct attributes" do
+    first_person = QueryHelper.first_person() |> Repo.one()
 
-    target_company = Repo.one(
-      from c in Company,
-      where: c.name == "Another Company Corp.",
-      limit: 1
-    )
+    target_company =
+      [name: "Another Company Corp.", limit: 1]
+      |> QueryHelper.filter_company()
+      |> Repo.one()
 
-    new_person = Person.changeset(old_person, %{
-      first_name: "Isaac",
-      visit_count: 10,
-      birthdate: ~D[1992-04-01],
-      company_id: target_company.id
-    })
+    {:ok, result} =
+      ChangesetHelper.update_person(first_person, %{
+        first_name: "Isaac",
+        visit_count: 10,
+        birthdate: ~D[1992-04-01],
+        company_id: target_company.id
+      })
+      |> PaperTrail.update(origin: "user:1", meta: %{linkname: "izelnakri"})
 
-    {:ok, result} = PaperTrail.update(new_person, origin: "user:1", meta: %{
-      linkname: "izelnakri"
-    })
-
-    person_count = Repo.all(
-      from person in Person,
-      select: count(person.id)
-    )
+    person_count = QueryHelper.person_count() |> Repo.all()
+    version_count = QueryHelper.version_count() |> Repo.all()
 
     person = result[:model] |> Map.drop([:__meta__, :__struct__, :inserted_at, :updated_at, :id])
-
-    version_count = Repo.all(
-      from version in PaperTrail.Version,
-      select: count(version.id)
-    )
-
     version = result[:version] |> Map.drop([:__meta__, :__struct__, :inserted_at])
 
     assert person_count == [1]
@@ -121,7 +97,7 @@ defmodule PersonTest do
     assert Map.drop(version, [:id]) == %{
       event: "update",
       item_type: "Person",
-      item_id: Repo.one(first(Person, :id)).id,
+      item_id: first_person.id,
       item_changes: %{
         first_name: "Isaac",
         visit_count: 10,
@@ -136,20 +112,15 @@ defmodule PersonTest do
     }
   end
 
-  test "deleting a person creates a person version with correct attributes" do
-    person = first(Person, :id) |> preload(:company) |> Repo.one
+  test "[multi tenant] deleting a person creates a person version with correct attributes" do
+    person = QueryHelper.first_person() |> Repo.one()
 
-    {:ok, result} = PaperTrail.delete(person)
+    {:ok, result} =
+      person
+      |> PaperTrail.delete()
 
-    person_count = Repo.all(
-      from person in Person,
-      select: count(person.id)
-    )
-
-    version_count = Repo.all(
-      from version in PaperTrail.Version,
-      select: count(version.id)
-    )
+    person_count = QueryHelper.person_count() |> Repo.all()
+    version_count = QueryHelper.version_count() |> Repo.all()
 
     version = result[:version] |> Map.drop([:__meta__, :__struct__, :inserted_at])
 
