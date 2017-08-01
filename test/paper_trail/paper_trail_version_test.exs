@@ -55,12 +55,12 @@ defmodule PaperTrailTest.Version do
   end
 
   test "first works" do
-    versions = add_three_versions()
+    add_three_versions()
     Version.first() |> serialize == @valid_attrs
   end
 
   test "last works" do
-    versions = add_three_versions()
+    add_three_versions()
     Version.last() |> serialize != %{
       event: "insert",
       item_type: "Person",
@@ -73,17 +73,17 @@ defmodule PaperTrailTest.Version do
 
   # Multi tenant tests
   test "[multi tenant] count works" do
-    versions = add_three_versions_multi()
+    versions = add_three_versions(MultiTenant.tenant())
     Version.count(prefix: MultiTenant.tenant()) == length(versions)
   end
 
   test "[multi tenant] first works" do
-    versions = add_three_versions_multi()
+    add_three_versions(MultiTenant.tenant())
     Version.first(prefix: MultiTenant.tenant()) |> serialize == @valid_attrs
   end
 
   test "[multi tenant] last works" do
-    versions = add_three_versions_multi()
+    add_three_versions(MultiTenant.tenant())
     Version.last(prefix: MultiTenant.tenant()) |> serialize != %{
       event: "insert",
       item_type: "Person",
@@ -94,7 +94,7 @@ defmodule PaperTrailTest.Version do
     }
   end
 
-  def add_three_versions do
+  def add_three_versions(prefix \\ nil) do
     @repo.insert_all(Version, [
       @valid_attrs,
       %{
@@ -113,28 +113,7 @@ defmodule PaperTrailTest.Version do
         origin: "test",
         inserted_at: DateTime.from_naive!(~N[1965-04-14 01:00:00.000], "Etc/UTC")
       }
-    ], returning: true) |> elem(1)
-  end
-  def add_three_versions_multi do
-    @repo.insert_all(Version, [
-      @valid_attrs,
-      %{
-        event: "insert",
-        item_type: "Person",
-        item_id: 2,
-        item_changes: %{first_name: "Brendan", last_name: "Eich"},
-        origin: "test",
-        inserted_at: DateTime.from_naive!(~N[1961-07-04 01:00:00.000], "Etc/UTC")
-      },
-      %{
-        event: "insert",
-        item_type: "Person",
-        item_id: 3,
-        item_changes: %{first_name: "Yukihiro", last_name: "Matsumoto"},
-        origin: "test",
-        inserted_at: DateTime.from_naive!(~N[1965-04-14 01:00:00.000], "Etc/UTC")
-      }
-    ], returning: true, prefix: MultiTenant.tenant()) |> elem(1)
+    ], returning: true, prefix: prefix) |> elem(1)
   end
 
   def serialize(nil), do: nil
