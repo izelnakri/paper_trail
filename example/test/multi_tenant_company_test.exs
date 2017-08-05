@@ -10,12 +10,12 @@ defmodule MultiTenantCompanyTest do
   test "[multi tenant] creating a company creates a company version with correct attributes" do
     {:ok, result} =
       %{name: "Acme LLC", is_active: true, city: "Greenwich", people: []}
-      |> ChangesetHelper.new_company(:multitenant)
+      |> new_company()
       |> PaperTrail.insert(origin: "test", prefix: MultiTenantHelper.tenant())
 
-    company_count = QueryHelper.company_count(:multitenant) |> Repo.all()
-    version_count = QueryHelper.version_count(:multitenant) |> Repo.all()
-    first_company = QueryHelper.first_company(:multitenant) |> Repo.one()
+    company_count = company_count() |> Repo.all()
+    version_count = version_count() |> Repo.all()
+    first_company = first_company() |> Repo.one()
 
     company = result[:model] |> Map.drop([:__meta__, :__struct__, :inserted_at, :updated_at, :id])
     version = result[:version] |> Map.drop([:__meta__, :__struct__, :inserted_at])
@@ -47,17 +47,17 @@ defmodule MultiTenantCompanyTest do
   end
 
   test "[multi tenant] updating a company creates a company version with correct item_changes" do
-    first_company = QueryHelper.first_company(:multitenant) |> Repo.one()
+    first_company = first_company() |> Repo.one()
 
     {:ok, result} =
-      ChangesetHelper.update_company(first_company, %{
+      update_company(first_company, %{
         city: "Hong Kong",
         website: "http://www.acme.com",
         facebook: "acme.llc"
-      }, :multitenant) |> PaperTrail.update(prefix: MultiTenantHelper.tenant())
+      }) |> PaperTrail.update(prefix: MultiTenantHelper.tenant())
 
-    company_count = QueryHelper.company_count(:multitenant) |> Repo.all()
-    version_count = QueryHelper.version_count(:multitenant) |> Repo.all()
+    company_count = company_count() |> Repo.all()
+    version_count = version_count() |> Repo.all()
 
     company = result[:model] |> Map.drop([:__meta__, :__struct__, :inserted_at, :updated_at, :id])
     version = result[:version] |> Map.drop([:__meta__, :__struct__, :inserted_at])
@@ -89,14 +89,14 @@ defmodule MultiTenantCompanyTest do
   end
 
   test "[multi tenant] deleting a company creates a company version with correct attributes" do
-    company = QueryHelper.first_company(:multitenant) |> Repo.one()
+    company = first_company() |> Repo.one()
 
     {:ok, result} =
       company
       |> PaperTrail.delete(prefix: MultiTenantHelper.tenant())
 
-    company_count = QueryHelper.company_count(:multitenant) |> Repo.all()
-    version_count = QueryHelper.version_count(:multitenant) |> Repo.all()
+    company_count = company_count() |> Repo.all()
+    version_count = version_count() |> Repo.all()
 
     company_ref = result[:model] |> Map.drop([:__meta__, :__struct__, :inserted_at, :updated_at, :id])
     version = result[:version] |> Map.drop([:__meta__, :__struct__, :inserted_at])
@@ -137,5 +137,30 @@ defmodule MultiTenantCompanyTest do
       originator_id: nil,
       meta: nil
     }
+  end
+
+  # Company related functions
+  def company_count() do
+    (from company in Company, select: count(company.id))
+    |> MultiTenantHelper.add_prefix_to_query()
+  end
+  def first_company() do
+    (first(Company, :id)
+    |> preload(:people))
+    |> MultiTenantHelper.add_prefix_to_query()
+  end
+  def new_company(attrs) do
+    Company.changeset(%Company{}, attrs)
+    |> MultiTenantHelper.add_prefix_to_changeset()
+  end
+  def update_company(company, attrs) do
+    Company.changeset(company, attrs)
+    |> MultiTenantHelper.add_prefix_to_changeset()
+  end
+
+  # Version related functions
+  def version_count() do
+    (from version in PaperTrail.Version, select: count(version.id))
+    |> MultiTenantHelper.add_prefix_to_query()
   end
 end
