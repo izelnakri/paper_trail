@@ -13,13 +13,20 @@ defmodule CompanyTest do
 
   test "creating a company creates a company version with correct attributes" do
     {:ok, result} =
-      %{name: "Acme LLC", is_active: true, city: "Greenwich", people: []}
-      |> new_company()
+      %Company{}
+      |> Company.changeset(%{name: "Acme LLC", is_active: true, city: "Greenwich", people: []})
       |> PaperTrail.insert(origin: "test")
 
-    company_count = company_count() |> Repo.all()
-    version_count = version_count() |> Repo.all()
-    first_company = first_company() |> Repo.one()
+    company_count =
+      from(company in Company, select: count(company.id))
+      |> Repo.all()
+    version_count =
+      from(version in PaperTrail.Version, select: count(version.id))
+      |> Repo.all()
+    first_company =
+      first(Company, :id)
+      |> preload(:people)
+      |> Repo.one()
 
     company = result[:model] |> Map.drop([:__meta__, :__struct__, :inserted_at, :updated_at, :id])
     version = result[:version] |> Map.drop([:__meta__, :__struct__, :inserted_at])
@@ -51,17 +58,25 @@ defmodule CompanyTest do
   end
 
   test "updating a company creates a company version with correct item_changes" do
-    first_company = first_company() |> Repo.one()
+    first_company =
+      first(Company, :id)
+      |> preload(:people)
+      |> Repo.one()
 
     {:ok, result} =
-      update_company(first_company, %{
+      first_company
+      |> Company.changeset(%{
         city: "Hong Kong",
         website: "http://www.acme.com",
         facebook: "acme.llc"
       }) |> PaperTrail.update()
 
-    company_count = company_count() |> Repo.all()
-    version_count = version_count() |> Repo.all()
+    company_count =
+      from(company in Company, select: count(company.id))
+      |> Repo.all()
+    version_count =
+      from(version in PaperTrail.Version, select: count(version.id))
+      |> Repo.all()
 
     company = result[:model] |> Map.drop([:__meta__, :__struct__, :inserted_at, :updated_at, :id])
     version = result[:version] |> Map.drop([:__meta__, :__struct__, :inserted_at])
@@ -93,14 +108,21 @@ defmodule CompanyTest do
   end
 
   test "deleting a company creates a company version with correct attributes" do
-    company = first_company() |> Repo.one()
+    company =
+      first(Company, :id)
+      |> preload(:people)
+      |> Repo.one()
 
     {:ok, result} =
       company
       |> PaperTrail.delete()
 
-    company_count = company_count() |> Repo.all()
-    version_count = version_count() |> Repo.all()
+    company_count =
+      from(company in Company, select: count(company.id))
+      |> Repo.all()
+    version_count =
+      from(version in PaperTrail.Version, select: count(version.id))
+      |> Repo.all()
 
     company_ref = result[:model] |> Map.drop([:__meta__, :__struct__, :inserted_at, :updated_at, :id])
     version = result[:version] |> Map.drop([:__meta__, :__struct__, :inserted_at])
@@ -142,13 +164,4 @@ defmodule CompanyTest do
       meta: nil
     }
   end
-
-  # Company related functions
-  def company_count(), do: (from company in Company, select: count(company.id))
-  def first_company(), do: (first(Company, :id) |> preload(:people))
-  def new_company(attrs), do: Company.changeset(%Company{}, attrs)
-  def update_company(company, attrs), do: Company.changeset(company, attrs)
-
-  # Version related functions
-  def version_count(), do: (from version in PaperTrail.Version, select: count(version.id))
 end
