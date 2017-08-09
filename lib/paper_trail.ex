@@ -200,12 +200,12 @@ defmodule PaperTrail do
   """
   def delete(struct, options \\ [origin: nil, meta: nil, originator: nil, prefix: nil]) do
     transaction = Multi.new
-      |> Multi.delete(:model, struct)
+      |> Multi.delete(:model, struct, options)
       |> Multi.run(:version, fn %{} ->
         version = make_version_struct(%{event: "delete"}, struct, options)
-        @repo.insert(version)
+        @repo.insert(version, options)
       end)
-      |> @repo.transaction
+      |> @repo.transaction(options)
 
     case transaction do
       {:error, :model, changeset, %{}} -> {:error, Map.merge(changeset, %{repo: @repo})}
@@ -218,9 +218,9 @@ defmodule PaperTrail do
   """
   def delete!(struct, options \\ [origin: nil, meta: nil, originator: nil, prefix: nil]) do
     @repo.transaction(fn ->
-      model = @repo.delete!(struct)
+      model = @repo.delete!(struct, options)
       version_struct = make_version_struct(%{event: "delete"}, struct, options)
-      @repo.insert!(version_struct)
+      @repo.insert!(version_struct, options)
       model
     end) |> elem(1)
   end
