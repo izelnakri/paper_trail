@@ -99,6 +99,7 @@ defmodule PaperTrailTest.VersionQueries do
     assert PaperTrail.get_version(Person, last_person.id) == target_version
     assert PaperTrail.get_version(last_person_multi, prefix: tenant) == target_version_multi
     assert PaperTrail.get_version(Person, last_person_multi.id, prefix: tenant) == target_version_multi
+    assert target_version != target_version_multi
   end
 
   test "get_versions gives us the right versions" do
@@ -120,6 +121,7 @@ defmodule PaperTrailTest.VersionQueries do
     assert PaperTrail.get_versions(Person, last_person.id) == target_versions
     assert PaperTrail.get_versions(last_person_multi, prefix: tenant) == target_versions_multi
     assert PaperTrail.get_versions(Person, last_person_multi.id, prefix: tenant) == target_versions_multi
+    assert target_versions != target_versions_multi
   end
 
   test "get_current_model/1 gives us the current record of a version" do

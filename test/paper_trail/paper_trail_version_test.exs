@@ -75,11 +75,13 @@ defmodule PaperTrailTest.Version do
   test "[multi tenant] count works" do
     versions = add_three_versions(MultiTenant.tenant())
     Version.count(prefix: MultiTenant.tenant()) == length(versions)
+    Version.count() != length(versions)
   end
 
   test "[multi tenant] first works" do
     add_three_versions(MultiTenant.tenant())
     Version.first(prefix: MultiTenant.tenant()) |> serialize == @valid_attrs
+    Version.first() |> serialize != @valid_attrs
   end
 
   test "[multi tenant] last works" do
@@ -92,6 +94,7 @@ defmodule PaperTrailTest.Version do
       origin: "test",
       inserted_at: DateTime.from_naive!(~N[1965-04-14 01:00:00.000], "Etc/UTC")
     }
+    Version.last() == nil
   end
 
   def add_three_versions(prefix \\ nil) do

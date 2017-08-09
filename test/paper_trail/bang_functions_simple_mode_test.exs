@@ -384,6 +384,8 @@ defmodule PaperTrailTest.SimpleModeBangFunctions do
     version = PaperTrail.get_version(company, prefix: tenant)
       |> serialize
 
+    assert Company.count() == 0
+    assert Version.count() == 0
     assert company_count == 1
     assert version_count == 1
     assert company |> serialize |> Map.drop([:id, :inserted_at, :updated_at]) == %{
@@ -429,6 +431,8 @@ defmodule PaperTrailTest.SimpleModeBangFunctions do
     version = PaperTrail.get_version(updated_company, prefix: tenant)
       |> serialize
 
+    assert Company.count() == 0
+    assert Version.count() == 0
     assert company_count == 1
     assert version_count == 2
     assert Map.drop(company, [:id, :inserted_at, :updated_at]) == %{
@@ -471,6 +475,8 @@ defmodule PaperTrailTest.SimpleModeBangFunctions do
     version = PaperTrail.get_version(updated_company, prefix: tenant)
       |> serialize
 
+    assert Company.count() == 0
+    assert Version.count() == 0
     assert company_count == 1
     assert version_count == 2
     assert Map.drop(company, [:id, :inserted_at, :updated_at]) == %{
@@ -522,6 +528,8 @@ defmodule PaperTrailTest.SimpleModeBangFunctions do
     company = deleted_company |> serialize
     version = PaperTrail.get_version(deleted_company, prefix: tenant) |> serialize
 
+    assert Company.count() == 0
+    assert Version.count() == 0
     assert company_count == 0
     assert version_count == 3
     assert Map.drop(company, [:id, :inserted_at, :updated_at]) == %{
@@ -600,6 +608,9 @@ defmodule PaperTrailTest.SimpleModeBangFunctions do
     |> MultiTenant.add_prefix_to_changeset()
     |> PaperTrail.insert!(origin: "admin", meta: %{linkname: "izelnakri"}, prefix: tenant)
 
+    assert Person.count() == 0
+    assert Company.count() == 0
+    assert Version.count() == 0
     person_count = Person.count(:multitenant)
     company_count = Company.count(:multitenant)
     version_count = Version.count(prefix: tenant)
@@ -664,6 +675,9 @@ defmodule PaperTrailTest.SimpleModeBangFunctions do
     person = updated_person |> serialize
     version = PaperTrail.get_version(updated_person, prefix: tenant) |> serialize
 
+    assert Person.count() == 0
+    assert Company.count() == 0
+    assert Version.count() == 0
     assert person_count == 1
     assert company_count == 2
     assert version_count == 4
@@ -729,6 +743,9 @@ defmodule PaperTrailTest.SimpleModeBangFunctions do
     old_person = updated_person |> serialize
     version = PaperTrail.get_version(deleted_person, prefix: tenant) |> serialize
 
+    assert Person.count() == 0
+    assert Company.count() == 0
+    assert Version.count() == 0
     assert person_count == 0
     assert company_count == 2
     assert version_count == 5

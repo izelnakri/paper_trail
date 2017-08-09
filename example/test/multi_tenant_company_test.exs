@@ -22,6 +22,9 @@ defmodule MultiTenantCompanyTest do
       from(version in PaperTrail.Version, select: count(version.id))
       |> MultiTenantHelper.add_prefix_to_query()
       |> Repo.all()
+    regular_version_count =
+      from(version in PaperTrail.Version, select: count(version.id))
+      |> Repo.all()
     first_company =
       first(Company, :id)
       |> preload(:people)
@@ -33,6 +36,7 @@ defmodule MultiTenantCompanyTest do
 
     assert company_count == [1]
     assert version_count == [1]
+    assert regular_version_count == [0]
 
     assert company == %{
       name: "Acme LLC",
@@ -82,12 +86,16 @@ defmodule MultiTenantCompanyTest do
       from(version in PaperTrail.Version, select: count(version.id))
       |> MultiTenantHelper.add_prefix_to_query()
       |> Repo.all()
+    regular_version_count =
+      from(version in PaperTrail.Version, select: count(version.id))
+      |> Repo.all()
 
     company = result[:model] |> Map.drop([:__meta__, :__struct__, :inserted_at, :updated_at, :id])
     version = result[:version] |> Map.drop([:__meta__, :__struct__, :inserted_at])
 
     assert company_count == [1]
     assert version_count == [2]
+    assert regular_version_count == [0]
 
     assert company == %{
       name: "Acme LLC",
@@ -131,12 +139,16 @@ defmodule MultiTenantCompanyTest do
       from(version in PaperTrail.Version, select: count(version.id))
       |> MultiTenantHelper.add_prefix_to_query()
       |> Repo.all()
+    regular_version_count =
+      from(version in PaperTrail.Version, select: count(version.id))
+      |> Repo.all()
 
     company_ref = result[:model] |> Map.drop([:__meta__, :__struct__, :inserted_at, :updated_at, :id])
     version = result[:version] |> Map.drop([:__meta__, :__struct__, :inserted_at])
 
     assert company_count == [0]
     assert version_count == [3]
+    assert regular_version_count == [0]
 
     assert company_ref == %{
       name: "Acme LLC",

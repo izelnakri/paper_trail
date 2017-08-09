@@ -39,6 +39,9 @@ defmodule MultiTenantPersonTest do
       from(version in PaperTrail.Version, select: count(version.id))
       |> MultiTenantHelper.add_prefix_to_query()
       |> Repo.all()
+    regular_version_count =
+      from(version in PaperTrail.Version, select: count(version.id))
+      |> Repo.all()
 
     person = result[:model] |> Map.drop([:__meta__, :__struct__, :inserted_at, :updated_at, :id])
     version = result[:version] |> Map.drop([:__meta__, :__struct__, :inserted_at])
@@ -51,6 +54,7 @@ defmodule MultiTenantPersonTest do
 
     assert person_count == [1]
     assert version_count == [1]
+    assert regular_version_count == [0]
 
     assert Map.drop(person, [:company]) == %{
       first_name: "Izel",
@@ -104,12 +108,16 @@ defmodule MultiTenantPersonTest do
       from(version in PaperTrail.Version, select: count(version.id))
       |> MultiTenantHelper.add_prefix_to_query()
       |> Repo.all()
+    regular_version_count =
+      from(version in PaperTrail.Version, select: count(version.id))
+      |> Repo.all()
 
     person = result[:model] |> Map.drop([:__meta__, :__struct__, :inserted_at, :updated_at, :id])
     version = result[:version] |> Map.drop([:__meta__, :__struct__, :inserted_at])
 
     assert person_count == [1]
     assert version_count == [2]
+    assert regular_version_count == [0]
 
     assert Map.drop(person, [:company]) == %{
       company_id: target_company.id,
@@ -157,11 +165,15 @@ defmodule MultiTenantPersonTest do
       from(version in PaperTrail.Version, select: count(version.id))
       |> MultiTenantHelper.add_prefix_to_query()
       |> Repo.all()
+    regular_version_count =
+      from(version in PaperTrail.Version, select: count(version.id))
+      |> Repo.all()
 
     version = result[:version] |> Map.drop([:__meta__, :__struct__, :inserted_at])
 
     assert person_count == [0]
     assert version_count == [3]
+    assert regular_version_count == [0]
 
     assert Map.drop(version, [:id]) == %{
       event: "delete",

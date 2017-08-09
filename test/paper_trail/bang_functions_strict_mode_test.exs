@@ -399,6 +399,8 @@ defmodule PaperTrailTest.StrictModeBangFunctions do
     version = PaperTrail.get_version(inserted_company, prefix: tenant)
       |> serialize()
 
+    assert Company.count() == 0
+    assert Version.count() == 0
     assert company_count == 1
     assert version_count == 1
     assert Map.drop(company, [:id, :inserted_at, :updated_at]) == %{
@@ -436,6 +438,8 @@ defmodule PaperTrailTest.StrictModeBangFunctions do
     version = PaperTrail.get_version(inserted_company, prefix: tenant)
       |> serialize
 
+    assert Company.count() == 0
+    assert Version.count() == 0
     assert company_count == 1
     assert version_count == 1
     assert Map.drop(company, [:id, :inserted_at, :updated_at]) == %{
@@ -485,6 +489,8 @@ defmodule PaperTrailTest.StrictModeBangFunctions do
     updated_company_version = PaperTrail.get_version(updated_company, prefix: tenant)
       |> serialize
 
+    assert Company.count() == 0
+    assert Version.count() == 0
     assert company_count == 1
     assert version_count == 2
     assert Map.drop(company, [:id, :inserted_at, :updated_at]) == %{
@@ -543,6 +549,8 @@ defmodule PaperTrailTest.StrictModeBangFunctions do
     deleted_company_version = PaperTrail.get_version(deleted_company, prefix: tenant)
       |> serialize
 
+    assert Company.count() == 0
+    assert Version.count() == 0
     assert company_count == 0
     assert version_count == 3
     assert Map.drop(old_company, [:id, :inserted_at, :updated_at]) == %{
@@ -628,6 +636,8 @@ defmodule PaperTrailTest.StrictModeBangFunctions do
     person = inserted_person |> serialize
     version = PaperTrail.get_version(inserted_person, prefix: tenant) |> serialize
 
+    assert Person.count() == 0
+    assert Version.count() == 0
     assert person_count == 1
     assert version_count == 3
     assert Map.drop(person, [:id, :inserted_at, :updated_at]) == %{
@@ -689,6 +699,8 @@ defmodule PaperTrailTest.StrictModeBangFunctions do
     updated_person_version = PaperTrail.get_version(updated_person, prefix: tenant)
       |> serialize
 
+    assert Person.count() == 0
+    assert Version.count() == 0
     assert person_count == 1
     assert company_count == 2
     assert version_count == 4
@@ -759,6 +771,9 @@ defmodule PaperTrailTest.StrictModeBangFunctions do
     company_count = Company.count(:multitenant)
     version_count = Version.count(prefix: tenant)
 
+    assert Company.count() == 0
+    assert Person.count() == 0
+    assert Version.count() == 0
     assert person_count == 0
     assert company_count == 2
     assert version_count == 5
