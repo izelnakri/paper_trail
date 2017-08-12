@@ -1,8 +1,6 @@
 defmodule PaperTrail do
   import Ecto.Changeset
 
-  alias PaperTrail.VersionQueries
-
   alias Ecto.Multi
   alias PaperTrail.Version
 
@@ -10,45 +8,18 @@ defmodule PaperTrail do
   @originator @client.originator()
   @repo @client.repo()
 
-  @doc """
-  Gets all the versions of a record given a module and its id
-  """
-  def get_versions(model, id) do
-    VersionQueries.get_versions(model, id)
-  end
-
-  @doc """
-  Gets all the versions of a record
-  """
-  def get_versions(record) do
-    VersionQueries.get_versions(record)
-  end
-
-  @doc """
-  Gets the last version of a record given its module reference and its id
-  """
-  def get_version(model, id) do
-    VersionQueries.get_version(model, id)
-  end
-
-  @doc """
-  Gets the last version of a record
-  """
-  def get_version(record) do
-    VersionQueries.get_version(record)
-  end
-
-  @doc """
-  Gets the current model record/struct of a version
-  """
-  def get_current_model(version) do
-    VersionQueries.get_current_model(version)
-  end
+  defdelegate get_version(record), to: PaperTrail.VersionQueries
+  defdelegate get_version(model_or_record, id_or_options), to: PaperTrail.VersionQueries
+  defdelegate get_version(model, id, options), to: PaperTrail.VersionQueries
+  defdelegate get_versions(record), to: PaperTrail.VersionQueries
+  defdelegate get_versions(model_or_record, id_or_options), to: PaperTrail.VersionQueries
+  defdelegate get_versions(model, id, options), to: PaperTrail.VersionQueries
+  defdelegate get_current_model(version), to: PaperTrail.VersionQueries
 
   @doc """
   Inserts a record to the database with a related version insertion in one transaction
   """
-  def insert(changeset, options \\ [origin: nil, meta: nil, originator: nil]) do
+  def insert(changeset, options \\ [origin: nil, meta: nil, originator: nil, prefix: nil]) do
     transaction_order = case @client.strict_mode() do
       true ->
         Multi.new
@@ -109,7 +80,7 @@ defmodule PaperTrail do
   @doc """
   Same as insert/2 but returns only the model struct or raises if the changeset is invalid.
   """
-  def insert!(changeset, options \\ [origin: nil, meta: nil, originator: nil]) do
+  def insert!(changeset, options \\ [origin: nil, meta: nil, originator: nil, prefix: nil]) do
     @repo.transaction(fn ->
       case @client.strict_mode() do
         true ->
@@ -146,7 +117,7 @@ defmodule PaperTrail do
   @doc """
   Updates a record from the database with a related version insertion in one transaction
   """
-  def update(changeset, options \\ [origin: nil, meta: nil, originator: nil]) do
+  def update(changeset, options \\ [origin: nil, meta: nil, originator: nil, prefix: nil]) do
     transaction_order = case @client.strict_mode() do
       true ->
         Multi.new
@@ -198,7 +169,7 @@ defmodule PaperTrail do
   @doc """
   Same as update/2 but returns only the model struct or raises if the changeset is invalid.
   """
-  def update!(changeset, options \\ [origin: nil, meta: nil, originator: nil]) do
+  def update!(changeset, options \\ [origin: nil, meta: nil, originator: nil, prefix: nil]) do
     @repo.transaction(fn ->
       case @client.strict_mode() do
         true ->
@@ -227,14 +198,14 @@ defmodule PaperTrail do
   @doc """
   Deletes a record from the database with a related version insertion in one transaction
   """
-  def delete(struct, options \\ [origin: nil, meta: nil, originator: nil]) do
+  def delete(struct, options \\ [origin: nil, meta: nil, originator: nil, prefix: nil]) do
     transaction = Multi.new
-      |> Multi.delete(:model, struct)
+      |> Multi.delete(:model, struct, options)
       |> Multi.run(:version, fn %{} ->
         version = make_version_struct(%{event: "delete"}, struct, options)
-        @repo.insert(version)
+        @repo.insert(version, options)
       end)
-      |> @repo.transaction
+      |> @repo.transaction(options)
 
     case transaction do
       {:error, :model, changeset, %{}} -> {:error, Map.merge(changeset, %{repo: @repo})}
@@ -245,11 +216,11 @@ defmodule PaperTrail do
   @doc """
   Same as delete/2 but returns only the model struct or raises if the changeset is invalid.
   """
-  def delete!(struct, options \\ [origin: nil, meta: nil, originator: nil]) do
+  def delete!(struct, options \\ [origin: nil, meta: nil, originator: nil, prefix: nil]) do
     @repo.transaction(fn ->
-      model = @repo.delete!(struct)
+      model = @repo.delete!(struct, options)
       version_struct = make_version_struct(%{event: "delete"}, struct, options)
-      @repo.insert!(version_struct)
+      @repo.insert!(version_struct, options)
       model
     end) |> elem(1)
   end
@@ -267,7 +238,7 @@ defmodule PaperTrail do
       end,
       origin: options[:origin],
       meta: options[:meta]
-    }
+    } |> add_prefix(options[:prefix])
   end
   defp make_version_struct(%{event: "update"}, changeset, options) do
     originator_ref = options[@originator[:name]] || options[:originator]
@@ -282,7 +253,7 @@ defmodule PaperTrail do
       end,
       origin: options[:origin],
       meta: options[:meta]
-    }
+    } |> add_prefix(options[:prefix])
   end
   defp make_version_struct(%{event: "delete"}, model, options) do
     originator_ref = options[@originator[:name]] || options[:originator]
@@ -297,7 +268,7 @@ defmodule PaperTrail do
       end,
       origin: options[:origin],
       meta: options[:meta]
-    }
+    } |> add_prefix(options[:prefix])
   end
 
   defp get_sequence_from_model(changeset) do
@@ -318,4 +289,7 @@ defmodule PaperTrail do
     relationships = model.__struct__.__schema__(:associations)
     Map.drop(model, [:__struct__, :__meta__] ++ relationships)
   end
+
+  defp add_prefix(changeset, nil), do: changeset
+  defp add_prefix(changeset, prefix), do: Ecto.put_meta(changeset, prefix: prefix)
 end

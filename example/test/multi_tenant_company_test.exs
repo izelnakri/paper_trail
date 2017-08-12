@@ -1,31 +1,34 @@
-defmodule CompanyTest do
+defmodule MultiTenantCompanyTest do
   use ExUnit.Case
   import Ecto.Query
 
-  doctest Company
-
   setup_all do
-    Repo.delete_all(Person)
-    Repo.delete_all(Company)
-    Repo.delete_all(PaperTrail.Version)
+    MultiTenantHelper.setup_tenant(Repo)
     :ok
   end
 
-  test "creating a company creates a company version with correct attributes" do
+  test "[multi tenant] creating a company creates a company version with correct attributes" do
     {:ok, result} =
       %Company{}
       |> Company.changeset(%{name: "Acme LLC", is_active: true, city: "Greenwich", people: []})
-      |> PaperTrail.insert(origin: "test")
+      |> MultiTenantHelper.add_prefix_to_changeset()
+      |> PaperTrail.insert(origin: "test", prefix: MultiTenantHelper.tenant())
 
     company_count =
       from(company in Company, select: count(company.id))
+      |> MultiTenantHelper.add_prefix_to_query()
       |> Repo.all()
     version_count =
+      from(version in PaperTrail.Version, select: count(version.id))
+      |> MultiTenantHelper.add_prefix_to_query()
+      |> Repo.all()
+    regular_version_count =
       from(version in PaperTrail.Version, select: count(version.id))
       |> Repo.all()
     first_company =
       first(Company, :id)
       |> preload(:people)
+      |> MultiTenantHelper.add_prefix_to_query()
       |> Repo.one()
 
     company = result[:model] |> Map.drop([:__meta__, :__struct__, :inserted_at, :updated_at, :id])
@@ -33,6 +36,7 @@ defmodule CompanyTest do
 
     assert company_count == [1]
     assert version_count == [1]
+    assert regular_version_count == [0]
 
     assert company == %{
       name: "Acme LLC",
@@ -57,10 +61,11 @@ defmodule CompanyTest do
     }
   end
 
-  test "updating a company creates a company version with correct item_changes" do
+  test "[multi tenant] updating a company creates a company version with correct item_changes" do
     first_company =
       first(Company, :id)
       |> preload(:people)
+      |> MultiTenantHelper.add_prefix_to_query()
       |> Repo.one()
 
     {:ok, result} =
@@ -69,12 +74,19 @@ defmodule CompanyTest do
         city: "Hong Kong",
         website: "http://www.acme.com",
         facebook: "acme.llc"
-      }) |> PaperTrail.update()
+      })
+      |> MultiTenantHelper.add_prefix_to_changeset()
+      |> PaperTrail.update(prefix: MultiTenantHelper.tenant())
 
     company_count =
       from(company in Company, select: count(company.id))
+      |> MultiTenantHelper.add_prefix_to_query()
       |> Repo.all()
     version_count =
+      from(version in PaperTrail.Version, select: count(version.id))
+      |> MultiTenantHelper.add_prefix_to_query()
+      |> Repo.all()
+    regular_version_count =
       from(version in PaperTrail.Version, select: count(version.id))
       |> Repo.all()
 
@@ -83,6 +95,7 @@ defmodule CompanyTest do
 
     assert company_count == [1]
     assert version_count == [2]
+    assert regular_version_count == [0]
 
     assert company == %{
       name: "Acme LLC",
@@ -107,20 +120,26 @@ defmodule CompanyTest do
     }
   end
 
-  test "deleting a company creates a company version with correct attributes" do
+  test "[multi tenant] deleting a company creates a company version with correct attributes" do
     company =
       first(Company, :id)
       |> preload(:people)
+      |> MultiTenantHelper.add_prefix_to_query()
       |> Repo.one()
 
     {:ok, result} =
       company
-      |> PaperTrail.delete()
+      |> PaperTrail.delete(prefix: MultiTenantHelper.tenant())
 
     company_count =
       from(company in Company, select: count(company.id))
+      |> MultiTenantHelper.add_prefix_to_query()
       |> Repo.all()
     version_count =
+      from(version in PaperTrail.Version, select: count(version.id))
+      |> MultiTenantHelper.add_prefix_to_query()
+      |> Repo.all()
+    regular_version_count =
       from(version in PaperTrail.Version, select: count(version.id))
       |> Repo.all()
 
@@ -129,6 +148,7 @@ defmodule CompanyTest do
 
     assert company_count == [0]
     assert version_count == [3]
+    assert regular_version_count == [0]
 
     assert company_ref == %{
       name: "Acme LLC",

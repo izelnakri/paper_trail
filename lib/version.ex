@@ -37,6 +37,12 @@ defmodule PaperTrail.Version do
   def count do
     from(version in __MODULE__, select: count(version.id)) |> PaperTrail.RepoClient.repo.one
   end
+  def count(options) do
+    from(version in __MODULE__, select: count(version.id))
+    |> Ecto.Queryable.to_query()
+    |> Map.put(:prefix, options[:prefix])
+    |> PaperTrail.RepoClient.repo.one
+  end
 
   @doc """
   Returns the first version record in the database by :inserted_at
@@ -45,12 +51,24 @@ defmodule PaperTrail.Version do
     from(record in __MODULE__, limit: 1, order_by: [asc: :inserted_at])
     |> PaperTrail.RepoClient.repo.one
   end
+  def first(options) do
+    from(record in __MODULE__, limit: 1, order_by: [asc: :inserted_at])
+    |> Ecto.Queryable.to_query()
+    |> Map.put(:prefix, options[:prefix])
+    |> PaperTrail.RepoClient.repo.one
+  end
 
   @doc """
   Returns the last version record in the database by :inserted_at
   """
   def last do
     from(record in __MODULE__, limit: 1, order_by: [desc: :inserted_at])
+    |> PaperTrail.RepoClient.repo.one
+  end
+  def last(options) do
+    from(record in __MODULE__, limit: 1, order_by: [desc: :inserted_at])
+    |> Ecto.Queryable.to_query()
+    |> Map.put(:prefix, options[:prefix])
     |> PaperTrail.RepoClient.repo.one
   end
 end
