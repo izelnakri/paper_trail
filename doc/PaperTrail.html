@@ -1,23 +1,24 @@
     <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="ExDoc v0.14.5">
-    <title>PaperTrail – paper_trail v0.7.5</title>
-    <link rel="stylesheet" href="dist/app-a07cea761b.css" />
+    <meta name="generator" content="ExDoc v0.16.2">
+    <title>PaperTrail – paper_trail v0.7.6</title>
+    <link rel="stylesheet" href="dist/app-268c9dc719.css" />
     
       <link rel="canonical" href="https://hexdocs.pm/paper_trail/PaperTrail.html" />
     
-    <script src="dist/sidebar_items-295d4039c8.js"></script>
+    <script src="dist/sidebar_items-5a7da8e21e.js"></script>
   </head>
   <body data-type="modules">
-    <script>if(localStorage.getItem('night-mode')) document.body.className += ' night-mode';</script>
+    <script>try { if(localStorage.getItem('night-mode')) document.body.className += ' night-mode'; } catch (e) { }</script>
 
     <div class="main">
 <button class="sidebar-toggle">
-  <i class="icon-menu"></i>
+  <span class="icon-menu" aria-hidden="true"></span>
+  <span class="sr-only">Toggle Sidebar</span>
 </button>
 <section class="sidebar">
 
@@ -28,15 +29,15 @@
         paper_trail
       </h1>
       <h2 class="sidebar-projectVersion">
-        v0.7.5
+        v0.7.6
       </h2>
     </div>
     
   </a>
 
   <div class="sidebar-search">
-    <i class="icon-search"></i>
-    <input type="text" class="sidebar-searchInput" placeholder="search" autocomplete="off" />
+    <span class="icon-search" aria-hidden="true"></span>
+    <input type="text" class="sidebar-searchInput" placeholder="search" aria-label="Search" autocomplete="off" />
   </div>
 
   <ul class="sidebar-listNav">
@@ -49,6 +50,10 @@
     
 
     
+
+    
+      <li><a id="tasks-list" href="#full-list">Mix Tasks</a></li>
+    
   </ul>
   <div class="gradient"></div>
   <ul id="full-list" class="sidebar-fullList"></ul>
@@ -60,9 +65,8 @@
 
 
       <h1>
-        <small class="visible-xs">paper_trail v0.7.5</small>
+        <small class="visible-xs">paper_trail v0.7.6</small>
         PaperTrail
-        
         
       </h1>
 
@@ -72,7 +76,8 @@
         <section id="summary" class="details-list">
           <h1 class="section-heading">
             <a class="hover-link" href="#summary">
-              <i class="icon-link"></i>
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
             </a>
             Summary
           </h1>
@@ -85,7 +90,7 @@
     </h2>
     <div class="summary-row">
   <div class="summary-signature">
-    <a href="#delete/2">delete(struct, options \\ [origin: nil, meta: nil, originator: nil])</a>
+    <a href="#delete/2">delete(struct, options \\ [origin: nil, meta: nil, originator: nil, prefix: nil])</a>
   </div>
   
     <div class="summary-synopsis"><p>Deletes a record from the database with a related version insertion in one transaction</p>
@@ -94,7 +99,7 @@
 </div>
 <div class="summary-row">
   <div class="summary-signature">
-    <a href="#delete!/2">delete!(struct, options \\ [origin: nil, meta: nil, originator: nil])</a>
+    <a href="#delete!/2">delete!(struct, options \\ [origin: nil, meta: nil, originator: nil, prefix: nil])</a>
   </div>
   
     <div class="summary-synopsis"><p>Same as delete/2 but returns only the model struct or raises if the changeset is invalid</p>
@@ -106,7 +111,7 @@
     <a href="#get_current_model/1">get_current_model(version)</a>
   </div>
   
-    <div class="summary-synopsis"><p>Gets the current model record/struct of a version</p>
+    <div class="summary-synopsis"><p>See <a href="PaperTrail.VersionQueries.html#get_current_model/1"><code class="inline">PaperTrail.VersionQueries.get_current_model/1</code></a></p>
 </div>
   
 </div>
@@ -115,16 +120,25 @@
     <a href="#get_version/1">get_version(record)</a>
   </div>
   
-    <div class="summary-synopsis"><p>Gets the last version of a record</p>
+    <div class="summary-synopsis"><p>See <a href="PaperTrail.VersionQueries.html#get_version/1"><code class="inline">PaperTrail.VersionQueries.get_version/1</code></a></p>
 </div>
   
 </div>
 <div class="summary-row">
   <div class="summary-signature">
-    <a href="#get_version/2">get_version(model, id)</a>
+    <a href="#get_version/2">get_version(model_or_record, id_or_options)</a>
   </div>
   
-    <div class="summary-synopsis"><p>Gets the last version of a record given its module reference and its id</p>
+    <div class="summary-synopsis"><p>See <a href="PaperTrail.VersionQueries.html#get_version/2"><code class="inline">PaperTrail.VersionQueries.get_version/2</code></a></p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#get_version/3">get_version(model, id, options)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>See <a href="PaperTrail.VersionQueries.html#get_version/3"><code class="inline">PaperTrail.VersionQueries.get_version/3</code></a></p>
 </div>
   
 </div>
@@ -133,22 +147,31 @@
     <a href="#get_versions/1">get_versions(record)</a>
   </div>
   
-    <div class="summary-synopsis"><p>Gets all the versions of a record</p>
+    <div class="summary-synopsis"><p>See <a href="PaperTrail.VersionQueries.html#get_versions/1"><code class="inline">PaperTrail.VersionQueries.get_versions/1</code></a></p>
 </div>
   
 </div>
 <div class="summary-row">
   <div class="summary-signature">
-    <a href="#get_versions/2">get_versions(model, id)</a>
+    <a href="#get_versions/2">get_versions(model_or_record, id_or_options)</a>
   </div>
   
-    <div class="summary-synopsis"><p>Gets all the versions of a record given a module and its id</p>
+    <div class="summary-synopsis"><p>See <a href="PaperTrail.VersionQueries.html#get_versions/2"><code class="inline">PaperTrail.VersionQueries.get_versions/2</code></a></p>
 </div>
   
 </div>
 <div class="summary-row">
   <div class="summary-signature">
-    <a href="#insert/2">insert(changeset, options \\ [origin: nil, meta: nil, originator: nil])</a>
+    <a href="#get_versions/3">get_versions(model, id, options)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>See <a href="PaperTrail.VersionQueries.html#get_versions/3"><code class="inline">PaperTrail.VersionQueries.get_versions/3</code></a></p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#insert/2">insert(changeset, options \\ [origin: nil, meta: nil, originator: nil, prefix: nil])</a>
   </div>
   
     <div class="summary-synopsis"><p>Inserts a record to the database with a related version insertion in one transaction</p>
@@ -157,7 +180,7 @@
 </div>
 <div class="summary-row">
   <div class="summary-signature">
-    <a href="#insert!/2">insert!(changeset, options \\ [origin: nil, meta: nil, originator: nil])</a>
+    <a href="#insert!/2">insert!(changeset, options \\ [origin: nil, meta: nil, originator: nil, prefix: nil])</a>
   </div>
   
     <div class="summary-synopsis"><p>Same as insert/2 but returns only the model struct or raises if the changeset is invalid</p>
@@ -166,7 +189,7 @@
 </div>
 <div class="summary-row">
   <div class="summary-signature">
-    <a href="#update/2">update(changeset, options \\ [origin: nil, meta: nil, originator: nil])</a>
+    <a href="#update/2">update(changeset, options \\ [origin: nil, meta: nil, originator: nil, prefix: nil])</a>
   </div>
   
     <div class="summary-synopsis"><p>Updates a record from the database with a related version insertion in one transaction</p>
@@ -175,7 +198,7 @@
 </div>
 <div class="summary-row">
   <div class="summary-signature">
-    <a href="#update!/2">update!(changeset, options \\ [origin: nil, meta: nil, originator: nil])</a>
+    <a href="#update!/2">update!(changeset, options \\ [origin: nil, meta: nil, originator: nil, prefix: nil])</a>
   </div>
   
     <div class="summary-synopsis"><p>Same as update/2 but returns only the model struct or raises if the changeset is invalid</p>
@@ -188,8 +211,6 @@
 
           
 
-          
-
         </section>
       
 
@@ -199,19 +220,21 @@
         <section id="functions" class="details-list">
           <h1 class="section-heading">
             <a class="hover-link" href="#functions">
-              <i class="icon-link"></i>
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
             </a>
             Functions
           </h1>
           <div class="detail" id="delete/2">
   
-    <span id="delete/1" />
+    <span id="delete/1"></span>
   
   <div class="detail-header">
     <a href="#delete/2" class="detail-link" title="Link to this function">
-      <i class="icon-link"></i>
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
     </a>
-    <span class="signature">delete(struct, options \\ [origin: nil, meta: nil, originator: nil])</span>
+    <span class="signature">delete(struct, options \\ [origin: nil, meta: nil, originator: nil, prefix: nil])</span>
     
     
     
@@ -223,13 +246,14 @@
 </div>
 <div class="detail" id="delete!/2">
   
-    <span id="delete!/1" />
+    <span id="delete!/1"></span>
   
   <div class="detail-header">
     <a href="#delete!/2" class="detail-link" title="Link to this function">
-      <i class="icon-link"></i>
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
     </a>
-    <span class="signature">delete!(struct, options \\ [origin: nil, meta: nil, originator: nil])</span>
+    <span class="signature">delete!(struct, options \\ [origin: nil, meta: nil, originator: nil, prefix: nil])</span>
     
     
     
@@ -243,7 +267,8 @@
   
   <div class="detail-header">
     <a href="#get_current_model/1" class="detail-link" title="Link to this function">
-      <i class="icon-link"></i>
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
     </a>
     <span class="signature">get_current_model(version)</span>
     
@@ -251,7 +276,7 @@
     
   </div>
   <section class="docstring">
-    <p>Gets the current model record/struct of a version</p>
+    <p>See <a href="PaperTrail.VersionQueries.html#get_current_model/1"><code class="inline">PaperTrail.VersionQueries.get_current_model/1</code></a>.</p>
 
   </section>
 </div>
@@ -259,7 +284,8 @@
   
   <div class="detail-header">
     <a href="#get_version/1" class="detail-link" title="Link to this function">
-      <i class="icon-link"></i>
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
     </a>
     <span class="signature">get_version(record)</span>
     
@@ -267,7 +293,7 @@
     
   </div>
   <section class="docstring">
-    <p>Gets the last version of a record</p>
+    <p>See <a href="PaperTrail.VersionQueries.html#get_version/1"><code class="inline">PaperTrail.VersionQueries.get_version/1</code></a>.</p>
 
   </section>
 </div>
@@ -275,15 +301,33 @@
   
   <div class="detail-header">
     <a href="#get_version/2" class="detail-link" title="Link to this function">
-      <i class="icon-link"></i>
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
     </a>
-    <span class="signature">get_version(model, id)</span>
+    <span class="signature">get_version(model_or_record, id_or_options)</span>
     
     
     
   </div>
   <section class="docstring">
-    <p>Gets the last version of a record given its module reference and its id</p>
+    <p>See <a href="PaperTrail.VersionQueries.html#get_version/2"><code class="inline">PaperTrail.VersionQueries.get_version/2</code></a>.</p>
+
+  </section>
+</div>
+<div class="detail" id="get_version/3">
+  
+  <div class="detail-header">
+    <a href="#get_version/3" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">get_version(model, id, options)</span>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>See <a href="PaperTrail.VersionQueries.html#get_version/3"><code class="inline">PaperTrail.VersionQueries.get_version/3</code></a>.</p>
 
   </section>
 </div>
@@ -291,7 +335,8 @@
   
   <div class="detail-header">
     <a href="#get_versions/1" class="detail-link" title="Link to this function">
-      <i class="icon-link"></i>
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
     </a>
     <span class="signature">get_versions(record)</span>
     
@@ -299,7 +344,7 @@
     
   </div>
   <section class="docstring">
-    <p>Gets all the versions of a record</p>
+    <p>See <a href="PaperTrail.VersionQueries.html#get_versions/1"><code class="inline">PaperTrail.VersionQueries.get_versions/1</code></a>.</p>
 
   </section>
 </div>
@@ -307,27 +352,46 @@
   
   <div class="detail-header">
     <a href="#get_versions/2" class="detail-link" title="Link to this function">
-      <i class="icon-link"></i>
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
     </a>
-    <span class="signature">get_versions(model, id)</span>
+    <span class="signature">get_versions(model_or_record, id_or_options)</span>
     
     
     
   </div>
   <section class="docstring">
-    <p>Gets all the versions of a record given a module and its id</p>
+    <p>See <a href="PaperTrail.VersionQueries.html#get_versions/2"><code class="inline">PaperTrail.VersionQueries.get_versions/2</code></a>.</p>
+
+  </section>
+</div>
+<div class="detail" id="get_versions/3">
+  
+  <div class="detail-header">
+    <a href="#get_versions/3" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">get_versions(model, id, options)</span>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>See <a href="PaperTrail.VersionQueries.html#get_versions/3"><code class="inline">PaperTrail.VersionQueries.get_versions/3</code></a>.</p>
 
   </section>
 </div>
 <div class="detail" id="insert/2">
   
-    <span id="insert/1" />
+    <span id="insert/1"></span>
   
   <div class="detail-header">
     <a href="#insert/2" class="detail-link" title="Link to this function">
-      <i class="icon-link"></i>
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
     </a>
-    <span class="signature">insert(changeset, options \\ [origin: nil, meta: nil, originator: nil])</span>
+    <span class="signature">insert(changeset, options \\ [origin: nil, meta: nil, originator: nil, prefix: nil])</span>
     
     
     
@@ -339,13 +403,14 @@
 </div>
 <div class="detail" id="insert!/2">
   
-    <span id="insert!/1" />
+    <span id="insert!/1"></span>
   
   <div class="detail-header">
     <a href="#insert!/2" class="detail-link" title="Link to this function">
-      <i class="icon-link"></i>
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
     </a>
-    <span class="signature">insert!(changeset, options \\ [origin: nil, meta: nil, originator: nil])</span>
+    <span class="signature">insert!(changeset, options \\ [origin: nil, meta: nil, originator: nil, prefix: nil])</span>
     
     
     
@@ -357,13 +422,14 @@
 </div>
 <div class="detail" id="update/2">
   
-    <span id="update/1" />
+    <span id="update/1"></span>
   
   <div class="detail-header">
     <a href="#update/2" class="detail-link" title="Link to this function">
-      <i class="icon-link"></i>
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
     </a>
-    <span class="signature">update(changeset, options \\ [origin: nil, meta: nil, originator: nil])</span>
+    <span class="signature">update(changeset, options \\ [origin: nil, meta: nil, originator: nil, prefix: nil])</span>
     
     
     
@@ -375,13 +441,14 @@
 </div>
 <div class="detail" id="update!/2">
   
-    <span id="update!/1" />
+    <span id="update!/1"></span>
   
   <div class="detail-header">
     <a href="#update!/2" class="detail-link" title="Link to this function">
-      <i class="icon-link"></i>
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
     </a>
-    <span class="signature">update!(changeset, options \\ [origin: nil, meta: nil, originator: nil])</span>
+    <span class="signature">update!(changeset, options \\ [origin: nil, meta: nil, originator: nil, prefix: nil])</span>
     
     
     
@@ -396,26 +463,24 @@
       
 
       
-
-      
           <footer class="footer">
         <p>
           <span class="line">
             Built using
-            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" rel="help" target="_blank">ExDoc</a> (v0.14.5),
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" rel="help" target="_blank">ExDoc</a> (v0.16.2),
           </span>
           <span class="line">
             designed by
             <a href="https://twitter.com/dignifiedquire" target="_blank" title="@dignifiedquire">Friedel Ziegelmayer</a>.
             </span>
         </p>
-        <button class="night-mode-toggle" />
+        <button class="night-mode-toggle"><span class="sr-only">Switch theme</span></button>
       </footer>
     </div>
   </div>
 </section>
 </div>
-  <script src="dist/app-4aef34ad5f.js"></script>
+  <script src="dist/app-4988ddd06b.js"></script>
   </body>
 </html>
 
