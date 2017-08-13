@@ -123,7 +123,7 @@ The library source code is minimal and well tested. It is suggested to read the 
 
   ```mix papertrail.install```
 
-  You might want to edit the types for `:event_id` and `:originator_id` if you're
+  You might want to edit the types for `:item_id` or `:originator_id` if you're
   using UUID or other types for your primary keys before you execute
   `mix ecto.migrate`.
 
@@ -141,7 +141,7 @@ YES! Make sure you do the steps above.
 
 | Column Name   | Type    | Description                | Entry Method             |
 | ------------- | ------- | -------------------------- | ------------------------ |
-| event         | String  | either insert, update or delete  | Library generates |
+| event         | String  | either "insert", "update" or "delete"  | Library generates |
 | item_type     | String  | model name of the reference record | Library generates |
 | item_id       | configurable (Integer by default) | model id of the reference record | Library generates |
 | item_changes  | Map     | all the changes in this version as a map | Library generates |
@@ -416,13 +416,14 @@ PaperTrail.insert(changeset, [prefix: tenant])
 ```
 
 By doing this, you're storing the new `User` entry into the schema/database
-specified by the `:prefix` value (`tenant_id`). Notice that the `User`'s changeset it's sent
-with the `:prefix` already set properly, so PaperTrail **only will take care of the
-storage of the generated `Version` entry in the desired schema/database**, be sure
-to add this info to your changeset before the execution of the PaperTrail function.
+specified by the `:prefix` value (`tenant_id`).
 
-PaperTrail can get versions of records or models from different schemas/databases as well
-by using the value of the element `:prefix` on the options of the functions. Example:
+Note that the `User`'s changeset it's sent with the `:prefix`, so PaperTrail **will take care of the
+storage of the generated `Version` entry in the desired schema/database**. Make sure
+to add this prefix to your changeset before the execution of the PaperTrail function if you want to do versioning on a seperate schema.
+
+PaperTrail can also get versions of records or models from different schemas/databases as well
+by using the `:prefix` option. Example:
 
 ```elixir
 tenant = "tenant_id"
