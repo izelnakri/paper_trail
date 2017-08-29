@@ -19,7 +19,11 @@ defmodule PaperTrail.Version do
     field :meta, :map
 
     if PaperTrail.RepoClient.originator() do
-      belongs_to PaperTrail.RepoClient.originator()[:name], PaperTrail.RepoClient.originator()[:model], define_field: false, foreign_key: :originator_id, type: Application.get_env(:paper_trail, :originator_type, :integer)
+      belongs_to PaperTrail.RepoClient.originator()[:name],
+        PaperTrail.RepoClient.originator()[:model],
+        define_field: false,
+        foreign_key: :originator_id,
+        type: Application.get_env(:paper_trail, :originator_type, :integer)
     end
 
     timestamps(updated_at: false)
