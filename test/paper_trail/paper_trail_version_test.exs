@@ -10,7 +10,7 @@ defmodule PaperTrailTest.Version do
     item_id: 1,
     item_changes: %{first_name: "Izel", last_name: "Nakri"},
     origin: "test",
-    inserted_at: DateTime.from_naive!(~N[1992-04-01 01:00:00.000], "Etc/UTC")
+    inserted_at: DateTime.from_naive!(~N[1952-04-01 01:00:00.000], "Etc/UTC")
   }
   @invalid_attrs %{}
 
@@ -51,17 +51,24 @@ defmodule PaperTrailTest.Version do
 
   test "count works" do
     versions = add_three_versions()
-    Version.count() == length(versions)
+    assert Version.count() == length(versions)
   end
 
   test "first works" do
     add_three_versions()
-    Version.first() |> serialize == @valid_attrs
+    target_model = @valid_attrs |> Map.delete(:inserted_at) |> Map.merge(%{
+      item_changes: %{"first_name" => "Izel", "last_name" => "Nakri"}
+    })
+    target_version = Version.first() |> serialize |> Map.drop([
+      :id, :meta, :originator_id, :inserted_at
+    ])
+
+    assert target_version == target_model
   end
 
   test "last works" do
     add_three_versions()
-    Version.last() |> serialize != %{
+    assert Version.last() |> serialize != %{
       event: "insert",
       item_type: "Person",
       item_id: 3,
@@ -74,19 +81,26 @@ defmodule PaperTrailTest.Version do
   # Multi tenant tests
   test "[multi tenant] count works" do
     versions = add_three_versions(MultiTenant.tenant())
-    Version.count(prefix: MultiTenant.tenant()) == length(versions)
-    Version.count() != length(versions)
+    assert Version.count(prefix: MultiTenant.tenant()) == length(versions)
+    assert Version.count() != length(versions)
   end
 
   test "[multi tenant] first works" do
     add_three_versions(MultiTenant.tenant())
-    Version.first(prefix: MultiTenant.tenant()) |> serialize == @valid_attrs
-    Version.first() |> serialize != @valid_attrs
+    target_version = Version.first(prefix: MultiTenant.tenant()) |> serialize |> Map.drop([
+      :id, :meta, :originator_id, :inserted_at
+    ])
+    target_model = @valid_attrs |> Map.delete(:inserted_at) |> Map.merge(%{
+      item_changes: %{"first_name" => "Izel", "last_name" => "Nakri"}
+    })
+
+    assert target_version == target_model
+    assert Version.first() == nil
   end
 
   test "[multi tenant] last works" do
     add_three_versions(MultiTenant.tenant())
-    Version.last(prefix: MultiTenant.tenant()) |> serialize != %{
+    assert Version.last(prefix: MultiTenant.tenant()) |> serialize != %{
       event: "insert",
       item_type: "Person",
       item_id: 3,
@@ -94,7 +108,7 @@ defmodule PaperTrailTest.Version do
       origin: "test",
       inserted_at: DateTime.from_naive!(~N[1965-04-14 01:00:00.000], "Etc/UTC")
     }
-    Version.last() == nil
+    assert Version.last() == nil
   end
 
   def add_three_versions(prefix \\ nil) do
