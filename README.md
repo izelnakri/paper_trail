@@ -446,6 +446,7 @@ Many thanks to:
 - [Josh Taylor](https://github.com/joshuataylor) - Maintenance and new feature suggestions
 - [Mitchell Henke](https://github.com/mitchellhenke) - Fixed weird elixir compiler warnings
 - [Iván González](https://github.com/dreamingechoes) - Multi tenancy feature and some minor refactors
+- [Teo Choong Ping](https://github.com/seymores) - Fixed paper_trail references for newer Elixir versions
 - [Izel Nakri](https://github.com/izelnakri) - The Originator of this library. See what I did there ;)
 
 Additional thanks to:

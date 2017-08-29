@@ -9,13 +9,11 @@ defmodule PaperTrail.VersionQueries do
   """
   @spec get_versions(record :: Ecto.Schema.t) :: Ecto.Query.t
   def get_versions(record), do: get_versions(record, [])
-
   @doc """
   Gets all the versions of a record given a module and its id
   """
   @spec get_versions(model :: module, id :: pos_integer) :: Ecto.Query.t
   def get_versions(model, id) when is_atom(model) and is_integer(id), do: get_versions(model, id, [])
-
   @doc """
   Gets all the versions of a record.
 
