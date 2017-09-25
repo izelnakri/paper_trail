@@ -2,6 +2,7 @@ defmodule PaperTrailTest.Version do
   use ExUnit.Case
 
   alias PaperTrail.Version
+  alias PaperTrailTest.MultiTenantHelper, as: MultiTenant
 
   @valid_attrs %{
     event: "insert",
@@ -9,7 +10,7 @@ defmodule PaperTrailTest.Version do
     item_id: 1,
     item_changes: %{first_name: "Izel", last_name: "Nakri"},
     origin: "test",
-    inserted_at: DateTime.from_naive!(~N[1992-04-01 01:00:00.000], "Etc/UTC")
+    inserted_at: DateTime.from_naive!(~N[1952-04-01 01:00:00.000], "Etc/UTC")
   }
   @invalid_attrs %{}
 
@@ -20,13 +21,20 @@ defmodule PaperTrailTest.Version do
     Application.put_env(:paper_trail, :repo, PaperTrail.Repo)
     Code.eval_file("lib/paper_trail.ex")
     Code.eval_file("lib/version.ex")
+    MultiTenant.setup_tenant(@repo)
     :ok
   end
 
   setup do
     @repo.delete_all(Version)
+    Version
+    |> MultiTenant.add_prefix_to_query()
+    |> @repo.delete_all()
     on_exit fn ->
       @repo.delete_all(Version)
+      Version
+      |> MultiTenant.add_prefix_to_query()
+      |> @repo.delete_all()
     end
     :ok
   end
@@ -43,17 +51,24 @@ defmodule PaperTrailTest.Version do
 
   test "count works" do
     versions = add_three_versions()
-    Version.count() == length(versions)
+    assert Version.count() == length(versions)
   end
 
   test "first works" do
-    versions = add_three_versions()
-    Version.first() |> serialize == @valid_attrs
+    add_three_versions()
+    target_model = @valid_attrs |> Map.delete(:inserted_at) |> Map.merge(%{
+      item_changes: %{"first_name" => "Izel", "last_name" => "Nakri"}
+    })
+    target_version = Version.first() |> serialize |> Map.drop([
+      :id, :meta, :originator_id, :inserted_at
+    ])
+
+    assert target_version == target_model
   end
 
   test "last works" do
-    versions = add_three_versions()
-    Version.last() |> serialize != %{
+    add_three_versions()
+    assert Version.last() |> serialize != %{
       event: "insert",
       item_type: "Person",
       item_id: 3,
@@ -63,7 +78,40 @@ defmodule PaperTrailTest.Version do
     }
   end
 
-  def add_three_versions do
+  # Multi tenant tests
+  test "[multi tenant] count works" do
+    versions = add_three_versions(MultiTenant.tenant())
+    assert Version.count(prefix: MultiTenant.tenant()) == length(versions)
+    assert Version.count() != length(versions)
+  end
+
+  test "[multi tenant] first works" do
+    add_three_versions(MultiTenant.tenant())
+    target_version = Version.first(prefix: MultiTenant.tenant()) |> serialize |> Map.drop([
+      :id, :meta, :originator_id, :inserted_at
+    ])
+    target_model = @valid_attrs |> Map.delete(:inserted_at) |> Map.merge(%{
+      item_changes: %{"first_name" => "Izel", "last_name" => "Nakri"}
+    })
+
+    assert target_version == target_model
+    assert Version.first() == nil
+  end
+
+  test "[multi tenant] last works" do
+    add_three_versions(MultiTenant.tenant())
+    assert Version.last(prefix: MultiTenant.tenant()) |> serialize != %{
+      event: "insert",
+      item_type: "Person",
+      item_id: 3,
+      item_changes: %{first_name: "Yukihiro", last_name: "Matsumoto"},
+      origin: "test",
+      inserted_at: DateTime.from_naive!(~N[1965-04-14 01:00:00.000], "Etc/UTC")
+    }
+    assert Version.last() == nil
+  end
+
+  def add_three_versions(prefix \\ nil) do
     @repo.insert_all(Version, [
       @valid_attrs,
       %{
@@ -82,7 +130,7 @@ defmodule PaperTrailTest.Version do
         origin: "test",
         inserted_at: DateTime.from_naive!(~N[1965-04-14 01:00:00.000], "Etc/UTC")
       }
-    ], returning: true) |> elem(1)
+    ], returning: true, prefix: prefix) |> elem(1)
   end
 
   def serialize(nil), do: nil

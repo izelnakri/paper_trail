@@ -1,40 +1,45 @@
-defmodule PersonTest do
+defmodule MultiTenantPersonTest do
   use ExUnit.Case
   import Ecto.Query
 
-  doctest Person
-
   setup_all do
-    Repo.delete_all(Person)
-    Repo.delete_all(Company)
-    Repo.delete_all(PaperTrail.Version)
+    MultiTenantHelper.setup_tenant(Repo)
 
     %Company{}
     |> Company.changeset(%{name: "Acme LLC", website: "http://www.acme.com"})
+    |> MultiTenantHelper.add_prefix_to_changeset()
     |> Repo.insert()
 
     %Company{}
     |> Company.changeset(%{name: "Another Company Corp.", is_active: true, address: "Sesame street 100/3, 101010"})
+    |> MultiTenantHelper.add_prefix_to_changeset()
     |> Repo.insert()
 
     :ok
   end
 
-  test "creating a person with meta tag creates a person version with correct attributes" do
+  test "[multi tenant] creating a person with meta tag creates a person version with correct attributes" do
     company =
       first(Company, :id)
       |> preload(:people)
+      |> MultiTenantHelper.add_prefix_to_query()
       |> Repo.one()
 
     {:ok, result} =
       %Person{}
       |> Person.changeset(%{first_name: "Izel", last_name: "Nakri", gender: true, company_id: company.id})
-      |> PaperTrail.insert(origin: "admin", meta: %{})
+      |> MultiTenantHelper.add_prefix_to_changeset()
+      |> PaperTrail.insert(origin: "admin", meta: %{}, prefix: MultiTenantHelper.tenant())
 
     person_count =
       from(person in Person, select: count(person.id))
+      |> MultiTenantHelper.add_prefix_to_query()
       |> Repo.all()
     version_count =
+      from(version in PaperTrail.Version, select: count(version.id))
+      |> MultiTenantHelper.add_prefix_to_query()
+      |> Repo.all()
+    regular_version_count =
       from(version in PaperTrail.Version, select: count(version.id))
       |> Repo.all()
 
@@ -44,10 +49,12 @@ defmodule PersonTest do
     first_person =
       first(Person, :id)
       |> preload(:company)
+      |> MultiTenantHelper.add_prefix_to_query()
       |> Repo.one()
 
     assert person_count == [1]
     assert version_count == [1]
+    assert regular_version_count == [0]
 
     assert Map.drop(person, [:company]) == %{
       first_name: "Izel",
@@ -69,14 +76,16 @@ defmodule PersonTest do
     }
   end
 
-  test "updating a person creates a person version with correct attributes" do
+  test "[multi tenant] updating a person creates a person version with correct attributes" do
     first_person =
       first(Person, :id)
       |> preload(:company)
+      |> MultiTenantHelper.add_prefix_to_query()
       |> Repo.one()
 
     target_company =
       from(c in Company, where: c.name == "Another Company Corp.", limit: 1)
+      |> MultiTenantHelper.add_prefix_to_query()
       |> Repo.one()
 
     {:ok, result} =
@@ -86,12 +95,20 @@ defmodule PersonTest do
         visit_count: 10,
         birthdate: ~D[1992-04-01],
         company_id: target_company.id
-      }) |> PaperTrail.update(origin: "user:1", meta: %{linkname: "izelnakri"})
+      })
+      |> MultiTenantHelper.add_prefix_to_changeset()
+      |> PaperTrail.update([origin: "user:1", meta: %{linkname: "izelnakri"},
+        prefix: MultiTenantHelper.tenant()])
 
     person_count =
       from(person in Person, select: count(person.id))
+      |> MultiTenantHelper.add_prefix_to_query()
       |> Repo.all()
     version_count =
+      from(version in PaperTrail.Version, select: count(version.id))
+      |> MultiTenantHelper.add_prefix_to_query()
+      |> Repo.all()
+    regular_version_count =
       from(version in PaperTrail.Version, select: count(version.id))
       |> Repo.all()
 
@@ -100,6 +117,7 @@ defmodule PersonTest do
 
     assert person_count == [1]
     assert version_count == [2]
+    assert regular_version_count == [0]
 
     assert Map.drop(person, [:company]) == %{
       company_id: target_company.id,
@@ -128,20 +146,26 @@ defmodule PersonTest do
     }
   end
 
-  test "deleting a person creates a person version with correct attributes" do
+  test "[multi tenant] deleting a person creates a person version with correct attributes" do
     person =
       first(Person, :id)
       |> preload(:company)
+      |> MultiTenantHelper.add_prefix_to_query()
       |> Repo.one()
 
     {:ok, result} =
       person
-      |> PaperTrail.delete()
+      |> PaperTrail.delete(prefix: MultiTenantHelper.tenant())
 
     person_count =
       from(person in Person, select: count(person.id))
+      |> MultiTenantHelper.add_prefix_to_query()
       |> Repo.all()
     version_count =
+      from(version in PaperTrail.Version, select: count(version.id))
+      |> MultiTenantHelper.add_prefix_to_query()
+      |> Repo.all()
+    regular_version_count =
       from(version in PaperTrail.Version, select: count(version.id))
       |> Repo.all()
 
@@ -149,6 +173,7 @@ defmodule PersonTest do
 
     assert person_count == [0]
     assert version_count == [3]
+    assert regular_version_count == [0]
 
     assert Map.drop(version, [:id]) == %{
       event: "delete",
