@@ -253,7 +253,7 @@ defmodule PaperTrail do
       event: "update",
       item_type: changeset.data.__struct__ |> Module.split |> List.last,
       item_id: changeset.data.id,
-      item_changes: changeset.changes,
+      item_changes: serialize_changes(changeset) || %{},
       originator_id: case originator_ref do
         nil -> nil
         _ -> originator_ref |> Map.get(:id)
@@ -296,6 +296,38 @@ defmodule PaperTrail do
   defp serialize(model) do
     relationships = model.__struct__.__schema__(:associations)
     Map.drop(model, [:__struct__, :__meta__] ++ relationships)
+  end
+
+  defp serialize_changes(data) do
+    case is_map(data) do
+      false -> data
+      true -> deep_serialize(data)
+    end
+  end
+
+  defp deep_serialize(data) do
+    if Map.has_key?(data, :__struct__) do
+      case data.__struct__ do
+        Ecto.Changeset ->
+          if data.changes != %{} do
+            data.changes
+            |> Enum.reduce(%{id: data.data.id}, fn({key, value}, accum) ->
+              value = if is_list(value) do
+                Enum.map(value, &serialize_changes(&1))
+                |> Enum.filter(fn(v) -> ! is_nil(v) end)
+              else
+                serialize_changes(value)
+              end
+
+              accum
+              |> Map.put(key, value)
+            end)
+          end
+        value -> value
+      end
+    else
+      data
+    end
   end
 
   defp add_prefix(changeset, nil), do: changeset
