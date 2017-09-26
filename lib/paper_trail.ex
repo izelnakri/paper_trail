@@ -308,25 +308,26 @@ defmodule PaperTrail do
   defp deep_serialize(data) do
     if Map.has_key?(data, :__struct__) do
       case data.__struct__ do
-        Ecto.Changeset ->
-          if data.changes != %{} do
-            data.changes
-            |> Enum.reduce(%{id: data.data.id}, fn({key, value}, accum) ->
-              value = if is_list(value) do
-                Enum.map(value, &serialize_changes(&1))
-                |> Enum.filter(fn(v) -> ! is_nil(v) end)
-              else
-                serialize_changes(value)
-              end
-
-              accum
-              |> Map.put(key, value)
-            end)
-          end
+        Ecto.Changeset -> extract_values(data)
         value -> value
       end
     else
       data
+    end
+  end
+
+  defp extract_values(changeset) do
+    if changeset.changes != %{} do
+      changeset.changes
+      |> Enum.reduce(%{id: changeset.data.id}, fn({key, value}, accum) ->
+        value = if is_list(value) do
+          Enum.map(value, &serialize_changes(&1))
+          |> Enum.filter(fn(v) -> ! is_nil(v) end)
+        else
+          serialize_changes(value)
+        end
+        Map.put(accum, key, value)
+      end)
     end
   end
 
