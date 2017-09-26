@@ -30,6 +30,13 @@ defmodule SimpleCompany do
     |> no_assoc_constraint(:people)
   end
 
+  def people_changeset(model, params \\ %{}) do
+    model
+    |> cast(params, @optional_fields)
+    |> cast_assoc(:people)
+    |> validate_required([:name])
+  end
+
   def count do
     from(record in __MODULE__, select: count(record.id)) |> PaperTrail.RepoClient.repo.one
   end
