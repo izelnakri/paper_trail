@@ -10,6 +10,7 @@ defmodule PaperTrailTest do
   @repo PaperTrail.RepoClient.repo
   @create_company_params %{name: "Acme LLC", is_active: true, city: "Greenwich"}
   @update_company_params %{city: "Hong Kong", website: "http://www.acme.com", facebook: "acme.llc"}
+  @create_company_with_people_params %{name: "Acme LLC", is_active: true, city: "Greenwich", people: [%{first_name: "Izel"}]}
 
   doctest PaperTrail
 
@@ -326,6 +327,45 @@ defmodule PaperTrailTest do
     assert person == first(Person, :id) |> @repo.one |> serialize
   end
 
+  test "updating a company with people changes creates a version with correct attributes" do
+   {:ok, %{model: company}} = create_company_with_people_with_version()
+   person_id = List.first(company.people).id
+   {:ok, result} = Company.people_changeset(company, %{
+     name: "Another Company",
+     people: [%{id: person_id, first_name: "abmm"}]
+   }) |> PaperTrail.update
+   company_count = Person.count()
+   version_count = Version.count()
+   company = result[:model] |> serialize
+   version = result[:version] |> serialize
+   assert Map.keys(result) == [:model, :version]
+   assert company_count == 1
+   assert version_count == 2
+   assert Map.drop(company, [:id, :inserted_at, :updated_at]) == %{
+     name: "Another Company",
+     address: nil,
+     city: "Greenwich",
+     twitter: nil,
+     facebook: nil,
+     founded_in: nil,
+     is_active: true,
+     website: nil
+   }
+   assert Map.drop(version, [:id, :inserted_at]) == %{
+     event: "update",
+     item_type: "SimpleCompany",
+     item_id: company.id,
+     item_changes: %{
+       name: "Another Company",
+       people: [%{ first_name: "abmm", id: person_id}]
+     },
+     originator_id: nil,
+     origin: nil,
+     meta: nil
+   }
+   assert company == first(Company, :id) |> @repo.one |> serialize
+  end
+
   test "deleting a person creates a person version with correct attributes" do
     create_company_with_version(%{name: "Acme LLC", website: "http://www.acme.com"})
     {:ok, target_company_insertion} = create_company_with_version(%{
@@ -389,6 +429,10 @@ defmodule PaperTrailTest do
 
   defp update_company_with_version(company, params \\ @update_company_params, options \\ nil) do
     Company.changeset(company, params) |> PaperTrail.update(options)
+  end
+
+  defp create_company_with_people_with_version(params \\ @create_company_with_people_params, options \\ nil) do
+    Company.people_changeset(%Company{}, params) |> PaperTrail.insert(options)
   end
 
   defp serialize(model) do

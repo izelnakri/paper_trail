@@ -298,37 +298,43 @@ defmodule PaperTrail do
     Map.drop(model, [:__struct__, :__meta__] ++ relationships)
   end
 
-  defp serialize_changes(data) do
+  defp serialize_changes(data), do: serialize_changes(data, true)
+  defp serialize_changes(data, is_root) do
     case is_map(data) do
       false -> data
-      true -> deep_serialize(data)
+      true -> deep_serialize(data, is_root)
     end
   end
 
-  defp deep_serialize(data) do
+  defp deep_serialize(data, is_root) do
     if Map.has_key?(data, :__struct__) do
       case data.__struct__ do
-        Ecto.Changeset ->
-          if data.changes != %{} do
-            data.changes
-            |> Enum.reduce(%{id: data.data.id}, fn({key, value}, accum) ->
-              value = if is_list(value) do
-                Enum.map(value, &serialize_changes(&1))
-                |> Enum.filter(fn(v) -> ! is_nil(v) end)
-              else
-                serialize_changes(value)
-              end
-
-              accum
-              |> Map.put(key, value)
-            end)
-          end
-        value -> value
+        Ecto.Changeset -> extract_values(data, is_root)
+        _ -> data
       end
     else
       data
     end
   end
+
+  defp extract_values(changeset, is_root) do
+    if changeset.changes != %{} do
+      init = initial_value(changeset, is_root)
+      changeset.changes
+      |> Enum.reduce(init, fn({key, value}, accum) ->
+        value = if is_list(value) do
+          Enum.map(value, &serialize_changes(&1, false))
+          |> Enum.filter(fn(v) -> ! is_nil(v) end)
+        else
+          serialize_changes(value, false)
+        end
+        Map.put(accum, key, value)
+      end)
+    end
+  end
+
+  defp initial_value(_, true), do: %{}
+  defp initial_value(changeset, false), do: %{id: changeset.data.id}
 
   defp add_prefix(changeset, nil), do: changeset
   defp add_prefix(changeset, prefix), do: Ecto.put_meta(changeset, prefix: prefix)
