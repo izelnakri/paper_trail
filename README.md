@@ -185,6 +185,8 @@ You can specify setter/originator relationship to paper_trail versions with ```o
   # For most applications originator should be the user since models can be updated/created/deleted by several users.
 ```
 
+Note: You will need to recompile your deps after you have added the config for originator. 
+
 Then originator name could be used for querying and preloading. Originator setting must be done via ```:originator``` or originator name that is defined in the paper_trail configuration:
 
 ```elixir
