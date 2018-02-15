@@ -7,16 +7,16 @@ defmodule SimpleCompany do
   import Ecto.Query
 
   schema "simple_companies" do
-    field :name, :string
-    field :is_active, :boolean
-    field :website, :string
-    field :city, :string
-    field :address, :string
-    field :facebook, :string
-    field :twitter, :string
-    field :founded_in, :string
+    field(:name, :string)
+    field(:is_active, :boolean)
+    field(:website, :string)
+    field(:city, :string)
+    field(:address, :string)
+    field(:facebook, :string)
+    field(:twitter, :string)
+    field(:founded_in, :string)
 
-    has_many :people, SimplePerson, foreign_key: :company_id
+    has_many(:people, SimplePerson, foreign_key: :company_id)
 
     timestamps()
   end
@@ -31,12 +31,13 @@ defmodule SimpleCompany do
   end
 
   def count do
-    from(record in __MODULE__, select: count(record.id)) |> PaperTrail.RepoClient.repo.one
+    from(record in __MODULE__, select: count(record.id)) |> PaperTrail.RepoClient.repo().one
   end
+
   def count(:multitenant) do
     from(record in __MODULE__, select: count(record.id))
     |> MultiTenant.add_prefix_to_query()
-    |> PaperTrail.RepoClient.repo.one
+    |> PaperTrail.RepoClient.repo().one
   end
 end
 
@@ -49,13 +50,13 @@ defmodule SimplePerson do
   import Ecto.Query
 
   schema "simple_people" do
-    field :first_name, :string
-    field :last_name, :string
-    field :visit_count, :integer
-    field :gender, :boolean
-    field :birthdate, Ecto.Date
+    field(:first_name, :string)
+    field(:last_name, :string)
+    field(:visit_count, :integer)
+    field(:gender, :boolean)
+    field(:birthdate, Ecto.Date)
 
-    belongs_to :company, SimpleCompany, foreign_key: :company_id
+    belongs_to(:company, SimpleCompany, foreign_key: :company_id)
 
     timestamps()
   end
@@ -69,11 +70,12 @@ defmodule SimplePerson do
   end
 
   def count do
-    from(record in __MODULE__, select: count(record.id)) |> PaperTrail.RepoClient.repo.one
+    from(record in __MODULE__, select: count(record.id)) |> PaperTrail.RepoClient.repo().one
   end
+
   def count(:multitenant) do
     from(record in __MODULE__, select: count(record.id))
     |> MultiTenant.add_prefix_to_query()
-    |> PaperTrail.RepoClient.repo.one
+    |> PaperTrail.RepoClient.repo().one
   end
 end

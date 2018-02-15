@@ -5,7 +5,7 @@ defmodule Product do
 
   @primary_key {:id, :binary_id, autogenerate: true}
   schema "products" do
-    field :name, :string
+    field(:name, :string)
 
     timestamps()
   end
@@ -23,7 +23,7 @@ defmodule Admin do
 
   @primary_key {:id, :binary_id, autogenerate: true}
   schema "admins" do
-    field :email, :string
+    field(:email, :string)
 
     timestamps()
   end

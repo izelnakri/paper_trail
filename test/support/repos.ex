@@ -12,8 +12,8 @@ defmodule User do
   import Ecto.Changeset
 
   schema "users" do
-    field :token, :string
-    field :username, :string
+    field(:token, :string)
+    field(:username, :string)
 
     timestamps()
   end

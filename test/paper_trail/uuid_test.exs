@@ -6,7 +6,7 @@ defmodule PaperTrailTest.UUIDTest do
 
   setup_all do
     Application.put_env(:paper_trail, :repo, PaperTrail.UUIDRepo)
-    Application.put_env(:paper_trail, :originator, [name: :admin, model: Admin])
+    Application.put_env(:paper_trail, :originator, name: :admin, model: Admin)
     Application.put_env(:paper_trail, :originator_type, Ecto.UUID)
     Application.put_env(:paper_trail, :item_type, Ecto.UUID)
     Code.eval_file("lib/paper_trail.ex")
@@ -21,7 +21,7 @@ defmodule PaperTrailTest.UUIDTest do
     product =
       %Product{}
       |> Product.changeset(%{name: "Hair Cream"})
-      |> PaperTrail.insert!
+      |> PaperTrail.insert!()
 
     version = Version |> last |> repo().one
 

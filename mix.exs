@@ -4,12 +4,12 @@ defmodule PaperTrail.Mixfile do
   def project do
     [
       app: :paper_trail,
-      version: "0.7.7",
-      elixir: "~> 1.4",
+      version: "0.7.8",
+      elixir: "~> 1.6",
       description: description(),
-      build_embedded: Mix.env == :prod,
-      start_permanent: Mix.env == :prod,
-      elixirc_paths: elixirc_paths(Mix.env),
+      build_embedded: Mix.env() == :prod,
+      start_permanent: Mix.env() == :prod,
+      elixirc_paths: elixirc_paths(Mix.env()),
       package: package(),
       deps: deps()
     ]
@@ -34,9 +34,9 @@ defmodule PaperTrail.Mixfile do
   end
 
   defp description do
-     """
-     Track and record all the changes in your database. Revert back to anytime in history.
-     """
+    """
+    Track and record all the changes in your database. Revert back to anytime in history.
+    """
   end
 
   defp package do
@@ -51,6 +51,7 @@ defmodule PaperTrail.Mixfile do
       }
     ]
   end
+
   defp elixirc_paths(:test), do: ["lib", "test/support"]
   defp elixirc_paths(_), do: ["lib"]
 end
