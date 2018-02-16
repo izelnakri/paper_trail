@@ -322,7 +322,7 @@ defmodule PaperTrail do
     %Version{
       event: "update",
       item_type: changeset.data.__struct__ |> Module.split() |> List.last(),
-      item_id: get_model_id_from_changeset(changeset),
+      item_id: get_model_id(changeset.data),
       item_changes: changeset.changes,
       originator_id:
         case originator_ref do
@@ -381,9 +381,5 @@ defmodule PaperTrail do
 
   def get_model_id(model) do
     Map.get(model, List.first(model.__struct__.__schema__(:primary_key)))
-  end
-
-  def get_model_id_from_changeset(changeset) do
-    get_model_id(changeset.data)
   end
 end
