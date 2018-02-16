@@ -302,7 +302,7 @@ defmodule PaperTrail do
     %Version{
       event: "insert",
       item_type: model.__struct__ |> Module.split() |> List.last(),
-      item_id: model.id,
+      item_id: get_model_id(model),
       item_changes: serialize(model),
       originator_id:
         case originator_ref do
@@ -322,7 +322,7 @@ defmodule PaperTrail do
     %Version{
       event: "update",
       item_type: changeset.data.__struct__ |> Module.split() |> List.last(),
-      item_id: changeset.data.id,
+      item_id: get_model_id_from_changeset(changeset),
       item_changes: changeset.changes,
       originator_id:
         case originator_ref do
@@ -342,7 +342,7 @@ defmodule PaperTrail do
     %Version{
       event: "delete",
       item_type: model.__struct__ |> Module.split() |> List.last(),
-      item_id: model.id,
+      item_id: get_model_id(model),
       item_changes: serialize(model),
       originator_id:
         case originator_ref do
@@ -378,4 +378,12 @@ defmodule PaperTrail do
 
   defp add_prefix(changeset, nil), do: changeset
   defp add_prefix(changeset, prefix), do: Ecto.put_meta(changeset, prefix: prefix)
+
+  def get_model_id(model) do
+    Map.get(model, List.first(model.__struct__.__schema__(:primary_key)))
+  end
+
+  def get_model_id_from_changeset(changeset) do
+    get_model_id(changeset.data)
+  end
 end
