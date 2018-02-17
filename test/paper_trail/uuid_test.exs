@@ -14,6 +14,7 @@ defmodule PaperTrailTest.UUIDTest do
     repo().delete_all(Version)
     repo().delete_all(Admin)
     repo().delete_all(Product)
+    repo().delete_all(Item)
     :ok
   end
 
@@ -46,5 +47,15 @@ defmodule PaperTrailTest.UUIDTest do
       |> repo().preload(:admin)
 
     assert version.admin == admin
+  end
+
+  test "versioning models that have a non-regular primary key" do
+    item =
+      %Item{}
+      |> Item.changeset(%{title: "hello"})
+      |> PaperTrail.insert!()
+
+    version = Version |> last |> repo().one
+    assert version.item_id == item.item_id
   end
 end

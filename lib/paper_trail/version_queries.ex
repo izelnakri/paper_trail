@@ -30,7 +30,7 @@ defmodule PaperTrail.VersionQueries do
   @spec get_versions(record :: Ecto.Schema.t(), options :: []) :: Ecto.Query.t()
   def get_versions(record, options) when is_map(record) do
     item_type = record.__struct__ |> Module.split() |> List.last()
-    version_query(item_type, record.id, options) |> @repo.all
+    version_query(item_type, PaperTrail.get_model_id(record), options) |> @repo.all
   end
 
   @doc """
@@ -75,7 +75,7 @@ defmodule PaperTrail.VersionQueries do
   @spec get_version(record :: Ecto.Schema.t(), options :: []) :: Ecto.Query.t()
   def get_version(record, options) when is_map(record) do
     item_type = record.__struct__ |> Module.split() |> List.last()
-    last(version_query(item_type, record.id, options)) |> @repo.one
+    last(version_query(item_type, PaperTrail.get_model_id(record), options)) |> @repo.one
   end
 
   @doc """
