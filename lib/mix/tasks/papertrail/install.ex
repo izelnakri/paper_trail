@@ -7,11 +7,11 @@ defmodule Mix.Tasks.Papertrail.Install do
   import Mix.Generator
 
   def run(_args) do
-    path = Path.relative_to("priv/repo/migrations", Mix.Project.app_path)
+    path = Path.relative_to("priv/repo/migrations", Mix.Project.app_path())
     file = Path.join(path, "#{timestamp()}_#{underscore(AddVersions)}.exs")
-    create_directory path
+    create_directory(path)
 
-    create_file file, """
+    create_file(file, """
     defmodule Repo.Migrations.AddVersions do
       use Ecto.Migration
 
@@ -35,7 +35,7 @@ defmodule Mix.Tasks.Papertrail.Install do
         # create index(:versions, [:item_type, :inserted_at])
       end
     end
-    """
+    """)
   end
 
   defp timestamp do
@@ -43,6 +43,6 @@ defmodule Mix.Tasks.Papertrail.Install do
     "#{y}#{pad(m)}#{pad(d)}#{pad(hh)}#{pad(mm)}#{pad(ss)}"
   end
 
-  defp pad(i) when i < 10, do: << ?0, ?0 + i >>
+  defp pad(i) when i < 10, do: <<?0, ?0 + i>>
   defp pad(i), do: to_string(i)
 end

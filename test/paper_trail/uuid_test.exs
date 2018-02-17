@@ -6,7 +6,7 @@ defmodule PaperTrailTest.UUIDTest do
 
   setup_all do
     Application.put_env(:paper_trail, :repo, PaperTrail.UUIDRepo)
-    Application.put_env(:paper_trail, :originator, [name: :admin, model: Admin])
+    Application.put_env(:paper_trail, :originator, name: :admin, model: Admin)
     Application.put_env(:paper_trail, :originator_type, Ecto.UUID)
     Application.put_env(:paper_trail, :item_type, Ecto.UUID)
     Code.eval_file("lib/paper_trail.ex")
@@ -14,6 +14,7 @@ defmodule PaperTrailTest.UUIDTest do
     repo().delete_all(Version)
     repo().delete_all(Admin)
     repo().delete_all(Product)
+    repo().delete_all(Item)
     :ok
   end
 
@@ -21,7 +22,7 @@ defmodule PaperTrailTest.UUIDTest do
     product =
       %Product{}
       |> Product.changeset(%{name: "Hair Cream"})
-      |> PaperTrail.insert!
+      |> PaperTrail.insert!()
 
     version = Version |> last |> repo().one
 
@@ -46,5 +47,15 @@ defmodule PaperTrailTest.UUIDTest do
       |> repo().preload(:admin)
 
     assert version.admin == admin
+  end
+
+  test "versioning models that have a non-regular primary key" do
+    item =
+      %Item{}
+      |> Item.changeset(%{title: "hello"})
+      |> PaperTrail.insert!()
+
+    version = Version |> last |> repo().one
+    assert version.item_id == item.item_id
   end
 end

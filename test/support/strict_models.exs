@@ -7,19 +7,19 @@ defmodule StrictCompany do
   import Ecto.Query
 
   schema "strict_companies" do
-    field :name, :string
-    field :is_active, :boolean
-    field :website, :string
-    field :city, :string
-    field :address, :string
-    field :facebook, :string
-    field :twitter, :string
-    field :founded_in, :string
+    field(:name, :string)
+    field(:is_active, :boolean)
+    field(:website, :string)
+    field(:city, :string)
+    field(:address, :string)
+    field(:facebook, :string)
+    field(:twitter, :string)
+    field(:founded_in, :string)
 
-    belongs_to :first_version, PaperTrail.Version
-    belongs_to :current_version, PaperTrail.Version, on_replace: :update
+    belongs_to(:first_version, PaperTrail.Version)
+    belongs_to(:current_version, PaperTrail.Version, on_replace: :update)
 
-    has_many :people, StrictPerson, foreign_key: :company_id
+    has_many(:people, StrictPerson, foreign_key: :company_id)
 
     timestamps()
   end
@@ -34,12 +34,13 @@ defmodule StrictCompany do
   end
 
   def count do
-    from(record in __MODULE__, select: count(record.id)) |> PaperTrail.RepoClient.repo.one
+    from(record in __MODULE__, select: count(record.id)) |> PaperTrail.RepoClient.repo().one
   end
+
   def count(:multitenant) do
     from(record in __MODULE__, select: count(record.id))
     |> MultiTenant.add_prefix_to_query()
-    |> PaperTrail.RepoClient.repo.one
+    |> PaperTrail.RepoClient.repo().one
   end
 end
 
@@ -52,15 +53,15 @@ defmodule StrictPerson do
   import Ecto.Query
 
   schema "strict_people" do
-    field :first_name, :string
-    field :last_name, :string
-    field :visit_count, :integer
-    field :gender, :boolean
-    field :birthdate, Ecto.Date
+    field(:first_name, :string)
+    field(:last_name, :string)
+    field(:visit_count, :integer)
+    field(:gender, :boolean)
+    field(:birthdate, Ecto.Date)
 
-    belongs_to :first_version, PaperTrail.Version
-    belongs_to :current_version, PaperTrail.Version, on_replace: :update
-    belongs_to :company, StrictCompany, foreign_key: :company_id
+    belongs_to(:first_version, PaperTrail.Version)
+    belongs_to(:current_version, PaperTrail.Version, on_replace: :update)
+    belongs_to(:company, StrictCompany, foreign_key: :company_id)
 
     timestamps()
   end
@@ -74,11 +75,12 @@ defmodule StrictPerson do
   end
 
   def count do
-    from(record in __MODULE__, select: count(record.id)) |> PaperTrail.RepoClient.repo.one
+    from(record in __MODULE__, select: count(record.id)) |> PaperTrail.RepoClient.repo().one
   end
+
   def count(:multitenant) do
     from(record in __MODULE__, select: count(record.id))
     |> MultiTenant.add_prefix_to_query()
-    |> PaperTrail.RepoClient.repo.one
+    |> PaperTrail.RepoClient.repo().one
   end
 end
