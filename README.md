@@ -447,6 +447,7 @@ Many thanks to:
 - [Mitchell Henke](https://github.com/mitchellhenke) - Fixed weird elixir compiler warnings
 - [Iván González](https://github.com/dreamingechoes) - Multi tenancy feature and some minor refactors
 - [Teo Choong Ping](https://github.com/seymores) - Fixed paper_trail references for newer Elixir versions
+- [devvit](https://github.com/devvit) - Added non-regular primary key tracking support
 - [Izel Nakri](https://github.com/izelnakri) - The Originator of this library. See what I did there ;)
 
 Additional thanks to:
