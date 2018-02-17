@@ -27,24 +27,12 @@ defmodule PaperTrail do
             version_id = get_sequence_id("versions") + 1
 
             changeset_data =
-              case Map.get(changeset, :data) do
-                nil ->
-                  changeset
-                  |> Map.merge(%{
-                    id: get_sequence_from_model(changeset) + 1,
-                    first_version_id: version_id,
-                    current_version_id: version_id
-                  })
-
-                _ ->
-                  changeset.data
-                  |> Map.merge(%{
-                    id: get_sequence_from_model(changeset) + 1,
-                    first_version_id: version_id,
-                    current_version_id: version_id
-                  })
-              end
-
+              Map.get(changeset, :data, changeset)
+              |> Map.merge(%{
+                id: get_sequence_from_model(changeset) + 1,
+                first_version_id: version_id,
+                current_version_id: version_id
+              })
             initial_version = make_version_struct(%{event: "insert"}, changeset_data, options)
             repo.insert(initial_version)
           end)
@@ -109,23 +97,12 @@ defmodule PaperTrail do
           version_id = get_sequence_id("versions") + 1
 
           changeset_data =
-            case Map.get(changeset, :data) do
-              nil ->
-                changeset
-                |> Map.merge(%{
-                  id: get_sequence_from_model(changeset) + 1,
-                  first_version_id: version_id,
-                  current_version_id: version_id
-                })
-
-              _ ->
-                changeset.data
-                |> Map.merge(%{
-                  id: get_sequence_from_model(changeset) + 1,
-                  first_version_id: version_id,
-                  current_version_id: version_id
-                })
-            end
+            Map.get(changeset, :data, changeset)
+            |> Map.merge(%{
+              id: get_sequence_from_model(changeset) + 1,
+              first_version_id: version_id,
+              current_version_id: version_id
+            })
 
           initial_version =
             make_version_struct(%{event: "insert"}, changeset_data, options)
@@ -302,7 +279,7 @@ defmodule PaperTrail do
     %Version{
       event: "insert",
       item_type: model.__struct__ |> Module.split() |> List.last(),
-      item_id: model.id,
+      item_id: get_model_id(model),
       item_changes: serialize(model),
       originator_id:
         case originator_ref do
@@ -322,7 +299,7 @@ defmodule PaperTrail do
     %Version{
       event: "update",
       item_type: changeset.data.__struct__ |> Module.split() |> List.last(),
-      item_id: changeset.data.id,
+      item_id: get_model_id(changeset.data),
       item_changes: changeset.changes,
       originator_id:
         case originator_ref do
@@ -342,7 +319,7 @@ defmodule PaperTrail do
     %Version{
       event: "delete",
       item_type: model.__struct__ |> Module.split() |> List.last(),
-      item_id: model.id,
+      item_id: get_model_id(model),
       item_changes: serialize(model),
       originator_id:
         case originator_ref do
@@ -378,4 +355,8 @@ defmodule PaperTrail do
 
   defp add_prefix(changeset, nil), do: changeset
   defp add_prefix(changeset, prefix), do: Ecto.put_meta(changeset, prefix: prefix)
+
+  def get_model_id(model) do
+    Map.get(model, List.first(model.__struct__.__schema__(:primary_key)))
+  end
 end
