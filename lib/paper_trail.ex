@@ -357,6 +357,13 @@ defmodule PaperTrail do
   defp add_prefix(changeset, prefix), do: Ecto.put_meta(changeset, prefix: prefix)
 
   def get_model_id(model) do
-    Map.get(model, List.first(model.__struct__.__schema__(:primary_key)))
+    model_id = Map.get(model, List.first(model.__struct__.__schema__(:primary_key)))
+
+    case PaperTrail.Version.__schema__(:type, :item_id) do
+      :integer ->
+        model_id
+      _ ->
+        "#{model_id}"
+    end
   end
 end
