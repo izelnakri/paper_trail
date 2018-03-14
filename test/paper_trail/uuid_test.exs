@@ -8,7 +8,7 @@ defmodule PaperTrailTest.UUIDTest do
     Application.put_env(:paper_trail, :repo, PaperTrail.UUIDRepo)
     Application.put_env(:paper_trail, :originator, name: :admin, model: Admin)
     Application.put_env(:paper_trail, :originator_type, Ecto.UUID)
-    Application.put_env(:paper_trail, :item_type, (if System.get_env("STR") == nil, do: Ecto.UUID, else: :string))
+    Application.put_env(:paper_trail, :item_type, (if System.get_env("STRING_TEST") == nil, do: Ecto.UUID, else: :string))
     Code.eval_file("lib/paper_trail.ex")
     Code.eval_file("lib/version.ex")
     repo().delete_all(Version)
@@ -59,7 +59,7 @@ defmodule PaperTrailTest.UUIDTest do
     assert version.item_id == item.item_id
   end
 
-  test "versioning models that have a integer primary key" do
+  test "test INTEGER primary key for item_type == :string" do
     if PaperTrail.Version.__schema__(:type, :item_id) == :string do
       item =
         %FooItem{}
@@ -71,7 +71,7 @@ defmodule PaperTrailTest.UUIDTest do
     end
   end
 
-  test "versionming models that have a string primary key" do
+  test "test STRING primary key for item_type == :string" do
     if PaperTrail.Version.__schema__(:type, :item_id) == :string do
       item =
         %BarItem{}
