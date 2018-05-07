@@ -8,7 +8,7 @@ defmodule PaperTrailTest.UUIDTest do
     Application.put_env(:paper_trail, :repo, PaperTrail.UUIDRepo)
     Application.put_env(:paper_trail, :originator, name: :admin, model: Admin)
     Application.put_env(:paper_trail, :originator_type, Ecto.UUID)
-    Application.put_env(:paper_trail, :item_type, Ecto.UUID)
+    Application.put_env(:paper_trail, :item_type, (if System.get_env("STRING_TEST") == nil, do: Ecto.UUID, else: :string))
     Code.eval_file("lib/paper_trail.ex")
     Code.eval_file("lib/version.ex")
     repo().delete_all(Version)
@@ -57,5 +57,29 @@ defmodule PaperTrailTest.UUIDTest do
 
     version = Version |> last |> repo().one
     assert version.item_id == item.item_id
+  end
+
+  test "test INTEGER primary key for item_type == :string" do
+    if PaperTrail.Version.__schema__(:type, :item_id) == :string do
+      item =
+        %FooItem{}
+        |> FooItem.changeset(%{title: "hello"})
+        |> PaperTrail.insert!()
+
+      version = Version |> last |> repo.one
+      assert version.item_id == "#{item.id}"
+    end
+  end
+
+  test "test STRING primary key for item_type == :string" do
+    if PaperTrail.Version.__schema__(:type, :item_id) == :string do
+      item =
+        %BarItem{}
+        |> BarItem.changeset(%{item_id: "#{:os.system_time}", title: "hello"})
+        |> PaperTrail.insert!()
+
+      version = Version |> last |> repo.one
+      assert version.item_id == item.item_id
+    end
   end
 end
