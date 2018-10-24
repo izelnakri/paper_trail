@@ -66,7 +66,7 @@ defmodule PaperTrailTest.UUIDTest do
         |> FooItem.changeset(%{title: "hello"})
         |> PaperTrail.insert!()
 
-      version = Version |> last |> repo.one
+      version = Version |> last |> repo().one
       assert version.item_id == "#{item.id}"
     end
   end
@@ -78,7 +78,7 @@ defmodule PaperTrailTest.UUIDTest do
         |> BarItem.changeset(%{item_id: "#{:os.system_time}", title: "hello"})
         |> PaperTrail.insert!()
 
-      version = Version |> last |> repo.one
+      version = Version |> last |> repo().one
       assert version.item_id == item.item_id
     end
   end

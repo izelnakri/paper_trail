@@ -105,7 +105,7 @@ defmodule PersonTest do
       company_id: target_company.id,
       first_name: "Isaac",
       visit_count: 10,
-      birthdate: elem(Ecto.Date.cast(~D[1992-04-01]), 1), #  this is the only problem
+      birthdate: ~D[1992-04-01], #  this is the only problem
       last_name: "Nakri",
       gender: true
     }
@@ -117,7 +117,7 @@ defmodule PersonTest do
       item_changes: %{
         first_name: "Isaac",
         visit_count: 10,
-        birthdate: elem(Ecto.Date.cast(~D[1992-04-01]), 1),
+        birthdate: ~D[1992-04-01],
         company_id: target_company.id
       },
       origin: "user:1",
@@ -162,7 +162,7 @@ defmodule PersonTest do
         last_name: "Nakri",
         gender: true,
         visit_count: 10,
-        birthdate: elem(Ecto.Date.cast(~D[1992-04-01]), 1),
+        birthdate: ~D[1992-04-01],
         company_id: person.company.id
       },
       origin: nil,

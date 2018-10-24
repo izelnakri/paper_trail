@@ -3,6 +3,7 @@ defmodule MultiTenantCompanyTest do
   import Ecto.Query
 
   setup_all do
+    Repo.delete_all(PaperTrail.Version)
     MultiTenantHelper.setup_tenant(Repo)
     :ok
   end
