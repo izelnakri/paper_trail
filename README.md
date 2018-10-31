@@ -105,7 +105,6 @@ The library source code is minimal and well tested. It is suggested to read the 
   ```elixir
     def deps do
       [{:paper_trail, "~> 0.8"}]
-      # if you want to use PaperTrail with Ecto 3.0, use master branch
     end
   ```
 
