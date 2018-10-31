@@ -360,7 +360,7 @@ defmodule PaperTrailTest.StrictModeBangFunctions do
              first_name: "Isaac",
              visit_count: 10,
              #  this is the only problem
-             birthdate: elem(Ecto.Date.cast(~D[1992-04-01]), 1),
+             birthdate: ~D[1992-04-01],
              last_name: "Nakri",
              gender: true,
              first_version_id: inserted_person_version.id,
@@ -375,7 +375,7 @@ defmodule PaperTrailTest.StrictModeBangFunctions do
                convert_to_string_map(%{
                  first_name: "Isaac",
                  visit_count: 10,
-                 birthdate: elem(Ecto.Date.cast(~D[1992-04-01]), 1),
+                 birthdate: ~D[1992-04-01],
                  current_version_id: updated_person_version.id,
                  company_id: inserted_initial_company.id
                }),
@@ -449,7 +449,7 @@ defmodule PaperTrailTest.StrictModeBangFunctions do
                  last_name: "Nakri",
                  gender: true,
                  visit_count: 10,
-                 birthdate: elem(Ecto.Date.cast(~D[1992-04-01]), 1),
+                 birthdate: ~D[1992-04-01],
                  company_id: inserted_company.id,
                  first_version_id: inserted_person_version.id,
                  current_version_id: updated_person_version.id
@@ -840,7 +840,7 @@ defmodule PaperTrailTest.StrictModeBangFunctions do
              first_name: "Isaac",
              visit_count: 10,
              #  this is the only problem
-             birthdate: elem(Ecto.Date.cast(~D[1992-04-01]), 1),
+             birthdate: ~D[1992-04-01],
              last_name: "Nakri",
              gender: true,
              first_version_id: inserted_person_version.id,
@@ -855,7 +855,7 @@ defmodule PaperTrailTest.StrictModeBangFunctions do
                convert_to_string_map(%{
                  first_name: "Isaac",
                  visit_count: 10,
-                 birthdate: elem(Ecto.Date.cast(~D[1992-04-01]), 1),
+                 birthdate: ~D[1992-04-01],
                  current_version_id: updated_person_version.id,
                  company_id: inserted_initial_company.id
                }),
@@ -944,7 +944,7 @@ defmodule PaperTrailTest.StrictModeBangFunctions do
                  last_name: "Nakri",
                  gender: true,
                  visit_count: 10,
-                 birthdate: elem(Ecto.Date.cast(~D[1992-04-01]), 1),
+                 birthdate: ~D[1992-04-01],
                  company_id: inserted_company.id,
                  first_version_id: inserted_person_version.id,
                  current_version_id: updated_person_version.id
@@ -1029,6 +1029,6 @@ defmodule PaperTrailTest.StrictModeBangFunctions do
   end
 
   defp convert_to_string_map(map) do
-    map |> Poison.encode!() |> Poison.decode!()
+    map |> Jason.encode!() |> Jason.decode!()
   end
 end

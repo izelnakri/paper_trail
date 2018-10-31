@@ -376,7 +376,7 @@ defmodule PaperTrailStrictModeTest do
              first_name: "Isaac",
              visit_count: 10,
              #  this is the only problem
-             birthdate: elem(Ecto.Date.cast(~D[1992-04-01]), 1),
+             birthdate: ~D[1992-04-01],
              last_name: "Nakri",
              gender: true,
              first_version_id: insert_person_result[:version].id,
@@ -390,7 +390,7 @@ defmodule PaperTrailStrictModeTest do
              item_changes: %{
                first_name: "Isaac",
                visit_count: 10,
-               birthdate: elem(Ecto.Date.cast(~D[1992-04-01]), 1),
+               birthdate: ~D[1992-04-01],
                current_version_id: version.id,
                company_id: insert_company_result[:model].id
              },
@@ -460,7 +460,7 @@ defmodule PaperTrailStrictModeTest do
                last_name: "Nakri",
                gender: true,
                visit_count: 10,
-               birthdate: elem(Ecto.Date.cast(~D[1992-04-01]), 1),
+               birthdate: ~D[1992-04-01],
                company_id: target_company_insertion[:model].id,
                first_version_id: insert_person_result[:version].id,
                current_version_id: update_person_result[:version].id

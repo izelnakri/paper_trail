@@ -15,10 +15,10 @@ defmodule Company do
 
     has_many :people, Person
 
-    timestamps
+    timestamps()
   end
 
-  @optional_fields ~w(name is_active website city address facebook twitter founded_in)
+  @optional_fields ~w(name is_active website city address facebook twitter founded_in)a
 
   def changeset(model, params \\ %{}) do
     model

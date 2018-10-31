@@ -8,14 +8,14 @@ defmodule Person do
     field :last_name, :string
     field :visit_count, :integer
     field :gender, :boolean
-    field :birthdate, Ecto.Date
+    field :birthdate, :date
 
     belongs_to :company, Company
 
-    timestamps
+    timestamps()
   end
 
-  @optional_fields ~w(first_name last_name visit_count gender birthdate company_id)
+  @optional_fields ~w(first_name last_name visit_count gender birthdate company_id)a
 
   def changeset(model, params \\ %{}) do
     model

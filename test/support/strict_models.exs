@@ -24,7 +24,7 @@ defmodule StrictCompany do
     timestamps()
   end
 
-  @optional_fields ~w(name is_active website city address facebook twitter founded_in)
+  @optional_fields ~w(name is_active website city address facebook twitter founded_in)a
 
   def changeset(model, params \\ %{}) do
     model
@@ -57,7 +57,7 @@ defmodule StrictPerson do
     field(:last_name, :string)
     field(:visit_count, :integer)
     field(:gender, :boolean)
-    field(:birthdate, Ecto.Date)
+    field(:birthdate, :date)
 
     belongs_to(:first_version, PaperTrail.Version)
     belongs_to(:current_version, PaperTrail.Version, on_replace: :update)
@@ -66,7 +66,7 @@ defmodule StrictPerson do
     timestamps()
   end
 
-  @optional_fields ~w(first_name last_name visit_count gender birthdate company_id)
+  @optional_fields ~w(first_name last_name visit_count gender birthdate company_id)a
 
   def changeset(model, params \\ %{}) do
     model

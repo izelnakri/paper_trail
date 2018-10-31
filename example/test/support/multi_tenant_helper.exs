@@ -2,8 +2,6 @@ defmodule MultiTenantHelper do
   alias Ecto.Adapters.SQL
   alias Ecto.Changeset
 
-  import Mix.Ecto, only: [build_repo_priv: 1]
-
   @migrations_path "migrations"
   @tenant "tenant_id"
 
@@ -33,4 +31,12 @@ defmodule MultiTenantHelper do
   def tenant(), do: @tenant
 
   defp migrations_path(repo), do: Path.join(build_repo_priv(repo), @migrations_path)
+
+  def source_repo_priv(repo) do
+    repo.config()[:priv] || "priv/#{repo |> Module.split |> List.last |> Macro.underscore}"
+  end
+
+  def build_repo_priv(repo) do
+    Application.app_dir(Keyword.fetch!(repo.config(), :otp_app), source_repo_priv(repo))
+  end
 end

@@ -359,7 +359,7 @@ defmodule PaperTrailTest.SimpleModeBangFunctions do
              company_id: inserted_initial_company.id,
              first_name: "Isaac",
              visit_count: 10,
-             birthdate: elem(Ecto.Date.cast(~D[1992-04-01]), 1),
+             birthdate: ~D[1992-04-01],
              last_name: "Nakri",
              gender: true
            }
@@ -372,7 +372,7 @@ defmodule PaperTrailTest.SimpleModeBangFunctions do
                convert_to_string_map(%{
                  first_name: "Isaac",
                  visit_count: 10,
-                 birthdate: elem(Ecto.Date.cast(~D[1992-04-01]), 1),
+                 birthdate: ~D[1992-04-01],
                  company_id: inserted_initial_company.id
                }),
              originator_id: nil,
@@ -444,7 +444,7 @@ defmodule PaperTrailTest.SimpleModeBangFunctions do
                  last_name: "Nakri",
                  gender: true,
                  visit_count: 10,
-                 birthdate: elem(Ecto.Date.cast(~D[1992-04-01]), 1),
+                 birthdate: ~D[1992-04-01],
                  company_id: inserted_target_company.id
                }),
              originator_id: nil,
@@ -826,7 +826,7 @@ defmodule PaperTrailTest.SimpleModeBangFunctions do
              company_id: inserted_initial_company.id,
              first_name: "Isaac",
              visit_count: 10,
-             birthdate: elem(Ecto.Date.cast(~D[1992-04-01]), 1),
+             birthdate: ~D[1992-04-01],
              last_name: "Nakri",
              gender: true
            }
@@ -839,7 +839,7 @@ defmodule PaperTrailTest.SimpleModeBangFunctions do
                convert_to_string_map(%{
                  first_name: "Isaac",
                  visit_count: 10,
-                 birthdate: elem(Ecto.Date.cast(~D[1992-04-01]), 1),
+                 birthdate: ~D[1992-04-01],
                  company_id: inserted_initial_company.id
                }),
              originator_id: nil,
@@ -919,7 +919,7 @@ defmodule PaperTrailTest.SimpleModeBangFunctions do
                  last_name: "Nakri",
                  gender: true,
                  visit_count: 10,
-                 birthdate: elem(Ecto.Date.cast(~D[1992-04-01]), 1),
+                 birthdate: ~D[1992-04-01],
                  company_id: inserted_target_company.id
                }),
              originator_id: nil,
@@ -1002,6 +1002,6 @@ defmodule PaperTrailTest.SimpleModeBangFunctions do
   end
 
   defp convert_to_string_map(map) do
-    map |> Poison.encode!() |> Poison.decode!()
+    map |> Jason.encode!() |> Jason.decode!()
   end
 end

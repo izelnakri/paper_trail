@@ -23,7 +23,7 @@ defmodule PaperTrail do
       case RepoClient.strict_mode() do
         true ->
           Multi.new()
-          |> Multi.run(:initial_version, fn %{} ->
+          |> Multi.run(:initial_version, fn repo, %{} ->
             version_id = get_sequence_id("versions") + 1
 
             changeset_data =
@@ -36,7 +36,7 @@ defmodule PaperTrail do
             initial_version = make_version_struct(%{event: "insert"}, changeset_data, options)
             repo.insert(initial_version)
           end)
-          |> Multi.run(:model, fn %{initial_version: initial_version} ->
+          |> Multi.run(:model, fn repo, %{initial_version: initial_version} ->
             updated_changeset =
               changeset
               |> change(%{
@@ -46,7 +46,7 @@ defmodule PaperTrail do
 
             repo.insert(updated_changeset)
           end)
-          |> Multi.run(:version, fn %{initial_version: initial_version, model: model} ->
+          |> Multi.run(:version, fn repo, %{initial_version: initial_version, model: model} ->
             target_version =
               make_version_struct(%{event: "insert"}, model, options) |> serialize()
 
@@ -56,7 +56,7 @@ defmodule PaperTrail do
         _ ->
           Multi.new()
           |> Multi.insert(:model, changeset)
-          |> Multi.run(:version, fn %{model: model} ->
+          |> Multi.run(:version, fn repo, %{model: model} ->
             version = make_version_struct(%{event: "insert"}, model, options)
             repo.insert(version)
           end)
@@ -140,7 +140,7 @@ defmodule PaperTrail do
       case client.strict_mode() do
         true ->
           Multi.new()
-          |> Multi.run(:initial_version, fn %{} ->
+          |> Multi.run(:initial_version, fn repo, %{} ->
             version_data =
               changeset.data
               |> Map.merge(%{
@@ -151,11 +151,11 @@ defmodule PaperTrail do
             target_version = make_version_struct(%{event: "update"}, target_changeset, options)
             repo.insert(target_version)
           end)
-          |> Multi.run(:model, fn %{initial_version: initial_version} ->
+          |> Multi.run(:model, fn repo, %{initial_version: initial_version} ->
             updated_changeset = changeset |> change(%{current_version_id: initial_version.id})
             repo.update(updated_changeset)
           end)
-          |> Multi.run(:version, fn %{initial_version: initial_version} ->
+          |> Multi.run(:version, fn repo, %{initial_version: initial_version} ->
             new_item_changes =
               initial_version.item_changes
               |> Map.merge(%{
@@ -168,7 +168,7 @@ defmodule PaperTrail do
         _ ->
           Multi.new()
           |> Multi.update(:model, changeset)
-          |> Multi.run(:version, fn %{model: _model} ->
+          |> Multi.run(:version, fn repo, %{model: _model} ->
             version = make_version_struct(%{event: "update"}, changeset, options)
             repo.insert(version)
           end)
@@ -245,7 +245,7 @@ defmodule PaperTrail do
     transaction =
       Multi.new()
       |> Multi.delete(:model, struct, options)
-      |> Multi.run(:version, fn %{} ->
+      |> Multi.run(:version, fn repo, %{} ->
         version = make_version_struct(%{event: "delete"}, struct, options)
         repo.insert(version, options)
       end)
