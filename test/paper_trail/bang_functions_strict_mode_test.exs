@@ -13,7 +13,8 @@ defmodule PaperTrailTest.StrictModeBangFunctions do
   @update_company_params %{
     city: "Hong Kong",
     website: "http://www.acme.com",
-    facebook: "acme.llc"
+    facebook: "acme.llc",
+    twitter: "handle.test"
   }
 
   doctest PaperTrail
@@ -67,7 +68,8 @@ defmodule PaperTrailTest.StrictModeBangFunctions do
              event: "insert",
              item_type: "StrictCompany",
              item_id: company.id,
-             item_changes: convert_to_string_map(company),
+             item_changes: Map.delete(company, :twitter)
+                           |> convert_to_string_map,
              originator_id: user.id,
              origin: nil,
              meta: nil
@@ -104,7 +106,8 @@ defmodule PaperTrailTest.StrictModeBangFunctions do
              event: "insert",
              item_type: "StrictCompany",
              item_id: company.id,
-             item_changes: convert_to_string_map(company),
+             item_changes: Map.delete(company, :twitter)
+                           |> convert_to_string_map,
              originator_id: nil,
              origin: nil,
              meta: nil
@@ -145,7 +148,7 @@ defmodule PaperTrailTest.StrictModeBangFunctions do
              website: "http://www.acme.com",
              address: nil,
              facebook: "acme.llc",
-             twitter: nil,
+             twitter: "handle.test",
              founded_in: nil,
              first_version_id: inserted_company_version.id,
              current_version_id: updated_company_version.id
@@ -208,7 +211,7 @@ defmodule PaperTrailTest.StrictModeBangFunctions do
              website: "http://www.acme.com",
              address: nil,
              facebook: "acme.llc",
-             twitter: nil,
+             twitter: "handle.test",
              founded_in: nil,
              first_version_id: inserted_company_version.id,
              current_version_id: updated_company_version.id
@@ -229,7 +232,6 @@ defmodule PaperTrailTest.StrictModeBangFunctions do
                  city: "Hong Kong",
                  address: nil,
                  facebook: "acme.llc",
-                 twitter: nil,
                  founded_in: nil,
                  first_version_id: inserted_company_version.id,
                  current_version_id: updated_company_version.id
@@ -499,7 +501,8 @@ defmodule PaperTrailTest.StrictModeBangFunctions do
              event: "insert",
              item_type: "StrictCompany",
              item_id: company.id,
-             item_changes: convert_to_string_map(company),
+             item_changes: Map.delete(company, :twitter)
+                           |> convert_to_string_map,
              originator_id: user.id,
              origin: nil,
              meta: nil
@@ -545,7 +548,8 @@ defmodule PaperTrailTest.StrictModeBangFunctions do
              event: "insert",
              item_type: "StrictCompany",
              item_id: company.id,
-             item_changes: convert_to_string_map(company),
+             item_changes: Map.delete(company, :twitter)
+                           |> convert_to_string_map,
              originator_id: nil,
              origin: nil,
              meta: nil
@@ -596,7 +600,7 @@ defmodule PaperTrailTest.StrictModeBangFunctions do
              website: "http://www.acme.com",
              address: nil,
              facebook: "acme.llc",
-             twitter: nil,
+             twitter: "handle.test",
              founded_in: nil,
              first_version_id: inserted_company_version.id,
              current_version_id: updated_company_version.id
@@ -666,7 +670,7 @@ defmodule PaperTrailTest.StrictModeBangFunctions do
              website: "http://www.acme.com",
              address: nil,
              facebook: "acme.llc",
-             twitter: nil,
+             twitter: "handle.test",
              founded_in: nil,
              first_version_id: inserted_company_version.id,
              current_version_id: updated_company_version.id
@@ -687,7 +691,6 @@ defmodule PaperTrailTest.StrictModeBangFunctions do
                  city: "Hong Kong",
                  address: nil,
                  facebook: "acme.llc",
-                 twitter: nil,
                  founded_in: nil,
                  first_version_id: inserted_company_version.id,
                  current_version_id: updated_company_version.id

@@ -12,7 +12,8 @@ defmodule PaperTrailTest do
   @update_company_params %{
     city: "Hong Kong",
     website: "http://www.acme.com",
-    facebook: "acme.llc"
+    facebook: "acme.llc",
+    twitter: "handle.test"
   }
 
   doctest PaperTrail
@@ -68,7 +69,7 @@ defmodule PaperTrailTest do
              event: "insert",
              item_type: "SimpleCompany",
              item_id: company.id,
-             item_changes: company,
+             item_changes: Map.delete(company, :twitter),
              originator_id: user.id,
              origin: nil,
              meta: nil
@@ -115,7 +116,7 @@ defmodule PaperTrailTest do
              website: "http://www.acme.com",
              address: nil,
              facebook: "acme.llc",
-             twitter: nil,
+             twitter: "handle.test",
              founded_in: nil
            }
 
@@ -164,7 +165,7 @@ defmodule PaperTrailTest do
              website: "http://www.acme.com",
              address: nil,
              facebook: "acme.llc",
-             twitter: nil,
+             twitter: "handle.test",
              founded_in: nil
            }
 
@@ -233,7 +234,7 @@ defmodule PaperTrailTest do
              website: "http://www.acme.com",
              address: nil,
              facebook: "acme.llc",
-             twitter: nil,
+             twitter: "handle.test",
              founded_in: nil
            }
 
@@ -251,7 +252,6 @@ defmodule PaperTrailTest do
                city: "Hong Kong",
                address: nil,
                facebook: "acme.llc",
-               twitter: nil,
                founded_in: nil
              },
              originator_id: user.id,

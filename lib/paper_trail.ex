@@ -4,6 +4,7 @@ defmodule PaperTrail do
   alias Ecto.Multi
   alias PaperTrail.Version
   alias PaperTrail.RepoClient
+  alias PaperTrail.SkippedAttributesDetector
 
   defdelegate get_version(record), to: PaperTrail.VersionQueries
   defdelegate get_version(model_or_record, id_or_options), to: PaperTrail.VersionQueries
@@ -275,12 +276,13 @@ defmodule PaperTrail do
   defp make_version_struct(%{event: "insert"}, model, options) do
     originator = PaperTrail.RepoClient.originator()
     originator_ref = options[originator[:name]] || options[:originator]
+    skip_attrs = SkippedAttributesDetector.call(model.__struct__)
 
     %Version{
       event: "insert",
       item_type: model.__struct__ |> Module.split() |> List.last(),
       item_id: get_model_id(model),
-      item_changes: serialize(model),
+      item_changes: serialize(Map.drop(model, skip_attrs)),
       originator_id:
         case originator_ref do
           nil -> nil
@@ -295,12 +297,13 @@ defmodule PaperTrail do
   defp make_version_struct(%{event: "update"}, changeset, options) do
     originator = PaperTrail.RepoClient.originator()
     originator_ref = options[originator[:name]] || options[:originator]
+    skip_attrs = SkippedAttributesDetector.call(changeset.data.__struct__)
 
     %Version{
       event: "update",
       item_type: changeset.data.__struct__ |> Module.split() |> List.last(),
       item_id: get_model_id(changeset.data),
-      item_changes: changeset.changes,
+      item_changes: Map.drop(changeset.changes, skip_attrs),
       originator_id:
         case originator_ref do
           nil -> nil
@@ -315,12 +318,13 @@ defmodule PaperTrail do
   defp make_version_struct(%{event: "delete"}, model, options) do
     originator = PaperTrail.RepoClient.originator()
     originator_ref = options[originator[:name]] || options[:originator]
+    skip_attrs = SkippedAttributesDetector.call(model.__struct__)
 
     %Version{
       event: "delete",
       item_type: model.__struct__ |> Module.split() |> List.last(),
       item_id: get_model_id(model),
-      item_changes: serialize(model),
+      item_changes: serialize(Map.drop(model, skip_attrs)),
       originator_id:
         case originator_ref do
           nil -> nil

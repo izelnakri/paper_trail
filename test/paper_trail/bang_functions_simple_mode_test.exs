@@ -13,7 +13,8 @@ defmodule PaperTrailTest.SimpleModeBangFunctions do
   @update_company_params %{
     city: "Hong Kong",
     website: "http://www.acme.com",
-    facebook: "acme.llc"
+    facebook: "acme.llc",
+    twitter: "handle.test"
   }
 
   doctest PaperTrail
@@ -64,7 +65,9 @@ defmodule PaperTrailTest.SimpleModeBangFunctions do
              event: "insert",
              item_type: "SimpleCompany",
              item_id: company.id,
-             item_changes: company |> serialize |> convert_to_string_map,
+             item_changes: Map.delete(company, :twitter)
+                           |> serialize
+                           |> convert_to_string_map,
              originator_id: user.id,
              origin: nil,
              meta: nil
@@ -106,7 +109,7 @@ defmodule PaperTrailTest.SimpleModeBangFunctions do
              website: "http://www.acme.com",
              address: nil,
              facebook: "acme.llc",
-             twitter: nil,
+             twitter: "handle.test",
              founded_in: nil
            }
 
@@ -155,7 +158,7 @@ defmodule PaperTrailTest.SimpleModeBangFunctions do
              website: "http://www.acme.com",
              address: nil,
              facebook: "acme.llc",
-             twitter: nil,
+             twitter: "handle.test",
              founded_in: nil
            }
 
@@ -213,7 +216,7 @@ defmodule PaperTrailTest.SimpleModeBangFunctions do
              website: "http://www.acme.com",
              address: nil,
              facebook: "acme.llc",
-             twitter: nil,
+             twitter: "handle.test",
              founded_in: nil
            }
 
@@ -232,7 +235,6 @@ defmodule PaperTrailTest.SimpleModeBangFunctions do
                  city: "Hong Kong",
                  address: nil,
                  facebook: "acme.llc",
-                 twitter: nil,
                  founded_in: nil
                }),
              originator_id: user.id,
@@ -488,7 +490,9 @@ defmodule PaperTrailTest.SimpleModeBangFunctions do
              event: "insert",
              item_type: "SimpleCompany",
              item_id: company.id,
-             item_changes: company |> serialize |> convert_to_string_map,
+             item_changes: Map.delete(company, :twitter)
+                           |> serialize
+                           |> convert_to_string_map,
              originator_id: user.id,
              origin: nil,
              meta: nil
@@ -536,7 +540,7 @@ defmodule PaperTrailTest.SimpleModeBangFunctions do
              website: "http://www.acme.com",
              address: nil,
              facebook: "acme.llc",
-             twitter: nil,
+             twitter: "handle.test",
              founded_in: nil
            }
 
@@ -592,7 +596,7 @@ defmodule PaperTrailTest.SimpleModeBangFunctions do
              website: "http://www.acme.com",
              address: nil,
              facebook: "acme.llc",
-             twitter: nil,
+             twitter: "handle.test",
              founded_in: nil
            }
 
@@ -660,7 +664,7 @@ defmodule PaperTrailTest.SimpleModeBangFunctions do
              website: "http://www.acme.com",
              address: nil,
              facebook: "acme.llc",
-             twitter: nil,
+             twitter: "handle.test",
              founded_in: nil
            }
 
@@ -679,7 +683,6 @@ defmodule PaperTrailTest.SimpleModeBangFunctions do
                  city: "Hong Kong",
                  address: nil,
                  facebook: "acme.llc",
-                 twitter: nil,
                  founded_in: nil
                }),
              originator_id: user.id,

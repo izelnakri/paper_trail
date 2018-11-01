@@ -13,7 +13,8 @@ defmodule PaperTrailStrictModeTest do
   @update_company_params %{
     city: "Hong Kong",
     website: "http://www.acme.com",
-    facebook: "acme.llc"
+    facebook: "acme.llc",
+    twitter: "handle.test"
   }
 
   doctest PaperTrail
@@ -71,7 +72,7 @@ defmodule PaperTrailStrictModeTest do
              event: "insert",
              item_type: "StrictCompany",
              item_id: company.id,
-             item_changes: company,
+             item_changes: Map.delete(company, :twitter),
              originator_id: user.id,
              origin: nil,
              meta: nil
@@ -109,7 +110,7 @@ defmodule PaperTrailStrictModeTest do
              event: "insert",
              item_type: "StrictCompany",
              item_id: company.id,
-             item_changes: company,
+             item_changes: Map.delete(company, :twitter),
              originator_id: nil,
              origin: nil,
              meta: nil
@@ -154,7 +155,7 @@ defmodule PaperTrailStrictModeTest do
              website: "http://www.acme.com",
              address: nil,
              facebook: "acme.llc",
-             twitter: nil,
+             twitter: "handle.test",
              founded_in: nil,
              first_version_id: insert_company_result[:version].id,
              current_version_id: version.id
@@ -226,7 +227,7 @@ defmodule PaperTrailStrictModeTest do
              website: "http://www.acme.com",
              address: nil,
              facebook: "acme.llc",
-             twitter: nil,
+             twitter: "handle.test",
              founded_in: nil,
              first_version_id: insert_company_result[:version].id,
              current_version_id: update_company_result[:version].id
@@ -246,7 +247,6 @@ defmodule PaperTrailStrictModeTest do
                city: "Hong Kong",
                address: nil,
                facebook: "acme.llc",
-               twitter: nil,
                founded_in: nil,
                first_version_id: insert_company_result[:version].id,
                current_version_id: update_company_result[:version].id

@@ -26,6 +26,8 @@ defmodule StrictCompany do
 
   @optional_fields ~w(name is_active website city address facebook twitter founded_in)a
 
+  def paper_trail_skip, do: [:twitter]
+
   def changeset(model, params \\ %{}) do
     model
     |> cast(params, @optional_fields)
