@@ -104,7 +104,7 @@ The library source code is minimal and well tested. It is suggested to read the 
 
   ```elixir
     def deps do
-      [{:paper_trail, "~> 0.8"}]
+      [{:paper_trail, "~> 0.8.1"}]
     end
   ```
 
@@ -450,6 +450,7 @@ Many thanks to:
 - [Iván González](https://github.com/dreamingechoes) - Multi tenancy feature and some minor refactors
 - [Teo Choong Ping](https://github.com/seymores) - Fixed paper_trail references for newer Elixir versions
 - [devvit](https://github.com/devvit) - Added non-regular primary key tracking support
+- [rustamtolipov](https://github.com/rustamtolipov) - Added support for Ecto v3
 - [Izel Nakri](https://github.com/izelnakri) - The Originator of this library. See what I did there ;)
 
 Additional thanks to:
