@@ -65,9 +65,10 @@ defmodule PaperTrailTest.SimpleModeBangFunctions do
              event: "insert",
              item_type: "SimpleCompany",
              item_id: company.id,
-             item_changes: Map.delete(company, :twitter)
-                           |> serialize
-                           |> convert_to_string_map,
+             item_changes:
+               Map.delete(company, :twitter)
+               |> serialize
+               |> convert_to_string_map,
              originator_id: user.id,
              origin: nil,
              meta: nil
@@ -490,9 +491,10 @@ defmodule PaperTrailTest.SimpleModeBangFunctions do
              event: "insert",
              item_type: "SimpleCompany",
              item_id: company.id,
-             item_changes: Map.delete(company, :twitter)
-                           |> serialize
-                           |> convert_to_string_map,
+             item_changes:
+               Map.delete(company, :twitter)
+               |> serialize
+               |> convert_to_string_map,
              originator_id: user.id,
              origin: nil,
              meta: nil

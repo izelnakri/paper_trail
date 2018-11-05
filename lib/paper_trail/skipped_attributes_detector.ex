@@ -9,11 +9,10 @@ defmodule PaperTrail.SkippedAttributesDetector do
         attrs = module.paper_trail_skip
 
         case is_list(attrs) do
-          true ->
-            attrs
-          _ ->
-            raise ArgumentError
+          true -> attrs
+          _ -> raise ArgumentError
         end
+
       _ ->
         []
     end

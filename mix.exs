@@ -30,7 +30,7 @@ defmodule PaperTrail.Mixfile do
       {:ecto_sql, "~> 3.0-rc", override: true},
       {:ex_doc, ">= 0.0.0", only: :dev},
       {:postgrex, ">= 0.0.0-rc"},
-      {:jason, "~> 1.0"},
+      {:jason, "~> 1.0"}
     ]
   end
 

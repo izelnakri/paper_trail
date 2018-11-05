@@ -68,8 +68,9 @@ defmodule PaperTrailTest.StrictModeBangFunctions do
              event: "insert",
              item_type: "StrictCompany",
              item_id: company.id,
-             item_changes: Map.delete(company, :twitter)
-                           |> convert_to_string_map,
+             item_changes:
+               Map.delete(company, :twitter)
+               |> convert_to_string_map,
              originator_id: user.id,
              origin: nil,
              meta: nil
@@ -106,8 +107,9 @@ defmodule PaperTrailTest.StrictModeBangFunctions do
              event: "insert",
              item_type: "StrictCompany",
              item_id: company.id,
-             item_changes: Map.delete(company, :twitter)
-                           |> convert_to_string_map,
+             item_changes:
+               Map.delete(company, :twitter)
+               |> convert_to_string_map,
              originator_id: nil,
              origin: nil,
              meta: nil
@@ -501,8 +503,9 @@ defmodule PaperTrailTest.StrictModeBangFunctions do
              event: "insert",
              item_type: "StrictCompany",
              item_id: company.id,
-             item_changes: Map.delete(company, :twitter)
-                           |> convert_to_string_map,
+             item_changes:
+               Map.delete(company, :twitter)
+               |> convert_to_string_map,
              originator_id: user.id,
              origin: nil,
              meta: nil
@@ -548,8 +551,9 @@ defmodule PaperTrailTest.StrictModeBangFunctions do
              event: "insert",
              item_type: "StrictCompany",
              item_id: company.id,
-             item_changes: Map.delete(company, :twitter)
-                           |> convert_to_string_map,
+             item_changes:
+               Map.delete(company, :twitter)
+               |> convert_to_string_map,
              originator_id: nil,
              origin: nil,
              meta: nil

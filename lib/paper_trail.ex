@@ -34,6 +34,7 @@ defmodule PaperTrail do
                 first_version_id: version_id,
                 current_version_id: version_id
               })
+
             initial_version = make_version_struct(%{event: "insert"}, changeset_data, options)
             repo.insert(initial_version)
           end)
@@ -366,6 +367,7 @@ defmodule PaperTrail do
     case PaperTrail.Version.__schema__(:type, :item_id) do
       :integer ->
         model_id
+
       _ ->
         "#{model_id}"
     end

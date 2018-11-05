@@ -33,7 +33,7 @@ defmodule PaperTrailTest.MultiTenantHelper do
   defp migrations_path(repo), do: Path.join(build_repo_priv(repo), @migrations_path)
 
   def source_repo_priv(repo) do
-    repo.config()[:priv] || "priv/#{repo |> Module.split |> List.last |> Macro.underscore}"
+    repo.config()[:priv] || "priv/#{repo |> Module.split() |> List.last() |> Macro.underscore()}"
   end
 
   def build_repo_priv(repo) do

@@ -62,13 +62,15 @@ defmodule PaperTrailTest.Version do
     add_three_versions()
 
     target_model =
-      @valid_attrs |> Map.delete(:inserted_at)
+      @valid_attrs
+      |> Map.delete(:inserted_at)
       |> Map.merge(%{
         item_changes: %{"first_name" => "Izel", "last_name" => "Nakri"}
       })
 
     target_version =
-      Version.first() |> serialize
+      Version.first()
+      |> serialize
       |> Map.drop([
         :id,
         :meta,
@@ -103,7 +105,8 @@ defmodule PaperTrailTest.Version do
     add_three_versions(MultiTenant.tenant())
 
     target_version =
-      Version.first(prefix: MultiTenant.tenant()) |> serialize
+      Version.first(prefix: MultiTenant.tenant())
+      |> serialize
       |> Map.drop([
         :id,
         :meta,
@@ -112,7 +115,8 @@ defmodule PaperTrailTest.Version do
       ])
 
     target_model =
-      @valid_attrs |> Map.delete(:inserted_at)
+      @valid_attrs
+      |> Map.delete(:inserted_at)
       |> Map.merge(%{
         item_changes: %{"first_name" => "Izel", "last_name" => "Nakri"}
       })
