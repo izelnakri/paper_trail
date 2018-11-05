@@ -186,7 +186,7 @@ You can specify setter/originator relationship to paper_trail versions with ```o
   # For most applications originator should be the user since models can be updated/created/deleted by several users.
 ```
 
-Note: You will need to recompile your deps after you have added the config for originator. 
+Note: You will need to recompile your deps after you have added the config for originator.
 
 Then originator name could be used for querying and preloading. Originator setting must be done via ```:originator``` or originator name that is defined in the paper_trail configuration:
 
@@ -433,6 +433,25 @@ tenant = "tenant_id"
 id = 1
 
 PaperTrail.get_versions(User, id, [prefix: tenant])
+```
+
+## Skip
+
+You can skip some attributes from being stored in the `item_changes` column of `Versions` table. In order to do so,
+define `paper_trail_skip` function in a module that is tracked by PaperTrail. This function must return a list of skipped attributes.
+
+```elixir
+defmodule SimpleCompany do
+  use Ecto.Schema
+
+  schema "simple_companies" do
+    field(:name, :string)
+    field(:website, :string)
+    field(:city, :string)
+  end
+
+  def paper_trail_skip, do: [:website, :city]
+end
 ```
 
 ## Suggestions
