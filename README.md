@@ -104,7 +104,7 @@ The library source code is minimal and well tested. It is suggested to read the 
 
   ```elixir
     def deps do
-      [{:paper_trail, "~> 0.8.1"}]
+      [{:paper_trail, "~> 0.8.2"}]
     end
   ```
 
@@ -185,7 +185,7 @@ You can specify setter/originator relationship to paper_trail versions with ```o
   # For most applications originator should be the user since models can be updated/created/deleted by several users.
 ```
 
-Note: You will need to recompile your deps after you have added the config for originator. 
+Note: You will need to recompile your deps after you have added the config for originator.
 
 Then originator name could be used for querying and preloading. Originator setting must be done via ```:originator``` or originator name that is defined in the paper_trail configuration:
 
@@ -442,6 +442,7 @@ PaperTrail.get_versions(User, id, [prefix: tenant])
 # Credits
 Many thanks to:
 - [Jose Pablo Castro](https://github.com/josepablocastro) - Built the repo configuration for paper_trail
+- [Florian Gerhardt](https://github.com/FlorianGerhardt) - Fixed rare compile errors for PaperTrail repos
 - [Alex Antonov](https://github.com/asiniy) - Original inventor of the originator feature
 - [Moritz Schmale](https://github.com/narrowtux) - UUID primary keys feature
 - [Jason Draper](https://github.com/drapergeek) - UUID primary keys feature
