@@ -2,8 +2,6 @@ defmodule PaperTrail.VersionQueries do
   import Ecto.Query
   alias PaperTrail.Version
 
-  @repo PaperTrail.RepoClient.repo()
-
   @doc """
   Gets all the versions of a record.
   """
@@ -30,7 +28,9 @@ defmodule PaperTrail.VersionQueries do
   @spec get_versions(record :: Ecto.Schema.t(), options :: []) :: Ecto.Query.t()
   def get_versions(record, options) when is_map(record) do
     item_type = record.__struct__ |> Module.split() |> List.last()
-    version_query(item_type, PaperTrail.get_model_id(record), options) |> @repo.all
+
+    version_query(item_type, PaperTrail.get_model_id(record), options)
+    |> PaperTrail.RepoClient.repo().all
   end
 
   @doc """
@@ -46,7 +46,7 @@ defmodule PaperTrail.VersionQueries do
   @spec get_versions(model :: module, id :: pos_integer, options :: []) :: Ecto.Query.t()
   def get_versions(model, id, options) do
     item_type = model |> Module.split() |> List.last()
-    version_query(item_type, id, options) |> @repo.all
+    version_query(item_type, id, options) |> PaperTrail.RepoClient.repo().all
   end
 
   @doc """
@@ -75,7 +75,9 @@ defmodule PaperTrail.VersionQueries do
   @spec get_version(record :: Ecto.Schema.t(), options :: []) :: Ecto.Query.t()
   def get_version(record, options) when is_map(record) do
     item_type = record.__struct__ |> Module.split() |> List.last()
-    last(version_query(item_type, PaperTrail.get_model_id(record), options)) |> @repo.one
+
+    last(version_query(item_type, PaperTrail.get_model_id(record), options))
+    |> PaperTrail.RepoClient.repo().one
   end
 
   @doc """
@@ -91,14 +93,17 @@ defmodule PaperTrail.VersionQueries do
   @spec get_version(model :: module, id :: pos_integer, options :: []) :: Ecto.Query.t()
   def get_version(model, id, options) do
     item_type = model |> Module.split() |> List.last()
-    last(version_query(item_type, id, options)) |> @repo.one
+    last(version_query(item_type, id, options)) |> PaperTrail.RepoClient.repo().one
   end
 
   @doc """
   Gets the current model record/struct of a version
   """
   def get_current_model(version) do
-    @repo.get(("Elixir." <> version.item_type) |> String.to_existing_atom(), version.item_id)
+    PaperTrail.RepoClient.repo().get(
+      ("Elixir." <> version.item_type) |> String.to_existing_atom(),
+      version.item_id
+    )
   end
 
   defp version_query(item_type, id) do
