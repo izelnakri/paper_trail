@@ -262,6 +262,61 @@ defmodule PaperTrailTest do
     assert company == company_before_deletion
   end
 
+  test "delete works with a changeset" do
+    user = create_user()
+    {:ok, insert_result} = create_company_with_version()
+    {:ok, update_result} = update_company_with_version(insert_result[:model])
+    company_before_deletion = first(Company, :id) |> @repo.one
+
+    changeset = Company.changeset(company_before_deletion, %{})
+    {:ok, result} = PaperTrail.delete(changeset, originator: user)
+
+    company_count = Company.count()
+    version_count = Version.count()
+
+    company = result[:model] |> serialize
+    version = result[:version] |> serialize
+
+    assert Map.keys(result) == [:model, :version]
+    assert company_count == 0
+    assert version_count == 3
+
+    assert Map.drop(company, [:id, :inserted_at, :updated_at]) == %{
+             name: "Acme LLC",
+             is_active: true,
+             city: "Hong Kong",
+             website: "http://www.acme.com",
+             address: nil,
+             facebook: "acme.llc",
+             twitter: nil,
+             founded_in: nil
+           }
+
+    assert Map.drop(version, [:id, :inserted_at]) == %{
+             event: "delete",
+             item_type: "SimpleCompany",
+             item_id: company.id,
+             item_changes: %{
+               id: company.id,
+               inserted_at: company.inserted_at,
+               updated_at: company.updated_at,
+               name: "Acme LLC",
+               is_active: true,
+               website: "http://www.acme.com",
+               city: "Hong Kong",
+               address: nil,
+               facebook: "acme.llc",
+               twitter: nil,
+               founded_in: nil
+             },
+             originator_id: user.id,
+             origin: nil,
+             meta: nil
+           }
+
+    assert company == serialize(company_before_deletion)
+  end
+
   test "PaperTrail.delete/2 with an error returns and error tuple like Repo.delete/2" do
     {:ok, insert_company_result} = create_company_with_version()
 
