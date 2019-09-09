@@ -452,6 +452,7 @@ Many thanks to:
 - [Teo Choong Ping](https://github.com/seymores) - Fixed paper_trail references for newer Elixir versions
 - [devvit](https://github.com/devvit) - Added non-regular primary key tracking support
 - [rustamtolipov](https://github.com/rustamtolipov) - Added support for Ecto v3
+- [gabrielpra1](https://github.com/gabrielpra1) - Added enhanced support for Ecto.Changeset
 - [Izel Nakri](https://github.com/izelnakri) - The Originator of this library. See what I did there ;)
 
 Additional thanks to:
