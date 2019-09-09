@@ -1,3 +1,6 @@
+### v0.8.3 - September 10th, 2019:
+- PaperTrail.delete now accepts Ecto.Changeset
+
 ### v0.8.2 - June 29th, 2019:
 - Rare PaperTrail.RepoClient.repo compile time errors fixed.
 
