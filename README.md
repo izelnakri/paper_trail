@@ -133,11 +133,11 @@ The library source code is minimal and well tested. It is suggested to read the 
 
 Your application is now ready to collect some history!
 
-### Does this work with phoenix?
+#### Does this work with phoenix?
 
 YES! Make sure you do the steps above.
 
-## %PaperTrail.Version{} fields:
+### %PaperTrail.Version{} fields:
 
 | Column Name   | Type    | Description                | Entry Method             |
 | ------------- | ------- | -------------------------- | ------------------------ |
@@ -150,7 +150,7 @@ YES! Make sure you do the steps above.
 | meta          | Map     | any extra optional meta information about the version(eg. %{slug: "ausername", important: true}) | Optionally set |
 | inserted_at   | Date    | inserted_at timestamp       | Ecto generates |
 
-### Configuring the types
+#### Configuring the types
 
 If you are using UUID or another type for your primary keys, you can configure
 the PaperTrail.Version schema to use it.
@@ -162,7 +162,7 @@ config :paper_trail, item_type: Ecto.UUID,
 
 Remember to edit the types accordingly in the generated migration.
 
-## How PaperTrail handles Embeds
+### How PaperTrail handles Embeds
 
 PaperTrail can keep track of embeds in your schemas. There are 2 ways it can do so:
 
