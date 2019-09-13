@@ -68,14 +68,11 @@ defmodule PaperTrail do
             versions = make_version_structs(%{event: "insert"}, model, changeset, options)
 
             results = case versions do
-              [nil | rest] -> [{:ok, nil} | Enum.map(rest, &repo.insert/1)]
-              _ -> Enum.map(versions, &repo.insert/1)
-            end
+                [nil | rest] -> [{:ok, nil} | Enum.map(rest, &repo.insert/1)]
+                _ -> Enum.map(versions, &repo.insert/1)
+              end
 
-            case Keyword.get_values(results, :error) do
-              [] -> {:ok, Keyword.get_values(results, :ok)}
-              errors -> {:error, errors}
-            end
+            format_multiple_results(results)
           end)
       end
 
@@ -199,9 +196,9 @@ defmodule PaperTrail do
             versions = make_version_structs(%{event: "update"}, model, changeset, options)
 
             results = case versions do
-              [nil | rest] -> [{:ok, nil} | Enum.map(rest, &repo.insert/1)]
-              _ -> Enum.map(versions, &repo.insert/1)
-            end
+                [nil | rest] -> [{:ok, nil} | Enum.map(rest, &repo.insert/1)]
+                _ -> Enum.map(versions, &repo.insert/1)
+              end
 
             format_multiple_results(results)
           end)
@@ -450,8 +447,6 @@ defmodule PaperTrail do
         else
           {key, model}
         end
-      {key, %Ecto.Changeset{} = changeset} ->
-        {key, serialize(changeset)}
       {key, list} when is_list(list) ->
         list = Enum.map(list, fn
           %Ecto.Changeset{} = changeset ->
