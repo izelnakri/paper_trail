@@ -19,6 +19,7 @@ defmodule PaperTrailTest.Version do
   setup_all do
     Application.put_env(:paper_trail, :strict_mode, false)
     Application.put_env(:paper_trail, :repo, PaperTrail.Repo)
+    Application.put_env(:paper_trail, :item_type, :integer)
 
     Code.compiler_options(ignore_module_conflict: true)
     Code.eval_file("lib/paper_trail.ex")

@@ -13,7 +13,7 @@ defmodule PaperTrail do
   defdelegate get_versions(model, id, options), to: PaperTrail.VersionQueries
   defdelegate get_current_model(version), to: PaperTrail.VersionQueries
 
-  @embed_mode (case @item_type do
+  @embed_mode (case Application.get_env(:paper_trail, :item_type, :integer) do
     Ecto.UUID ->
       :extract_version
     _ ->
@@ -68,8 +68,8 @@ defmodule PaperTrail do
             versions = make_version_structs(%{event: "insert"}, model, changeset, options)
 
             results = case versions do
-              [nil | rest] -> [{:ok, nil} | Enum.map(rest, &@repo.insert/1)]
-              _ -> Enum.map(versions, &@repo.insert/1)
+              [nil | rest] -> [{:ok, nil} | Enum.map(rest, &repo.insert/1)]
+              _ -> Enum.map(versions, &repo.insert/1)
             end
 
             case Keyword.get_values(results, :error) do
@@ -199,8 +199,8 @@ defmodule PaperTrail do
             versions = make_version_structs(%{event: "update"}, model, changeset, options)
 
             results = case versions do
-              [nil | rest] -> [{:ok, nil} | Enum.map(rest, &@repo.insert/1)]
-              _ -> Enum.map(versions, &@repo.insert/1)
+              [nil | rest] -> [{:ok, nil} | Enum.map(rest, &repo.insert/1)]
+              _ -> Enum.map(versions, &repo.insert/1)
             end
 
             format_multiple_results(results)
@@ -288,11 +288,11 @@ defmodule PaperTrail do
     transaction =
       Multi.new()
       |> Multi.delete(:model, struct, options)
-      |> Multi.run(:version, fn repo, %{} ->
-        version = make_version_struct(%{event: "delete"}, struct, options)
+      |> Multi.run(:version, fn repo, %{model: model} ->
+        version = make_version_struct(%{event: "delete"}, model, options)
         repo.insert(version, options)
       end)
-      |> Multi.run(:assoc_versions, fn %{} ->
+      |> Multi.run(:assoc_versions, fn repo, %{} ->
         results =
           deleted_assocs
           |> Enum.map(fn
@@ -368,64 +368,30 @@ defmodule PaperTrail do
     [ model_version | assoc_versions ]
   end
 
-  defp make_version_struct(%{event: "insert"}, model, options) do
-    originator = PaperTrail.RepoClient.originator()
-    originator_ref = options[originator[:name]] || options[:originator]
+  defp make_version_struct(%{event: event}, model, options) when event in ~w[insert delete update] do
+    changes = serialize(model)
 
-    %Version{
-      event: "insert",
-      item_type: get_item_type(model),
-      item_id: get_model_id(model),
-      item_changes: serialize(model),
-      originator_id:
-        case originator_ref do
-          nil -> nil
-          _ -> originator_ref |> Map.get(:id)
-        end,
-      origin: options[:origin],
-      meta: options[:meta]
-    }
-    |> add_prefix(options[:prefix])
-  end
+    case Enum.count(changes) do
+      0 -> nil
+      _ ->
+        originator = PaperTrail.RepoClient.originator()
+        originator_ref = options[originator[:name]] || options[:originator]
 
-  defp make_version_struct(%{event: "update"}, changeset, options) do
-    originator = PaperTrail.RepoClient.originator()
-    originator_ref = options[originator[:name]] || options[:originator]
-
-    %Version{
-      event: "update",
-      item_type: get_item_type(changeset),
-      item_id: get_model_id(changeset),
-      item_changes: changeset.changes,
-      originator_id:
-        case originator_ref do
-          nil -> nil
-          _ -> originator_ref |> Map.get(:id)
-        end,
-      origin: options[:origin],
-      meta: options[:meta]
-    }
-    |> add_prefix(options[:prefix])
-  end
-
-  defp make_version_struct(%{event: "delete"}, model_or_changeset, options) do
-    originator = PaperTrail.RepoClient.originator()
-    originator_ref = options[originator[:name]] || options[:originator]
-
-    %Version{
-      event: "delete",
-      item_type: get_item_type(model_or_changeset),
-      item_id: get_model_id(model_or_changeset),
-      item_changes: serialize(model_or_changeset),
-      originator_id:
-        case originator_ref do
-          nil -> nil
-          _ -> originator_ref |> Map.get(:id)
-        end,
-      origin: options[:origin],
-      meta: options[:meta]
-    }
-    |> add_prefix(options[:prefix])
+        %Version{
+          event: event,
+          item_type: get_item_type(model),
+          item_id: get_model_id(model),
+          item_changes: changes,
+          originator_id:
+            case originator_ref do
+              nil -> nil
+              _ -> originator_ref |> Map.get(:id)
+            end,
+          origin: options[:origin],
+          meta: options[:meta]
+        }
+        |> add_prefix(options[:prefix])
+    end
   end
 
   defp format_multiple_results(results) do
@@ -451,8 +417,15 @@ defmodule PaperTrail do
     |> List.first()
   end
 
-  defp serialize(%Ecto.Changeset{data: data}), do: serialize(data)
-
+  defp serialize(%Ecto.Changeset{} = changeset) do
+    model = case changeset.action do
+      :update -> changeset.changes
+      :insert -> changeset.changes
+      :delete -> changeset.data
+      nil -> changeset.changes
+    end
+    serialize(changeset.data.__struct__, model)
+  end
   defp serialize(model) do
     serialize(model.__struct__, model)
   end

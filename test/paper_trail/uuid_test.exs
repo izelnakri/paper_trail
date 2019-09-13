@@ -85,6 +85,9 @@ defmodule PaperTrailTest.UUIDTest do
 
       version = Version |> last |> repo().one
       assert version.item_id == item.item_id
+    end
+  end
+
   test "using embeds with UUID enabled should render them in their own version entry" do
     params = %{
       model: "Model S",
@@ -116,16 +119,15 @@ defmodule PaperTrailTest.UUIDTest do
       end)
     }
 
-    car =
-      car
-      |> Embed.Car.changeset(params)
-      |> PaperTrail.update()
-      |> case do
-        {:ok, ret} ->
-          assert ret.version == nil
-          assert ret.assoc_versions |> length() == 2
-        _ ->
-          assert false
-      end
+    car
+    |> Embed.Car.changeset(params)
+    |> PaperTrail.update()
+    |> case do
+      {:ok, ret} ->
+        assert ret.version == nil
+        assert ret.assoc_versions |> length() == 2
+      _ ->
+        assert false
+    end
   end
 end
