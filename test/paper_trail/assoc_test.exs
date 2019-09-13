@@ -11,11 +11,9 @@ defmodule PaperTrailTest.AssocTest do
     Application.put_env(:paper_trail, :repo, PaperTrail.Repo)
     Application.put_env(:paper_trail, :item_type, :integer)
 
-    Code.compiler_options(ignore_module_conflict: true)
     Code.eval_file("lib/paper_trail.ex")
     Code.eval_file("lib/version.ex")
     Code.eval_file("test/support/assoc_models.exs")
-    Code.compiler_options(ignore_module_conflict: false)
     :ok
   end
 
