@@ -365,11 +365,12 @@ defmodule PaperTrail do
     [ model_version | assoc_versions ]
   end
 
-  defp make_version_struct(%{event: event}, model, options) when event in ~w[insert delete update] do
+  defp make_version_struct(%{event: event}, model, options) when event in ~w[insert delete update replace] do
     changes = serialize(model)
 
     case Enum.count(changes) do
-      0 -> nil
+      0 ->
+        nil
       _ ->
         originator = PaperTrail.RepoClient.originator()
         originator_ref = options[originator[:name]] || options[:originator]
@@ -414,11 +415,15 @@ defmodule PaperTrail do
     |> List.first()
   end
 
+  defp serialize(%Ecto.Changeset{action: :update, changes: %{}} = changeset) do
+    serialize(changeset.data.__struct__, changeset.data)
+  end
   defp serialize(%Ecto.Changeset{} = changeset) do
     model = case changeset.action do
       :update -> changeset.changes
       :insert -> changeset.changes
       :delete -> changeset.data
+      :replace -> changeset.data
       nil -> changeset.changes
     end
     serialize(changeset.data.__struct__, model)
@@ -441,6 +446,8 @@ defmodule PaperTrail do
       _ -> true
     end)
     |> Enum.into(%{}, fn
+      {key, %Ecto.Changeset{} = changeset} ->
+        {key, serialize(changeset)}
       {key, %{__struct__: struct} = model} ->
         if is_schema?(struct) do
           {key, serialize(model)}
@@ -457,6 +464,8 @@ defmodule PaperTrail do
             else
               model
             end
+          value ->
+            value
         end)
         {key, list}
       other -> other

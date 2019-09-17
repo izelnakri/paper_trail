@@ -12,6 +12,7 @@ defmodule Assoc do
       field :name, :string
       field :content, :string
       has_many :comments, Assoc.Comment, on_delete: :delete_all
+      many_to_many :tags, Assoc.Tag, join_through: "assoc_posts_tags", on_delete: :delete_all
 
       timestamps()
     end
@@ -22,6 +23,7 @@ defmodule Assoc do
       struct
       |> cast(params, @fields)
       |> cast_assoc(:comments)
+      |> cast_assoc(:tags)
     end
   end
 
@@ -43,6 +45,27 @@ defmodule Assoc do
       struct
       |> cast(params, @fields)
       |> cast_assoc(:post)
+    end
+  end
+
+  defmodule Tag do
+    use Ecto.Schema
+    import Ecto.Changeset
+
+    schema "assoc_tags" do
+      field :name, :string
+
+      many_to_many :posts, Assoc.Post, join_through: "assoc_posts_tags", on_delete: :delete_all
+
+      timestamps()
+    end
+
+    @fields ~w[name]a
+
+    def changeset(struct, params \\ %{}) do
+      struct
+      |> cast(params, @fields)
+      |> cast_assoc(:posts)
     end
   end
 end

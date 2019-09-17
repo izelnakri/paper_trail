@@ -157,4 +157,43 @@ defmodule PaperTrailTest.AssocTest do
         assert false
     end
   end
+
+  test "many to many associations" do
+    params = %{
+      name: "Shitpost",
+      content: "Emacs is better than vi",
+      #tags: [tag, tag2]
+      tags: [
+        %{name: "introduction"},
+        %{name: "shitpost"}
+      ]
+    }
+
+    changeset = Assoc.Post.changeset(%Assoc.Post{}, params)
+
+    case PaperTrail.insert(changeset) do
+      {:ok, %{model: %{id: post_id} = post}} = result->
+        tag_ids = Enum.map(post.tags, &(&1.id))
+
+        query = from v in PaperTrail.Version,
+          where: v.item_id in ^tag_ids,
+          where: v.item_type == "Tag",
+          where: v.event == "insert"
+
+        assert query |> Repo.all() |> length() == 2
+
+        post = Repo.get(Assoc.Post, post_id)
+        PaperTrail.delete(post)
+
+        query = from v in PaperTrail.Version,
+          where: v.item_id in ^tag_ids,
+          where: v.item_type == "Tag",
+          where: v.event == "delete"
+
+        assert query |> Repo.all() |> length() == 2
+      {:error, _} ->
+        assert false
+    end
+
+  end
 end
