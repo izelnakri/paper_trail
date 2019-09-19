@@ -471,7 +471,7 @@ defmodule PaperTrail do
   defp add_prefix(changeset, prefix), do: Ecto.put_meta(changeset, prefix: prefix)
 
   defp get_item_type(%Ecto.Changeset{data: data}), do: get_item_type(data)
-  defp get_item_type(model), do: model.__struct__
+  defp get_item_type(model), do: model.__struct__ |> Module.split() |> Enum.join(".")
 
   def get_model_id(%Ecto.Changeset{data: data}), do: get_model_id(data)
 
