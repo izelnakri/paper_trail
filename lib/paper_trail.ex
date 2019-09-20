@@ -326,10 +326,10 @@ defmodule PaperTrail do
     |> elem(1)
   end
 
-  defp make_version_structs(%{event: event}, model, changeset, options) do
+  defp make_version_structs(%{event: event}, model, changeset, options, only_if_changes \\ false) do
     model_version = case event do
-      "update" -> make_version_struct(%{event: event}, changeset, options)
-      _ -> make_version_struct(%{event: event}, model, options)
+      "update" -> make_version_struct(%{event: event}, changeset, options, only_if_changes)
+      _ -> make_version_struct(%{event: event}, model, options, only_if_changes)
     end
 
     assoc_versions =
@@ -358,31 +358,36 @@ defmodule PaperTrail do
           %{event: changeset.action |> Atom.to_string},
           model,
           changeset,
-          options
+          options,
+          true
         )
       end)
 
     [ model_version | assoc_versions ]
   end
 
-  defp make_version_struct(%{event: event}, model, options) when event in ~w[insert delete update replace] do
-    originator = PaperTrail.RepoClient.originator()
-    originator_ref = options[originator[:name]] || options[:originator]
+  defp make_version_struct(%{event: event}, model, options, only_if_changes \\ false) when event in ~w[insert delete update replace] do
+    changes = serialize(model)
 
-    %Version{
-      event: event,
-      item_type: get_item_type(model),
-      item_id: get_model_id(model),
-      item_changes: changes = serialize(model),
-      originator_id:
-        case originator_ref do
-          nil -> nil
-          _ -> originator_ref |> Map.get(:id)
-        end,
-      origin: options[:origin],
-      meta: options[:meta]
-    }
-    |> add_prefix(options[:prefix])
+    if ((not only_if_changes) or (Enum.count(changes) > 0)) do
+      originator = PaperTrail.RepoClient.originator()
+      originator_ref = options[originator[:name]] || options[:originator]
+
+      %Version{
+        event: event,
+        item_type: get_item_type(model),
+        item_id: get_model_id(model),
+        item_changes: changes,
+        originator_id:
+          case originator_ref do
+            nil -> nil
+            _ -> originator_ref |> Map.get(:id)
+          end,
+        origin: options[:origin],
+        meta: options[:meta]
+      }
+      |> add_prefix(options[:prefix])
+    end
   end
 
   defp format_multiple_results(results) do
