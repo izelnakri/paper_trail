@@ -366,30 +366,23 @@ defmodule PaperTrail do
   end
 
   defp make_version_struct(%{event: event}, model, options) when event in ~w[insert delete update replace] do
-    changes = serialize(model)
+    originator = PaperTrail.RepoClient.originator()
+    originator_ref = options[originator[:name]] || options[:originator]
 
-    case Enum.count(changes) do
-      0 ->
-        nil
-      _ ->
-        originator = PaperTrail.RepoClient.originator()
-        originator_ref = options[originator[:name]] || options[:originator]
-
-        %Version{
-          event: event,
-          item_type: get_item_type(model),
-          item_id: get_model_id(model),
-          item_changes: changes,
-          originator_id:
-            case originator_ref do
-              nil -> nil
-              _ -> originator_ref |> Map.get(:id)
-            end,
-          origin: options[:origin],
-          meta: options[:meta]
-        }
-        |> add_prefix(options[:prefix])
-    end
+    %Version{
+      event: event,
+      item_type: get_item_type(model),
+      item_id: get_model_id(model),
+      item_changes: changes = serialize(model),
+      originator_id:
+        case originator_ref do
+          nil -> nil
+          _ -> originator_ref |> Map.get(:id)
+        end,
+      origin: options[:origin],
+      meta: options[:meta]
+    }
+    |> add_prefix(options[:prefix])
   end
 
   defp format_multiple_results(results) do
@@ -470,8 +463,8 @@ defmodule PaperTrail do
   defp add_prefix(changeset, nil), do: changeset
   defp add_prefix(changeset, prefix), do: Ecto.put_meta(changeset, prefix: prefix)
 
-  defp get_item_type(%Ecto.Changeset{data: data}), do: get_item_type(data)
-  defp get_item_type(model), do: model.__struct__ |> Module.split() |> Enum.join(".")
+  def get_item_type(%Ecto.Changeset{data: data}), do: get_item_type(data)
+  def get_item_type(model), do: model.__struct__ |> Module.split() |> Enum.join(".")
 
   def get_model_id(%Ecto.Changeset{data: data}), do: get_model_id(data)
 

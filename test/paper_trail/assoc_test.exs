@@ -54,10 +54,10 @@ defmodule PaperTrailTest.AssocTest do
 
         # check if version entries were created for all of them
         query = from v in PaperTrail.Version,
-                  where: v.item_type == "Post" and v.item_id == ^post_id
+                  where: v.item_type == "Assoc.Post" and v.item_id == ^post_id
         assert Repo.one(query)
         query = from v in PaperTrail.Version,
-                  where: v.item_type == "Comment" and v.item_id in ^comment_ids
+                  where: v.item_type == "Assoc.Comment" and v.item_id in ^comment_ids
         assert query |> Repo.all() |> length() == 2
       {:error, _} ->
         assert false
@@ -87,7 +87,7 @@ defmodule PaperTrailTest.AssocTest do
 
         query = from v in PaperTrail.Version,
           where: v.item_id in ^comment_ids,
-          where: v.item_type == "Comment",
+          where: v.item_type == "Assoc.Comment",
           where: v.event == "delete"
 
         assert query |> Repo.all() |> length() == 2
@@ -125,7 +125,7 @@ defmodule PaperTrailTest.AssocTest do
 
         query = from v in PaperTrail.Version,
           where: v.item_id in ^car_ids,
-          where: v.item_type == "Car",
+          where: v.item_type == "Assoc.Car",
           where: v.event == "update"
 
         updated_car_versions = Repo.all(query)
@@ -177,7 +177,7 @@ defmodule PaperTrailTest.AssocTest do
 
         query = from v in PaperTrail.Version,
           where: v.item_id in ^tag_ids,
-          where: v.item_type == "Tag",
+          where: v.item_type == "Assoc.Tag",
           where: v.event == "insert"
 
         assert query |> Repo.all() |> length() == 2
@@ -187,7 +187,7 @@ defmodule PaperTrailTest.AssocTest do
 
         query = from v in PaperTrail.Version,
           where: v.item_id in ^tag_ids,
-          where: v.item_type == "Tag",
+          where: v.item_type == "Assoc.Tag",
           where: v.event == "delete"
 
         assert query |> Repo.all() |> length() == 2
