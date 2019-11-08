@@ -29,6 +29,7 @@ defmodule PaperTrail.Multi do
               first_version_id: version_id,
               current_version_id: version_id
             })
+
           initial_version = make_version_struct(%{event: "insert"}, changeset_data, options)
           repo.insert(initial_version)
         end)
@@ -43,8 +44,7 @@ defmodule PaperTrail.Multi do
           repo.insert(updated_changeset)
         end)
         |> Ecto.Multi.run(:version, fn repo, %{initial_version: initial_version, model: model} ->
-          target_version =
-            make_version_struct(%{event: "insert"}, model, options) |> serialize()
+          target_version = make_version_struct(%{event: "insert"}, model, options) |> serialize()
 
           Version.changeset(initial_version, target_version) |> repo.update
         end)
@@ -230,6 +230,7 @@ defmodule PaperTrail.Multi do
     case PaperTrail.Version.__schema__(:type, :item_id) do
       :integer ->
         model_id
+
       _ ->
         "#{model_id}"
     end
