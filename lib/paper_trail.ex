@@ -1,7 +1,6 @@
 defmodule PaperTrail do
   import Ecto.Changeset
 
-  alias Ecto.Multi
   alias PaperTrail.Version
   alias PaperTrail.RepoClient
 

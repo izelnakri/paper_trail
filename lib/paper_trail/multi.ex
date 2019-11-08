@@ -16,8 +16,6 @@ defmodule PaperTrail.Multi do
   defdelegate to_list(multi), to: Ecto.Multi
 
   def insert(%Ecto.Multi{} = multi, changeset, options \\ [origin: nil, meta: nil, originator: nil, prefix: nil]) do
-    repo = RepoClient.repo()
-
     case RepoClient.strict_mode() do
       true ->
         multi
@@ -62,8 +60,6 @@ defmodule PaperTrail.Multi do
   end
 
   def update(%Ecto.Multi{} = multi, changeset, options \\ [origin: nil, meta: nil, originator: nil, prefix: nil]) do
-    repo = RepoClient.repo()
-
     case RepoClient.strict_mode() do
       true ->
         multi
