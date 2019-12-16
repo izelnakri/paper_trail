@@ -270,10 +270,10 @@ defmodule PaperTrailStrictModeTest do
     })
     |> PaperTrail.insert()
 
-    ecto_result = insert_company_result[:model] |> Company.changeset() |> @repo.delete
-    result = insert_company_result[:model] |> Company.changeset() |> PaperTrail.delete()
+    {:error, ecto_result} = insert_company_result[:model] |> Company.changeset() |> @repo.delete
+    {:error, result} = insert_company_result[:model] |> Company.changeset() |> PaperTrail.delete()
 
-    assert result == ecto_result
+    assert Map.drop(result, [:repo_opts]) == Map.drop(ecto_result, [:repo_opts])
   end
 
   test "creating a person with meta tag creates a person version with correct attributes" do
