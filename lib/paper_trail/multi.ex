@@ -1,35 +1,25 @@
-defmodule PaperTrail do
+defmodule PaperTrail.Multi do
   import Ecto.Changeset
 
+  alias PaperTrail
   alias PaperTrail.Version
   alias PaperTrail.RepoClient
 
-  defdelegate get_version(record), to: PaperTrail.VersionQueries
-  defdelegate get_version(model_or_record, id_or_options), to: PaperTrail.VersionQueries
-  defdelegate get_version(model, id, options), to: PaperTrail.VersionQueries
-  defdelegate get_versions(record), to: PaperTrail.VersionQueries
-  defdelegate get_versions(model_or_record, id_or_options), to: PaperTrail.VersionQueries
-  defdelegate get_versions(model, id, options), to: PaperTrail.VersionQueries
-  defdelegate get_current_model(version), to: PaperTrail.VersionQueries
+  defdelegate new(), to: Ecto.Multi
+  defdelegate append(lhs, rhs), to: Ecto.Multi
+  defdelegate error(multi, name, value), to: Ecto.Multi
+  defdelegate merge(multi, merge), to: Ecto.Multi
+  defdelegate merge(multi, mod, fun, args), to: Ecto.Multi
+  defdelegate prepend(lhs, rhs), to: Ecto.Multi
+  defdelegate run(multi, name, run), to: Ecto.Multi
+  defdelegate run(multi, name, mod, fun, args), to: Ecto.Multi
+  defdelegate to_list(multi), to: Ecto.Multi
 
-  @doc """
-  Inserts a record to the database with a related version insertion in one transaction
-  """
-  def insert(changeset, options \\ [origin: nil, meta: nil, originator: nil, prefix: nil]) do
-    PaperTrail.Multi.new()
-    |> PaperTrail.Multi.insert(changeset, options)
-    |> PaperTrail.Multi.commit()
-  end
-
-  @doc """
-  Same as insert/2 but returns only the model struct or raises if the changeset is invalid.
-  """
-  def insert!(changeset, options \\ [origin: nil, meta: nil, originator: nil, prefix: nil]) do
-    repo = RepoClient.repo()
-
-    repo.transaction(fn ->
-      case RepoClient.strict_mode() do
-        true ->
+  def insert(%Ecto.Multi{} = multi, changeset, options \\ [origin: nil, meta: nil, originator: nil, prefix: nil]) do
+    case RepoClient.strict_mode() do
+      true ->
+        multi
+        |> Ecto.Multi.run(:initial_version, fn repo, %{} ->
           version_id = get_sequence_id("versions") + 1
 
           changeset_data =
@@ -40,10 +30,10 @@ defmodule PaperTrail do
               current_version_id: version_id
             })
 
-          initial_version =
-            make_version_struct(%{event: "insert"}, changeset_data, options)
-            |> repo.insert!
-
+          initial_version = make_version_struct(%{event: "insert"}, changeset_data, options)
+          repo.insert(initial_version)
+        end)
+        |> Ecto.Multi.run(:model, fn repo, %{initial_version: initial_version} ->
           updated_changeset =
             changeset
             |> change(%{
@@ -51,39 +41,29 @@ defmodule PaperTrail do
               current_version_id: initial_version.id
             })
 
-          model = repo.insert!(updated_changeset)
+          repo.insert(updated_changeset)
+        end)
+        |> Ecto.Multi.run(:version, fn repo, %{initial_version: initial_version, model: model} ->
           target_version = make_version_struct(%{event: "insert"}, model, options) |> serialize()
-          Version.changeset(initial_version, target_version) |> repo.update!
-          model
 
-        _ ->
-          model = repo.insert!(changeset)
-          make_version_struct(%{event: "insert"}, model, options) |> repo.insert!
-          model
-      end
-    end)
-    |> elem(1)
+          Version.changeset(initial_version, target_version) |> repo.update
+        end)
+
+      _ ->
+        multi
+        |> Ecto.Multi.insert(:model, changeset)
+        |> Ecto.Multi.run(:version, fn repo, %{model: model} ->
+          version = make_version_struct(%{event: "insert"}, model, options)
+          repo.insert(version)
+        end)
+    end
   end
 
-  @doc """
-  Updates a record from the database with a related version insertion in one transaction
-  """
-  def update(changeset, options \\ [origin: nil, meta: nil, originator: nil, prefix: nil]) do
-    PaperTrail.Multi.new()
-    |> PaperTrail.Multi.update(changeset, options)
-    |> PaperTrail.Multi.commit()
-  end
-
-  @doc """
-  Same as update/2 but returns only the model struct or raises if the changeset is invalid.
-  """
-  def update!(changeset, options \\ [origin: nil, meta: nil, originator: nil, prefix: nil]) do
-    repo = PaperTrail.RepoClient.repo()
-    client = PaperTrail.RepoClient
-
-    repo.transaction(fn ->
-      case client.strict_mode() do
-        true ->
+  def update(%Ecto.Multi{} = multi, changeset, options \\ [origin: nil, meta: nil, originator: nil, prefix: nil]) do
+    case RepoClient.strict_mode() do
+      true ->
+        multi
+        |> Ecto.Multi.run(:initial_version, fn repo, %{} ->
           version_data =
             changeset.data
             |> Map.merge(%{
@@ -92,51 +72,65 @@ defmodule PaperTrail do
 
           target_changeset = changeset |> Map.merge(%{data: version_data})
           target_version = make_version_struct(%{event: "update"}, target_changeset, options)
-          initial_version = repo.insert!(target_version)
+          repo.insert(target_version)
+        end)
+        |> Ecto.Multi.run(:model, fn repo, %{initial_version: initial_version} ->
           updated_changeset = changeset |> change(%{current_version_id: initial_version.id})
-          model = repo.update!(updated_changeset)
-
+          repo.update(updated_changeset)
+        end)
+        |> Ecto.Multi.run(:version, fn repo, %{initial_version: initial_version} ->
           new_item_changes =
             initial_version.item_changes
             |> Map.merge(%{
               current_version_id: initial_version.id
             })
 
-          initial_version |> change(%{item_changes: new_item_changes}) |> repo.update!
-          model
+          initial_version |> change(%{item_changes: new_item_changes}) |> repo.update
+        end)
 
-        _ ->
-          model = repo.update!(changeset)
-          version_struct = make_version_struct(%{event: "update"}, changeset, options)
-          repo.insert!(version_struct)
-          model
-      end
-    end)
-    |> elem(1)
+      _ ->
+        multi
+        |> Ecto.Multi.update(:model, changeset)
+        |> Ecto.Multi.run(:version, fn repo, %{model: _model} ->
+          version = make_version_struct(%{event: "update"}, changeset, options)
+          repo.insert(version)
+        end)
+    end
   end
 
-  @doc """
-  Deletes a record from the database with a related version insertion in one transaction
-  """
-  def delete(struct, options \\ [origin: nil, meta: nil, originator: nil, prefix: nil]) do
-    PaperTrail.Multi.new()
-    |> PaperTrail.Multi.delete(struct, options)
-    |> PaperTrail.Multi.commit()
+  def delete(%Ecto.Multi{} = multi, struct, options \\ [origin: nil, meta: nil, originator: nil, prefix: nil]) do
+    multi
+    |> Ecto.Multi.delete(:model, struct, options)
+    |> Ecto.Multi.run(:version, fn repo, %{} ->
+      version = make_version_struct(%{event: "delete"}, struct, options)
+      repo.insert(version, options)
+    end)
   end
 
-  @doc """
-  Same as delete/2 but returns only the model struct or raises if the changeset is invalid.
-  """
-  def delete!(struct, options \\ [origin: nil, meta: nil, originator: nil, prefix: nil]) do
-    repo = PaperTrail.RepoClient.repo()
+  def commit(%Ecto.Multi{} = multi) do
+    repo = RepoClient.repo()
 
-    repo.transaction(fn ->
-      model = repo.delete!(struct, options)
-      version_struct = make_version_struct(%{event: "delete"}, struct, options)
-      repo.insert!(version_struct, options)
-      model
-    end)
-    |> elem(1)
+    transaction = repo.transaction(multi)
+
+    case RepoClient.strict_mode() do
+      true ->
+        case transaction do
+          {:error, :model, changeset, %{}} ->
+            filtered_changes =
+              Map.drop(changeset.changes, [:current_version_id, :first_version_id])
+
+            {:error, Map.merge(changeset, %{repo: repo, changes: filtered_changes})}
+
+          {:ok, map} ->
+            {:ok, Map.drop(map, [:initial_version])}
+        end
+
+      _ ->
+        case transaction do
+          {:error, :model, changeset, %{}} -> {:error, Map.merge(changeset, %{repo: repo})}
+          _ -> transaction
+        end
+    end
   end
 
   defp make_version_struct(%{event: "insert"}, model, options) do
@@ -228,14 +222,15 @@ defmodule PaperTrail do
   defp get_item_type(%Ecto.Changeset{data: data}), do: get_item_type(data)
   defp get_item_type(model), do: model.__struct__ |> Module.split() |> List.last()
 
-  def get_model_id(%Ecto.Changeset{data: data}), do: get_model_id(data)
+  defp get_model_id(%Ecto.Changeset{data: data}), do: get_model_id(data)
 
-  def get_model_id(model) do
+  defp get_model_id(model) do
     {_, model_id} = List.first(Ecto.primary_key(model))
 
     case PaperTrail.Version.__schema__(:type, :item_id) do
       :integer ->
         model_id
+
       _ ->
         "#{model_id}"
     end
