@@ -453,6 +453,7 @@ Many thanks to:
 - [devvit](https://github.com/devvit) - Added non-regular primary key tracking support
 - [rustamtolipov](https://github.com/rustamtolipov) - Added support for Ecto v3
 - [gabrielpra1](https://github.com/gabrielpra1) - Added enhanced support for Ecto.Changeset
+- [Darren Thompson](https://github.com/DiscoStarslayer) - Added PaperTrail.Multi which makes paper trail transactions more usable
 - [Izel Nakri](https://github.com/izelnakri) - The Originator of this library. See what I did there ;)
 
 Additional thanks to:
