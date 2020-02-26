@@ -29,7 +29,7 @@ defmodule PaperTrail.Mixfile do
       {:ecto, "~> 3.3"},
       {:ecto_sql, "~> 3.3"},
       {:ex_doc, ">= 0.20.2", only: :dev},
-      {:postgrex, ">= 0.0.0"},
+      {:postgrex, ">= 0.0.0", only: [:dev, :test]},
       {:jason, "~> 1.0"},
     ]
   end
