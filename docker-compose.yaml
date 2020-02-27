@@ -1,0 +1,42 @@
+version: '3.2'
+services:
+  db:
+    image: postgres:12.2-alpine
+    environment:
+      POSTGRES_PASSWORD: $PGUSER
+      POSTGRES_USER: $PGPASSWORD
+      PGDATA: /var/lib/postgresql/data/pgdata
+    restart: always
+    networks:
+      - backend_network
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+  backend:
+    image: $BACKEND_IMAGE_NAME
+    build:
+      context: .
+      dockerfile: $BACKEND_DOCKERFILE
+      cache_from:
+        - $BASE_IMAGE
+        - $BACKEND_IMAGE_CACHE
+    environment:
+      PGUSER: $PGUSER
+      PGPASSWORD: $PGPASSWORD
+      PGPORT: $PGPORT
+      PGHOST: db
+      MIX_ENV: $MIX_ENV
+    tty: true
+    ports:
+      - "4000:4000"
+    depends_on:
+      - db
+    networks:
+      - backend_network
+    command: $BACKEND_COMMAND
+
+volumes:
+  pgdata:
+networks:
+  backend_network:
+    driver: bridge
+

@@ -1,0 +1,45 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: docker:stable-git
+    working_directory: /code
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Build application Docker image
+          command: |
+            docker build -t paper_trail .
+      - deploy:
+          name: Push application Docker image
+          command: |
+            DOCKER_TAG=$(echo paper_trail:${CIRCLE_BRANCH} | tr '/' '_')
+            DOCKER_TARGET_REMOTE="${HUB_USERNAME}/${DOCKER_TAG}"
+            echo $HUB_KEY | docker login -u $HUB_USERNAME --password-stdin
+            docker tag paper_trail "${DOCKER_TARGET_REMOTE}"
+            docker push "${DOCKER_TARGET_REMOTE}"
+  test:
+    docker:
+      - image: docker:stable-git
+    working_directory: ~/code
+    steps:
+      - setup_remote_docker
+      - run:
+          name: Pull and run a docker container
+          command: |
+            DOCKER_TAG=$(echo paper_trail:${CIRCLE_BRANCH} | tr '/' '_')
+            docker pull ${HUB_USERNAME}/${DOCKER_TAG}
+            docker run -t -d --name="paper_trail" ${HUB_USERNAME}/${DOCKER_TAG} /bin/sh
+      - run: docker exec -it paper_trail mix test
+
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - build
+      - test:
+          requires:
+            - build
+
+# https://circleci.com/blog/how-to-build-a-docker-image-on-circleci-2-0/
