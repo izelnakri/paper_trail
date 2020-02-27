@@ -14,7 +14,11 @@ defmodule PaperTrail.Version do
     field(:item_id, Application.get_env(:paper_trail, :item_type, :integer))
     field(:item_changes, :map)
     field(:originator_id, Application.get_env(:paper_trail, :originator_type, :integer))
-    field(:origin, :string, read_after_writes: true)
+
+    field(:origin, :string,
+      read_after_writes: Application.get_env(:paper_trail, :origin_read_after_writes, true)
+    )
+
     field(:meta, :map)
 
     if PaperTrail.RepoClient.originator() do
