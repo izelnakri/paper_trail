@@ -15,7 +15,11 @@ defmodule PaperTrail.Multi do
   defdelegate run(multi, name, mod, fun, args), to: Ecto.Multi
   defdelegate to_list(multi), to: Ecto.Multi
 
-  def insert(%Ecto.Multi{} = multi, changeset, options \\ [origin: nil, meta: nil, originator: nil, prefix: nil]) do
+  def insert(
+        %Ecto.Multi{} = multi,
+        changeset,
+        options \\ [origin: nil, meta: nil, originator: nil, prefix: nil]
+      ) do
     case RepoClient.strict_mode() do
       true ->
         multi
@@ -59,7 +63,11 @@ defmodule PaperTrail.Multi do
     end
   end
 
-  def update(%Ecto.Multi{} = multi, changeset, options \\ [origin: nil, meta: nil, originator: nil, prefix: nil]) do
+  def update(
+        %Ecto.Multi{} = multi,
+        changeset,
+        options \\ [origin: nil, meta: nil, originator: nil, prefix: nil]
+      ) do
     case RepoClient.strict_mode() do
       true ->
         multi
@@ -98,7 +106,11 @@ defmodule PaperTrail.Multi do
     end
   end
 
-  def delete(%Ecto.Multi{} = multi, struct, options \\ [origin: nil, meta: nil, originator: nil, prefix: nil]) do
+  def delete(
+        %Ecto.Multi{} = multi,
+        struct,
+        options \\ [origin: nil, meta: nil, originator: nil, prefix: nil]
+      ) do
     multi
     |> Ecto.Multi.delete(:model, struct, options)
     |> Ecto.Multi.run(:version, fn repo, %{} ->

@@ -163,7 +163,9 @@ defmodule PaperTrailTest.VersionQueries do
     person = first(Person, :id) |> @repo.one
 
     first_version =
-      Version |> where([v], v.item_type == "SimplePerson" and v.item_id == ^person.id) |> first
+      Version
+      |> where([v], v.item_type == "SimplePerson" and v.item_id == ^person.id)
+      |> first
       |> @repo.one
 
     assert PaperTrail.get_current_model(first_version) == person

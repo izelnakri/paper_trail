@@ -236,6 +236,7 @@ defmodule PaperTrail do
     case PaperTrail.Version.__schema__(:type, :item_id) do
       :integer ->
         model_id
+
       _ ->
         "#{model_id}"
     end
