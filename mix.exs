@@ -20,7 +20,7 @@ defmodule PaperTrail.Mixfile do
   # Type "mix help compile.app" for more information
   def application do
     [
-      applications: [:logger, :postgrex, :ecto, :runtime_tools]
+      applications: [:logger, :ecto, :runtime_tools]
     ]
   end
 
