@@ -11,7 +11,7 @@ services:
       - backend_network
     volumes:
       - pgdata:/var/lib/postgresql/data
-  backend:
+  paper_trail:
     image: inakri/paper_trail:$CIRCLE_BRANCH
     build:
       context: .
