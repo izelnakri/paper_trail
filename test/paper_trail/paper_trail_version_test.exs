@@ -14,31 +14,29 @@ defmodule PaperTrailTest.Version do
   }
   @invalid_attrs %{}
 
-  @repo PaperTrail.RepoClient.repo()
-
   setup_all do
     Application.put_env(:paper_trail, :strict_mode, false)
     Application.put_env(:paper_trail, :repo, PaperTrail.Repo)
     Application.put_env(:paper_trail, :originator_type, :integer)
     Code.eval_file("lib/paper_trail.ex")
     Code.eval_file("lib/version.ex")
-    MultiTenant.setup_tenant(@repo)
+    MultiTenant.setup_tenant(repo())
     :ok
   end
 
   setup do
-    @repo.delete_all(Version)
+    repo().delete_all(Version)
 
     Version
     |> MultiTenant.add_prefix_to_query()
-    |> @repo.delete_all()
+    |> repo().delete_all()
 
     on_exit(fn ->
-      @repo.delete_all(Version)
+      repo().delete_all(Version)
 
       Version
       |> MultiTenant.add_prefix_to_query()
-      |> @repo.delete_all()
+      |> repo().delete_all()
     end)
 
     :ok
@@ -142,7 +140,7 @@ defmodule PaperTrailTest.Version do
   end
 
   def add_three_versions(prefix \\ nil) do
-    @repo.insert_all(
+    repo().insert_all(
       Version,
       [
         @valid_attrs,
@@ -174,5 +172,9 @@ defmodule PaperTrailTest.Version do
   def serialize(resource) do
     relationships = resource.__struct__.__schema__(:associations)
     Map.drop(resource, [:__meta__, :__struct__] ++ relationships)
+  end
+
+  defp repo() do
+    PaperTrail.RepoClient.repo()
   end
 end

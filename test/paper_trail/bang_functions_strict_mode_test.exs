@@ -8,7 +8,6 @@ defmodule PaperTrailTest.StrictModeBangFunctions do
   alias StrictPerson, as: Person
   alias PaperTrailTest.MultiTenantHelper, as: MultiTenant
 
-  @repo PaperTrail.RepoClient.repo()
   @create_company_params %{name: "Acme LLC", is_active: true, city: "Greenwich"}
   @update_company_params %{
     city: "Hong Kong",
@@ -24,7 +23,7 @@ defmodule PaperTrailTest.StrictModeBangFunctions do
     Application.put_env(:paper_trail, :originator_type, :integer)
     Code.eval_file("lib/paper_trail.ex")
     Code.eval_file("lib/version.ex")
-    MultiTenant.setup_tenant(@repo)
+    MultiTenant.setup_tenant(repo())
     :ok
   end
 
@@ -74,7 +73,7 @@ defmodule PaperTrailTest.StrictModeBangFunctions do
              meta: nil
            }
 
-    assert company == first(Company, :id) |> @repo.one |> serialize
+    assert company == first(Company, :id) |> repo().one |> serialize
   end
 
   test "creating a company without changeset creates a company version with correct attributes" do
@@ -168,7 +167,7 @@ defmodule PaperTrailTest.StrictModeBangFunctions do
              meta: nil
            }
 
-    assert company == first(Company, :id) |> @repo.one |> serialize
+    assert company == first(Company, :id) |> repo().one |> serialize
   end
 
   test "PaperTrail.update!/2 with an error raises Ecto.InvalidChangesetError" do
@@ -190,7 +189,7 @@ defmodule PaperTrailTest.StrictModeBangFunctions do
     inserted_company_version = PaperTrail.get_version(inserted_company)
     updated_company = update_company_with_version(inserted_company)
     updated_company_version = PaperTrail.get_version(updated_company)
-    company_before_deletion = first(Company, :id) |> @repo.one |> serialize
+    company_before_deletion = first(Company, :id) |> repo().one |> serialize
     deleted_company = PaperTrail.delete!(updated_company, user: user)
 
     company_count = Company.count()
@@ -308,7 +307,7 @@ defmodule PaperTrailTest.StrictModeBangFunctions do
              meta: %{"linkname" => "izelnakri"}
            }
 
-    assert person == first(Person, :id) |> @repo.one |> serialize
+    assert person == first(Person, :id) |> repo().one |> serialize
   end
 
   test "updating a person creates a person version with correct attributes" do
@@ -385,7 +384,7 @@ defmodule PaperTrailTest.StrictModeBangFunctions do
              meta: %{"linkname" => "izelnakri"}
            }
 
-    assert person == first(Person, :id) |> @repo.one |> serialize
+    assert person == first(Person, :id) |> repo().one |> serialize
   end
 
   test "deleting a person creates a person version with correct attributes" do
@@ -418,7 +417,7 @@ defmodule PaperTrailTest.StrictModeBangFunctions do
       |> PaperTrail.update!(origin: "scraper", meta: %{linkname: "izelnakri"})
 
     updated_person_version = PaperTrail.get_version(updated_person) |> serialize
-    person_before_deletion = first(Person, :id) |> @repo.one
+    person_before_deletion = first(Person, :id) |> repo().one
 
     deleted_person =
       PaperTrail.delete!(
@@ -961,13 +960,13 @@ defmodule PaperTrailTest.StrictModeBangFunctions do
   # Functions
   defp create_user() do
     User.changeset(%User{}, %{token: "fake-token", username: "izelnakri"})
-    |> @repo.insert!
+    |> repo().insert!
   end
 
   defp create_user(:multitenant) do
     User.changeset(%User{}, %{token: "fake-token", username: "izelnakri"})
     |> MultiTenant.add_prefix_to_changeset()
-    |> @repo.insert!
+    |> repo().insert!
   end
 
   defp create_company_with_version(params \\ @create_company_params, options \\ nil) do
@@ -999,11 +998,11 @@ defmodule PaperTrailTest.StrictModeBangFunctions do
   end
 
   defp first_company(:multitenant) do
-    first(Company, :id) |> MultiTenant.add_prefix_to_query() |> @repo.one()
+    first(Company, :id) |> MultiTenant.add_prefix_to_query() |> repo().one()
   end
 
   defp first_person(:multitenant) do
-    first(Person, :id) |> MultiTenant.add_prefix_to_query() |> @repo.one()
+    first(Person, :id) |> MultiTenant.add_prefix_to_query() |> repo().one()
   end
 
   defp serialize(model) do
@@ -1012,24 +1011,28 @@ defmodule PaperTrailTest.StrictModeBangFunctions do
   end
 
   defp reset_all_data() do
-    @repo.delete_all(Person)
-    @repo.delete_all(Company)
-    @repo.delete_all(Version)
+    repo().delete_all(Person)
+    repo().delete_all(Company)
+    repo().delete_all(Version)
 
     Person
     |> MultiTenant.add_prefix_to_query()
-    |> @repo.delete_all()
+    |> repo().delete_all()
 
     Company
     |> MultiTenant.add_prefix_to_query()
-    |> @repo.delete_all()
+    |> repo().delete_all()
 
     Version
     |> MultiTenant.add_prefix_to_query()
-    |> @repo.delete_all()
+    |> repo().delete_all()
   end
 
   defp convert_to_string_map(map) do
     map |> Jason.encode!() |> Jason.decode!()
+  end
+
+  defp repo() do
+    PaperTrail.RepoClient.repo()
   end
 end
