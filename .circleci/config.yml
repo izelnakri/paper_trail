@@ -11,19 +11,19 @@ jobs:
           name: Build application Docker image
           command: |
             docker build -t paper_trail .
+      - run:
+          name: Install docker-compose
+          command: |
+            apk add docker-compose
       - deploy:
           name: Push application Docker image
           command: |
             DOCKER_TAG=$(echo paper_trail:${CIRCLE_BRANCH} | tr '/' '_')
             DOCKER_TARGET_REMOTE="${HUB_USERNAME}/${DOCKER_TAG}"
+            sed -i $(echo "s/\$DOCKER_TAG/$DOCKER_TAG/g") /code/.env
             echo $HUB_KEY | docker login -u $HUB_USERNAME --password-stdin
             docker tag paper_trail "${DOCKER_TARGET_REMOTE}"
             docker push "${DOCKER_TARGET_REMOTE}"
-      - run:
-          name: Pull and run a docker container
-          command: |
-            apk add docker-compose
-            sed -i $(echo "s/\$CIRCLE_BRANCH/$CIRCLE_BRANCH/g") /code/.env
       - run: docker-compose run paper_trail mix test test/paper_trail
       - run: docker-compose run paper_trail mix test test/version
       - run: docker-compose run paper_trail mix test test/uuid

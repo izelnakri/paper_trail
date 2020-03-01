@@ -12,12 +12,12 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
   paper_trail:
-    image: inakri/paper_trail:$CIRCLE_BRANCH
+    image: inakri/$DOCKER_TAG
     build:
       context: .
       dockerfile: Dockerfile
       cache_from:
-        - inakri/paper_trail:$CIRCLE_BRANCH
+        - inakri/$DOCKER_TAG
     environment:
       POSTGRES_USER: $POSTGRES_USER
       POSTGRES_PASSWORD: $POSTGRES_PASSWORD
