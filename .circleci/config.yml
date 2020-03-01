@@ -1,6 +1,6 @@
 version: 2
 jobs:
-  build:
+  test:
     docker:
       - image: docker:stable-git
     working_directory: /code
@@ -19,13 +19,6 @@ jobs:
             echo $HUB_KEY | docker login -u $HUB_USERNAME --password-stdin
             docker tag paper_trail "${DOCKER_TARGET_REMOTE}"
             docker push "${DOCKER_TARGET_REMOTE}"
-  test:
-    docker:
-      - image: docker:stable-git
-    working_directory: /code
-    steps:
-      - checkout
-      - setup_remote_docker
       - run:
           name: Pull and run a docker container
           command: |
@@ -39,9 +32,6 @@ workflows:
   version: 2
   build_and_test:
     jobs:
-      - build
-      - test:
-          requires:
-            - build
+      - test
 
 # https://circleci.com/blog/how-to-build-a-docker-image-on-circleci-2-0/
