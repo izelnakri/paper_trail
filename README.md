@@ -439,6 +439,14 @@ PaperTrail.get_versions(User, id, [prefix: tenant])
 - don't delete your paper_trail versions, instead you can merge them
 - If you have a question or a problem, do not hesitate to create an issue or submit a pull request
 
+## Contributing
+
+```
+set -a
+source .env
+mix test --trace
+```
+
 # Credits
 Many thanks to:
 - [Jose Pablo Castro](https://github.com/josepablocastro) - Built the repo configuration for paper_trail
