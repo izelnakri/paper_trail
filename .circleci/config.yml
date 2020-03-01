@@ -22,16 +22,17 @@ jobs:
   test:
     docker:
       - image: docker:stable-git
-    working_directory: ~/code
+    working_directory: /code
     steps:
+      - checkout
       - setup_remote_docker
       - run:
           name: Pull and run a docker container
           command: |
-            DOCKER_TAG=$(echo paper_trail:${CIRCLE_BRANCH} | tr '/' '_')
-            docker pull ${HUB_USERNAME}/${DOCKER_TAG}
-            docker run -t -d --name="paper_trail" ${HUB_USERNAME}/${DOCKER_TAG} /bin/sh
-      - run: docker exec -it paper_trail mix test
+            apk add docker-compose
+            sed -i $(echo "s/\$CIRCLE_BRANCH/$CIRCLE_BRANCH/g") /code/.env
+            docker-compose up -d
+      - run: docker-compose exec -T backend mix test --trace
 
 workflows:
   version: 2

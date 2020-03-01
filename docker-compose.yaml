@@ -1,10 +1,10 @@
-version: '3.2'
+version: '3.4'
 services:
   db:
     image: postgres:12.2-alpine
     environment:
-      POSTGRES_PASSWORD: $PGUSER
-      POSTGRES_USER: $PGPASSWORD
+      POSTGRES_PASSWORD: $POSTGRES_USER
+      POSTGRES_USER: $POSTGRES_PASSWORD
       PGDATA: /var/lib/postgresql/data/pgdata
     restart: always
     networks:
@@ -12,27 +12,22 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
   backend:
-    image: $BACKEND_IMAGE_NAME
+    image: inakri/paper_trail:$CIRCLE_BRANCH
     build:
       context: .
-      dockerfile: $BACKEND_DOCKERFILE
-      cache_from:
-        - $BASE_IMAGE
-        - $BACKEND_IMAGE_CACHE
+      dockerfile: Dockerfile
     environment:
-      PGUSER: $PGUSER
-      PGPASSWORD: $PGPASSWORD
-      PGPORT: $PGPORT
+      POSTGRES_USER: $POSTGRES_USER
+      POSTGRES_PASSWORD: $POSTGRES_PASSWORD
+      PGPORT: 5432
       PGHOST: db
       MIX_ENV: $MIX_ENV
     tty: true
-    ports:
-      - "4000:4000"
     depends_on:
       - db
     networks:
       - backend_network
-    command: $BACKEND_COMMAND
+    command: ["./setup-database.sh"]
 
 volumes:
   pgdata:
@@ -40,3 +35,6 @@ networks:
   backend_network:
     driver: bridge
 
+# cache_from:
+#   - $BASE_IMAGE
+#   - $BACKEND_IMAGE_CACHE
