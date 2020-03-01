@@ -16,6 +16,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      cache_from:
+        - inakri/paper_trail:$CIRCLE_BRANCH
     environment:
       POSTGRES_USER: $POSTGRES_USER
       POSTGRES_PASSWORD: $POSTGRES_PASSWORD
@@ -35,6 +37,3 @@ networks:
   backend_network:
     driver: bridge
 
-# cache_from:
-#   - $BASE_IMAGE
-#   - $BACKEND_IMAGE_CACHE
