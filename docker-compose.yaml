@@ -20,7 +20,7 @@ services:
       POSTGRES_USER: $POSTGRES_USER
       POSTGRES_PASSWORD: $POSTGRES_PASSWORD
       PGPORT: 5432
-      PGHOST: db
+      PG_HOST: db
       MIX_ENV: $MIX_ENV
     tty: true
     depends_on:
