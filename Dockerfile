@@ -13,7 +13,7 @@ ADD . /code/
 
 RUN mix compile
 
-ENTRYPOINT "/bin/sh"
+CMD ["/bin/sh"]
 
 # mix ecto.create
 # mix ecto.migrate

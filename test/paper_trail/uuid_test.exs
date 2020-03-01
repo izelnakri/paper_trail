@@ -17,6 +17,7 @@ defmodule PaperTrailTest.UUIDTest do
 
     Code.eval_file("lib/paper_trail.ex")
     Code.eval_file("lib/version.ex")
+
     repo().delete_all(Version)
     repo().delete_all(Admin)
     repo().delete_all(Product)
@@ -24,68 +25,70 @@ defmodule PaperTrailTest.UUIDTest do
     :ok
   end
 
-  test "creates versions with models that have a UUID primary key" do
-    product =
-      %Product{}
-      |> Product.changeset(%{name: "Hair Cream"})
-      |> PaperTrail.insert!()
-
-    version = Version |> last |> repo().one
-
-    assert version.item_id == product.id
-    assert version.item_type == "Product"
-  end
-
-  test "handles originators with a UUID primary key" do
-    admin =
-      %Admin{}
-      |> Admin.changeset(%{email: "admin@example.com"})
-      |> repo().insert!
-
-    %Product{}
-    |> Product.changeset(%{name: "Hair Cream"})
-    |> PaperTrail.insert!(originator: admin)
-
-    version =
-      Version
-      |> last
-      |> repo().one
-      |> repo().preload(:admin)
-
-    assert version.admin == admin
-  end
-
-  test "versioning models that have a non-regular primary key" do
-    item =
-      %Item{}
-      |> Item.changeset(%{title: "hello"})
-      |> PaperTrail.insert!()
-
-    version = Version |> last |> repo().one
-    assert version.item_id == item.item_id
-  end
-
-  test "test INTEGER primary key for item_type == :string" do
-    if PaperTrail.Version.__schema__(:type, :item_id) == :string do
-      item =
-        %FooItem{}
-        |> FooItem.changeset(%{title: "hello"})
+  describe "PaperTrailTest.UUIDTest" do
+    test "creates versions with models that have a UUID primary key" do
+      product =
+        %Product{}
+        |> Product.changeset(%{name: "Hair Cream"})
         |> PaperTrail.insert!()
 
       version = Version |> last |> repo().one
-      assert version.item_id == "#{item.id}"
-    end
-  end
 
-  test "test STRING primary key for item_type == :string" do
-    if PaperTrail.Version.__schema__(:type, :item_id) == :string do
+      assert version.item_id == product.id
+      assert version.item_type == "Product"
+    end
+
+    test "handles originators with a UUID primary key" do
+      admin =
+        %Admin{}
+        |> Admin.changeset(%{email: "admin@example.com"})
+        |> repo().insert!
+
+      %Product{}
+      |> Product.changeset(%{name: "Hair Cream"})
+      |> PaperTrail.insert!(originator: admin)
+
+      version =
+        Version
+        |> last
+        |> repo().one
+        |> repo().preload(:admin)
+
+      assert version.admin == admin
+    end
+
+    test "versioning models that have a non-regular primary key" do
       item =
-        %BarItem{}
-        |> BarItem.changeset(%{item_id: "#{:os.system_time()}", title: "hello"})
+        %Item{}
+        |> Item.changeset(%{title: "hello"})
         |> PaperTrail.insert!()
 
       version = Version |> last |> repo().one
       assert version.item_id == item.item_id
+    end
+
+    test "test INTEGER primary key for item_type == :string" do
+      if PaperTrail.Version.__schema__(:type, :item_id) == :string do
+        item =
+          %FooItem{}
+          |> FooItem.changeset(%{title: "hello"})
+          |> PaperTrail.insert!()
+
+        version = Version |> last |> repo().one
+        assert version.item_id == "#{item.id}"
+      end
+    end
+
+    test "test STRING primary key for item_type == :string" do
+      if PaperTrail.Version.__schema__(:type, :item_id) == :string do
+        item =
+          %BarItem{}
+          |> BarItem.changeset(%{item_id: "#{:os.system_time()}", title: "hello"})
+          |> PaperTrail.insert!()
+
+        version = Version |> last |> repo().one
+        assert version.item_id == item.item_id
+      end
     end
   end
 end

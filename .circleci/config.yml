@@ -31,8 +31,10 @@ jobs:
           command: |
             apk add docker-compose
             sed -i $(echo "s/\$CIRCLE_BRANCH/$CIRCLE_BRANCH/g") /code/.env
-            docker-compose up -d
-      - run: docker-compose exec -T backend mix test --trace
+      - run: docker-compose run backend mix test --only describe:"PaperTrailTest.UUIDTest" --trace
+      - run: docker-compose run backend mix test --exclude describe:"PaperTrailTest.UUIDTest" --trace
+      - run: exit 0
+
 
 workflows:
   version: 2
