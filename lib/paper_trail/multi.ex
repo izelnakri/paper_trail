@@ -18,7 +18,7 @@ defmodule PaperTrail.Multi do
   def insert(
         %Ecto.Multi{} = multi,
         changeset,
-        options \\ [origin: nil, meta: nil, originator: nil, prefix: nil]
+        options \\ [origin: nil, meta: nil, originator: nil, prefix: nil, index: ""]
       ) do
     case RepoClient.strict_mode() do
       true ->
@@ -37,7 +37,11 @@ defmodule PaperTrail.Multi do
           initial_version = make_version_struct(%{event: "insert"}, changeset_data, options)
           repo.insert(initial_version)
         end)
-        |> Ecto.Multi.run(:model, fn repo, %{initial_version: initial_version} ->
+        |> Ecto.Multi.run(String.to_atom("model" <> options[:index]), fn repo,
+                                                                         %{
+                                                                           initial_version:
+                                                                             initial_version
+                                                                         } ->
           updated_changeset =
             changeset
             |> change(%{
@@ -47,7 +51,12 @@ defmodule PaperTrail.Multi do
 
           repo.insert(updated_changeset)
         end)
-        |> Ecto.Multi.run(:version, fn repo, %{initial_version: initial_version, model: model} ->
+        |> Ecto.Multi.run(String.to_atom("version" <> options[:index]), fn repo,
+                                                                           %{
+                                                                             initial_version:
+                                                                               initial_version,
+                                                                             model: model
+                                                                           } ->
           target_version = make_version_struct(%{event: "insert"}, model, options) |> serialize()
 
           Version.changeset(initial_version, target_version) |> repo.update
@@ -55,8 +64,9 @@ defmodule PaperTrail.Multi do
 
       _ ->
         multi
-        |> Ecto.Multi.insert(:model, changeset)
-        |> Ecto.Multi.run(:version, fn repo, %{model: model} ->
+        |> Ecto.Multi.insert(String.to_atom("model" <> options[:index]), changeset)
+        |> Ecto.Multi.run(String.to_atom("version" <> options[:index]), fn repo,
+                                                                           %{model: model} ->
           version = make_version_struct(%{event: "insert"}, model, options)
           repo.insert(version)
         end)
