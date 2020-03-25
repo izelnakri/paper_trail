@@ -20,6 +20,8 @@ defmodule PaperTrail.Multi do
         changeset,
         options \\ [origin: nil, meta: nil, originator: nil, prefix: nil, index: ""]
       ) do
+    IO.inspect({"strict mode", RepoClient.strict_mode()})
+
     case RepoClient.strict_mode() do
       true ->
         multi
