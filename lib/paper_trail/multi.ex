@@ -16,7 +16,7 @@ defmodule PaperTrail.Multi do
   defdelegate to_list(multi), to: Ecto.Multi
 
   def insert(%Ecto.Multi{} = multi, changeset, options \\ [origin: nil, meta: nil, originator: nil, prefix: nil, model_key: :model, version_key: :version]) do
-    model = options[:model_key]
+    model_key = options[:model_key]
 
     case RepoClient.strict_mode() do
       true ->
@@ -35,7 +35,7 @@ defmodule PaperTrail.Multi do
           initial_version = make_version_struct(%{event: "insert"}, changeset_data, options)
           repo.insert(initial_version)
         end)
-        |> Ecto.Multi.run(model, fn repo, %{initial_version: initial_version} ->
+        |> Ecto.Multi.run(model_key, fn repo, %{initial_version: initial_version} ->
           updated_changeset =
             changeset
             |> change(%{
@@ -53,8 +53,8 @@ defmodule PaperTrail.Multi do
 
       _ ->
         multi
-        |> Ecto.Multi.insert(model, changeset)
-        |> Ecto.Multi.run(options[:version_key], fn repo, %{^model => model} ->
+        |> Ecto.Multi.insert(model_key, changeset)
+        |> Ecto.Multi.run(options[:version_key], fn repo, %{^model_key => model} ->
           version = make_version_struct(%{event: "insert"}, model, options)
           repo.insert(version)
         end)
