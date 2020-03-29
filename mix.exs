@@ -4,8 +4,8 @@ defmodule PaperTrail.Mixfile do
   def project do
     [
       app: :paper_trail,
-      version: "0.8.6",
-      elixir: "~> 1.9",
+      version: "0.8.7",
+      elixir: "~> 1.10",
       description: description(),
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
@@ -26,11 +26,11 @@ defmodule PaperTrail.Mixfile do
 
   defp deps do
     [
-      {:ecto, "~> 3.3"},
-      {:ecto_sql, "~> 3.3.4"},
-      {:ex_doc, ">= 0.21.3", only: :dev},
+      {:ecto, ">= 3.4.0"},
+      {:ecto_sql, ">= 3.4.0"},
+      {:ex_doc, ">= 0.21.3"},
       {:postgrex, ">= 0.0.0", only: [:dev, :test]},
-      {:jason, "~> 1.0", only: [:dev, :test]}
+      {:jason, ">= 1.2.0", only: [:dev, :test]}
     ]
   end
 
