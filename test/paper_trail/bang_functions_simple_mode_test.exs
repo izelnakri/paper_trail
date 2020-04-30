@@ -7,6 +7,8 @@ defmodule PaperTrailTest.SimpleModeBangFunctions do
   alias SimpleCompany, as: Company
   alias SimplePerson, as: Person
   alias PaperTrailTest.MultiTenantHelper, as: MultiTenant
+  alias PaperTrail.RepoClient
+  alias PaperTrail.Serializer
 
   @create_company_params %{name: "Acme LLC", is_active: true, city: "Greenwich"}
   @update_company_params %{
@@ -14,6 +16,9 @@ defmodule PaperTrailTest.SimpleModeBangFunctions do
     website: "http://www.acme.com",
     facebook: "acme.llc"
   }
+
+  defdelegate repo, to: RepoClient
+  defdelegate serialize(data), to: Serializer
 
   doctest PaperTrail
 
@@ -787,7 +792,7 @@ defmodule PaperTrailTest.SimpleModeBangFunctions do
     assert person == first_person(:multitenant) |> serialize
   end
 
-  test "[multi tenant] updating a person creates a person version with correct attributes" do
+  test "[multi tenant] updating a person creates a person version with correct attributes" do
     tenant = MultiTenant.tenant()
 
     inserted_initial_company =
@@ -993,11 +998,6 @@ defmodule PaperTrailTest.SimpleModeBangFunctions do
     first(Person, :id) |> MultiTenant.add_prefix_to_query() |> repo().one()
   end
 
-  defp serialize(model) do
-    relationships = model.__struct__.__schema__(:associations)
-    Map.drop(model, [:__struct__, :__meta__] ++ relationships)
-  end
-
   defp reset_all_data() do
     repo().delete_all(Person)
     repo().delete_all(Company)
@@ -1018,9 +1018,5 @@ defmodule PaperTrailTest.SimpleModeBangFunctions do
 
   defp convert_to_string_map(map) do
     map |> Jason.encode!() |> Jason.decode!()
-  end
-
-  defp repo() do
-    PaperTrail.RepoClient.repo()
   end
 end
