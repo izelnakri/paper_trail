@@ -283,7 +283,7 @@ defmodule PaperTrailTest do
   test "delete works with a changeset" do
     user = create_user()
     {:ok, insert_result} = create_company_with_version()
-    {:ok, update_result} = update_company_with_version(insert_result[:model])
+    {:ok, _update_result} = update_company_with_version(insert_result[:model])
     company_before_deletion = first(Company, :id) |> @repo.one
 
     changeset = Company.changeset(company_before_deletion, %{})
