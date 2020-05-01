@@ -31,7 +31,7 @@ defmodule PaperTrail.Serializer do
       event: "update",
       item_type: get_item_type(changeset),
       item_id: get_model_id(changeset),
-      item_changes: changeset.changes,
+      item_changes: serialize_changes(changeset),
       originator_id:
         case originator_ref do
           nil -> nil
@@ -80,12 +80,14 @@ defmodule PaperTrail.Serializer do
   end
 
   def serialize(nil), do: nil
-
   def serialize(%Ecto.Changeset{data: data}), do: serialize(data)
+  def serialize(%_schema{} = model), do: Ecto.embedded_dump(model, :json)
 
-  def serialize(model) do
-    relationships = model.__struct__.__schema__(:associations)
-    Map.drop(model, [:__struct__, :__meta__] ++ relationships)
+  def serialize_changes(%Ecto.Changeset{data: %schema{}, changes: changes}) do
+    changes
+    |> schema.__struct__()
+    |> serialize()
+    |> Map.take(Map.keys(changes))
   end
 
   def add_prefix(changeset, nil), do: changeset

@@ -9,11 +9,17 @@ defmodule PaperTrailTest do
   alias PaperTrail.Serializer
 
   @repo PaperTrail.RepoClient.repo()
-  @create_company_params %{name: "Acme LLC", is_active: true, city: "Greenwich"}
+  @create_company_params %{
+    name: "Acme LLC",
+    is_active: true,
+    city: "Greenwich",
+    location: %{country: "Brazil"}
+  }
   @update_company_params %{
     city: "Hong Kong",
     website: "http://www.acme.com",
-    facebook: "acme.llc"
+    facebook: "acme.llc",
+    location: %{country: "Chile"}
   }
 
   defdelegate serialize(data), to: Serializer
@@ -64,7 +70,8 @@ defmodule PaperTrailTest do
              address: nil,
              facebook: nil,
              twitter: nil,
-             founded_in: nil
+             founded_in: nil,
+             location: %{country: "Brazil"}
            }
 
     assert Map.drop(version, [:id, :inserted_at]) == %{
@@ -134,7 +141,8 @@ defmodule PaperTrailTest do
              address: nil,
              facebook: "acme.llc",
              twitter: nil,
-             founded_in: nil
+             founded_in: nil,
+             location: %{country: "Chile"}
            }
 
     assert Map.drop(version, [:id, :inserted_at]) == %{
@@ -144,7 +152,8 @@ defmodule PaperTrailTest do
              item_changes: %{
                city: "Hong Kong",
                website: "http://www.acme.com",
-               facebook: "acme.llc"
+               facebook: "acme.llc",
+               location: %{country: "Chile"}
              },
              originator_id: user.id,
              origin: nil,
@@ -183,7 +192,8 @@ defmodule PaperTrailTest do
              address: nil,
              facebook: "acme.llc",
              twitter: nil,
-             founded_in: nil
+             founded_in: nil,
+             location: %{country: "Chile"}
            }
 
     assert Map.drop(version, [:id, :inserted_at]) == %{
@@ -193,7 +203,8 @@ defmodule PaperTrailTest do
              item_changes: %{
                city: "Hong Kong",
                website: "http://www.acme.com",
-               facebook: "acme.llc"
+               facebook: "acme.llc",
+               location: %{country: "Chile"}
              },
              originator_id: user.id,
              origin: nil,
@@ -252,7 +263,8 @@ defmodule PaperTrailTest do
              address: nil,
              facebook: "acme.llc",
              twitter: nil,
-             founded_in: nil
+             founded_in: nil,
+             location: %{country: "Chile"}
            }
 
     assert Map.drop(version, [:id, :inserted_at]) == %{
@@ -270,7 +282,8 @@ defmodule PaperTrailTest do
                address: nil,
                facebook: "acme.llc",
                twitter: nil,
-               founded_in: nil
+               founded_in: nil,
+               location: %{country: "Chile"}
              },
              originator_id: user.id,
              origin: nil,
@@ -307,7 +320,8 @@ defmodule PaperTrailTest do
              address: nil,
              facebook: "acme.llc",
              twitter: nil,
-             founded_in: nil
+             founded_in: nil,
+             location: %{country: "Chile"}
            }
 
     assert Map.drop(version, [:id, :inserted_at]) == %{
@@ -325,7 +339,8 @@ defmodule PaperTrailTest do
                address: nil,
                facebook: "acme.llc",
                twitter: nil,
-               founded_in: nil
+               founded_in: nil,
+               location: %{country: "Chile"}
              },
              originator_id: user.id,
              origin: nil,
