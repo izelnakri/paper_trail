@@ -13,6 +13,22 @@ defmodule PaperTrail do
   defdelegate get_current_model(version), to: PaperTrail.VersionQueries
 
   @doc """
+  Intialise paper_trail for existing record
+  """
+  def initialise(model, options \\ [origin: nil, meta: nil, originator: nil, prefix: nil, version_key: :version]) do
+    case get_version(model) do
+      nil ->
+        repo = RepoClient.repo()
+
+        make_version_struct(%{event: "insert"}, model, options)
+        |> repo.insert!()
+
+      _ ->
+        :error
+    end
+  end
+
+  @doc """
   Inserts a record to the database with a related version insertion in one transaction
   """
   def insert(changeset, options \\ [origin: nil, meta: nil, originator: nil, prefix: nil, model_key: :model, version_key: :version]) do
