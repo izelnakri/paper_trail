@@ -23,8 +23,10 @@ defmodule PaperTrail do
         make_version_struct(%{event: "insert"}, model, options)
         |> repo.insert!()
 
+        true
+
       _ ->
-        :error
+        false
     end
   end
 
