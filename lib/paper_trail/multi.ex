@@ -110,11 +110,14 @@ defmodule PaperTrail.Multi do
   def delete(
         %Ecto.Multi{} = multi,
         struct,
-        options \\ [origin: nil, meta: nil, originator: nil, prefix: nil]
+        options \\ [origin: nil, meta: nil, originator: nil, prefix: nil, model_key: :model, version_key: :version]
       ) do
+    model_key = options[:model_key] || :model
+    version_key = options[:version_key] || :version
+
     multi
-    |> Ecto.Multi.delete(:model, struct, options)
-    |> Ecto.Multi.run(:version, fn repo, %{} ->
+    |> Ecto.Multi.delete(model_key, struct, options)
+    |> Ecto.Multi.run(version_key, fn repo, %{} ->
       version = make_version_struct(%{event: "delete"}, struct, options)
       repo.insert(version, options)
     end)
