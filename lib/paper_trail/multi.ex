@@ -85,7 +85,7 @@ defmodule PaperTrail.Multi do
         end)
         |> Ecto.Multi.run(:model, fn repo, %{initial_version: initial_version} ->
           updated_changeset = changeset |> change(%{current_version_id: initial_version.id})
-          repo.update(updated_changeset)
+          repo.update(updated_changeset, Keyword.take(options, [:returning]))
         end)
         |> Ecto.Multi.run(:version, fn repo, %{initial_version: initial_version} ->
           new_item_changes =
@@ -99,7 +99,7 @@ defmodule PaperTrail.Multi do
 
       _ ->
         multi
-        |> Ecto.Multi.update(:model, changeset)
+        |> Ecto.Multi.update(:model, changeset, Keyword.take(options, [:returning]))
         |> Ecto.Multi.run(:version, fn repo, %{model: _model} ->
           version = make_version_struct(%{event: "update"}, changeset, options)
           repo.insert(version)
