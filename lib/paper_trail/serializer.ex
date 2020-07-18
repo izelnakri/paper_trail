@@ -1,8 +1,19 @@
 defmodule PaperTrail.Serializer do
+  @moduledoc """
+  Serialization functions to create a version struct
+  """
 
   alias PaperTrail.RepoClient
   alias PaperTrail.Version
 
+  @type model :: struct() | Ecto.Changeset.t()
+  @type options :: Keyword.t()
+  @type primary_key :: integer() | String.t()
+
+  @doc """
+  Creates a version struct for a model and a specific changeset action
+  """
+  @spec make_version_struct(map(), model(), options()) :: Version.t()
   def make_version_struct(%{event: "insert"}, model, options) do
     originator = RepoClient.originator()
     originator_ref = options[originator[:name]] || options[:originator]
@@ -63,26 +74,38 @@ defmodule PaperTrail.Serializer do
     |> add_prefix(options[:prefix])
   end
 
-  def get_sequence_from_model(changeset) do
-    table_name =
-      case Map.get(changeset, :data) do
-        nil -> changeset.__struct__.__schema__(:source)
-        _ -> changeset.data.__struct__.__schema__(:source)
-      end
-
-    get_sequence_id(table_name)
+  @doc """
+  Returns the last primary key value of a table
+  """
+  @spec get_sequence_id(model() | String.t()) :: primary_key()
+  def get_sequence_id(%Ecto.Changeset{data: data}) do
+    get_sequence_id(data)
   end
 
-  def get_sequence_id(table_name) do
+  def get_sequence_id(%schema{}) do
+    :source
+    |> schema.__schema__()
+    |> get_sequence_id()
+  end
+
+  def get_sequence_id(table_name) when is_binary(table_name) do
     Ecto.Adapters.SQL.query!(RepoClient.repo(), "select last_value FROM #{table_name}_id_seq").rows
     |> List.first()
     |> List.first()
   end
 
+  @doc """
+  Dumps the whole struct using Ecto fields
+  """
+  @spec serialize(nil | Ecto.Changeset.t() | struct()) :: nil | map()
   def serialize(nil), do: nil
   def serialize(%Ecto.Changeset{data: data}), do: serialize(data)
   def serialize(%_schema{} = model), do: Ecto.embedded_dump(model, :json)
 
+  @doc """
+  Dumps changes using Ecto fields
+  """
+  @spec serialize_changes(Ecto.Changeset.t()) :: map()
   def serialize_changes(%Ecto.Changeset{data: %schema{}, changes: changes}) do
     changes
     |> schema.__struct__()
@@ -90,12 +113,24 @@ defmodule PaperTrail.Serializer do
     |> Map.take(Map.keys(changes))
   end
 
-  def add_prefix(changeset, nil), do: changeset
-  def add_prefix(changeset, prefix), do: Ecto.put_meta(changeset, prefix: prefix)
+  @doc """
+  Adds a prefix to the Ecto schema
+  """
+  @spec add_prefix(Ecto.Schema.schema(), nil | String.t()) :: Ecto.Schema.schema()
+  def add_prefix(schema, nil), do: schema
+  def add_prefix(schema, prefix), do: Ecto.put_meta(schema, prefix: prefix)
 
+  @doc """
+  Returns the model type, which is the last module name
+  """
+  @spec get_item_type(model()) :: String.t()
   def get_item_type(%Ecto.Changeset{data: data}), do: get_item_type(data)
   def get_item_type(%schema{}), do: schema |> Module.split() |> List.last()
 
+  @doc """
+  Returns the model primary id
+  """
+  @spec get_model_id(model()) :: primary_key()
   def get_model_id(%Ecto.Changeset{data: data}), do: get_model_id(data)
 
   def get_model_id(model) do
