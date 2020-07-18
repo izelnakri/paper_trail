@@ -16,10 +16,9 @@ defmodule PaperTrail.Multi do
   defdelegate run(multi, name, mod, fun, args), to: Ecto.Multi
   defdelegate to_list(multi), to: Ecto.Multi
   defdelegate make_version_struct(version, model, options), to: Serializer
-  defdelegate get_sequence_from_model(changeset), to: Serializer
   defdelegate serialize(data), to: Serializer
   defdelegate get_sequence_id(table_name), to: Serializer
-  defdelegate add_prefix(changeset, prefix), to: Serializer
+  defdelegate add_prefix(schema, prefix), to: Serializer
   defdelegate get_item_type(data), to: Serializer
   defdelegate get_model_id(model), to: Serializer
 
@@ -39,7 +38,7 @@ defmodule PaperTrail.Multi do
           changeset_data =
             Map.get(changeset, :data, changeset)
             |> Map.merge(%{
-              id: get_sequence_from_model(changeset) + 1,
+              id: get_sequence_id(changeset) + 1,
               first_version_id: version_id,
               current_version_id: version_id
             })
