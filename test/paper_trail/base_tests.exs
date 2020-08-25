@@ -136,6 +136,19 @@ defmodule PaperTrailTest do
     assert company == first(Company, :id) |> @repo.one |> serialize
   end
 
+  test "updating a company with current params does not create a version" do
+    {:ok, insert_result} = create_company_with_version()
+
+    {:ok, update_result} =
+      update_company_with_version(
+        insert_result[:model],
+        @create_company_params,
+        []
+      )
+
+    assert PaperTrail.get_version(insert_result[:model]) == insert_result[:version]
+  end
+
   test "updating a company with originator[user] creates a correct company version" do
     user = create_user()
     {:ok, insert_result} = create_company_with_version()
