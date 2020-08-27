@@ -15,7 +15,7 @@ defmodule PaperTrail do
   @doc """
   Inserts a record to the database with a related version insertion in one transaction
   """
-  def insert(changeset, options \\ [origin: nil, meta: nil, originator: nil, prefix: nil, model_key: :model, version_key: :version]) do
+  def insert(changeset, options \\ [origin: nil, meta: nil, originator: nil, prefix: nil, model_key: :model, version_key: :version, ecto_options: []]) do
     PaperTrail.Multi.new()
     |> PaperTrail.Multi.insert(changeset, options)
     |> PaperTrail.Multi.commit()
@@ -24,8 +24,9 @@ defmodule PaperTrail do
   @doc """
   Same as insert/2 but returns only the model struct or raises if the changeset is invalid.
   """
-  def insert!(changeset, options \\ [origin: nil, meta: nil, originator: nil, prefix: nil, model_key: :model, version_key: :version]) do
+  def insert!(changeset, options \\ [origin: nil, meta: nil, originator: nil, prefix: nil, model_key: :model, version_key: :version, ecto_options: []]) do
     repo = RepoClient.repo()
+    ecto_options = options[:ecto_options] || []
 
     repo.transaction(fn ->
       case RepoClient.strict_mode() do
@@ -51,13 +52,13 @@ defmodule PaperTrail do
               current_version_id: initial_version.id
             })
 
-          model = repo.insert!(updated_changeset)
+          model = repo.insert!(updated_changeset, ecto_options)
           target_version = make_version_struct(%{event: "insert"}, model, options) |> serialize()
           Version.changeset(initial_version, target_version) |> repo.update!
           model
 
         _ ->
-          model = repo.insert!(changeset)
+          model = repo.insert!(changeset, ecto_options)
           make_version_struct(%{event: "insert"}, model, options) |> repo.insert!
           model
       end
