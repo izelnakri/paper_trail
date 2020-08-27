@@ -543,11 +543,11 @@ defmodule PaperTrailTest do
     User.changeset(%User{}, %{token: "fake-token", username: "izelnakri"}) |> @repo.insert!
   end
 
-  defp create_company_with_version(params \\ @create_company_params, options \\ nil) do
+  defp create_company_with_version(params \\ @create_company_params, options \\ []) do
     Company.changeset(%Company{}, params) |> PaperTrail.insert(options)
   end
 
-  defp update_company_with_version(company, params \\ @update_company_params, options \\ nil) do
+  defp update_company_with_version(company, params \\ @update_company_params, options \\ []) do
     Company.changeset(company, params) |> PaperTrail.update(options)
   end
 
