@@ -79,6 +79,21 @@ defmodule PaperTrailTest.SimpleModeBangFunctions do
     end)
   end
 
+  test "PaperTrail.insert!/2 passes ecto options through (e.g. upsert options)" do
+    user = create_user()
+    _result = create_company_with_version(@create_company_params, [originator: user])
+
+    new_create_company_params = @create_company_params |> Map.replace!(:city, "Barcelona")
+
+    ecto_options =  [on_conflict: {:replace_all_except, ~w{name}a}, conflict_target: :name]
+    result = create_company_with_version(new_create_company_params, [originator: user, ecto_options: ecto_options])
+
+    assert Company.count() == 1
+    assert Version.count() == 2
+
+    assert Map.take(serialize(result), [:name, :city]) == %{name: "Acme LLC", city: "Barcelona"}
+  end
+
   test "updating a company with originator creates a correct company version" do
     user = create_user()
     inserted_company = create_company_with_version()
