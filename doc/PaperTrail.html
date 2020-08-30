@@ -5,8 +5,8 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.21.3">
-    <meta name="project" content="paper_trail v0.8.7">
-    <title>PaperTrail — paper_trail v0.8.7</title>
+    <meta name="project" content="paper_trail v0.8.8">
+    <title>PaperTrail — paper_trail v0.8.8</title>
     <link rel="stylesheet" href="dist/elixir-0ab8a6a80ebaaa287431.css" />
       <link rel="canonical" href="https://hexdocs.pm/paper_trail/PaperTrail.html" />
     <script src="dist/sidebar_items-dcc8f77f52.js"></script>
@@ -44,7 +44,7 @@
       <a href="api-reference.html" class="sidebar-projectName">
 paper_trail      </a>
       <h2 class="sidebar-projectVersion">
-        v0.8.7
+        v0.8.8
       </h2>
     </div>
   </div>
@@ -65,7 +65,7 @@ paper_trail      </a>
     <div id="content" class="content-inner">
 
       <h1>
-        <small class="app-vsn">paper_trail v0.8.7</small>
+        <small class="app-vsn">paper_trail v0.8.8</small>
 PaperTrail      </h1>
 
 
@@ -143,13 +143,13 @@ PaperTrail      </h1>
 </div>
 <div class="summary-row">
   <div class="summary-signature">
-    <a href="#insert/2">insert(changeset, options \\ [origin: nil, meta: nil, originator: nil, prefix: nil, model_key: :model, version_key: :version])</a>
+    <a href="#insert/2">insert(changeset, options \\ [origin: nil, meta: nil, originator: nil, prefix: nil, model_key: :model, version_key: :version, ecto_options: []])</a>
   </div>
     <div class="summary-synopsis"><p>Inserts a record to the database with a related version insertion in one transaction</p></div>
 </div>
 <div class="summary-row">
   <div class="summary-signature">
-    <a href="#insert!/2">insert!(changeset, options \\ [origin: nil, meta: nil, originator: nil, prefix: nil, model_key: :model, version_key: :version])</a>
+    <a href="#insert!/2">insert!(changeset, options \\ [origin: nil, meta: nil, originator: nil, prefix: nil, model_key: :model, version_key: :version, ecto_options: []])</a>
   </div>
     <div class="summary-synopsis"><p>Same as insert/2 but returns only the model struct or raises if the changeset is invalid.</p></div>
 </div>
@@ -304,7 +304,7 @@ Functions          </h1>
       <span class="icon-link" aria-hidden="true"></span>
       <span class="sr-only">Link to this function</span>
     </a>
-    <h1 class="signature">insert(changeset, options \\ [origin: nil, meta: nil, originator: nil, prefix: nil, model_key: :model, version_key: :version])</h1>
+    <h1 class="signature">insert(changeset, options \\ [origin: nil, meta: nil, originator: nil, prefix: nil, model_key: :model, version_key: :version, ecto_options: []])</h1>
   </div>
   <section class="docstring">
 <p>Inserts a record to the database with a related version insertion in one transaction</p>
@@ -317,7 +317,7 @@ Functions          </h1>
       <span class="icon-link" aria-hidden="true"></span>
       <span class="sr-only">Link to this function</span>
     </a>
-    <h1 class="signature">insert!(changeset, options \\ [origin: nil, meta: nil, originator: nil, prefix: nil, model_key: :model, version_key: :version])</h1>
+    <h1 class="signature">insert!(changeset, options \\ [origin: nil, meta: nil, originator: nil, prefix: nil, model_key: :model, version_key: :version, ecto_options: []])</h1>
   </div>
   <section class="docstring">
 <p>Same as insert/2 but returns only the model struct or raises if the changeset is invalid.</p>

@@ -450,6 +450,7 @@ mix test --trace
 # Credits
 Many thanks to:
 - [Jose Pablo Castro](https://github.com/josepablocastro) - Built the repo configuration for paper_trail
+- [Harold Tafur](https://github.com/hdtafur) - Built the `:ecto_options` option for PaperTrail inserts
 - [Florian Gerhardt](https://github.com/FlorianGerhardt) - Fixed rare compile errors for PaperTrail repos
 - [Alex Antonov](https://github.com/asiniy) - Original inventor of the originator feature
 - [Moritz Schmale](https://github.com/narrowtux) - UUID primary keys feature
