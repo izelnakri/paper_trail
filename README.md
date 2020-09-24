@@ -434,6 +434,18 @@ id = 1
 PaperTrail.get_versions(User, id, [prefix: tenant])
 ```
 
+## Version timestamps
+
+PaperTrail can be configured to use `utc_datetime` or `utc_datetime_usec` for Version timestamps.
+
+```elixir
+# in your config/config.exs
+
+config :paper_trail, timestamps_type: :utc_datetime
+```
+
+Note: You will need to recompile your deps after you have added the config for timestamps.
+
 ## Suggestions
 - PaperTrail.Version(s) order matter,
 - don't delete your paper_trail versions, instead you can merge them
