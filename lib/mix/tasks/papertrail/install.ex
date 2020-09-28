@@ -27,7 +27,7 @@ defmodule Mix.Tasks.Papertrail.Install do
           add :origin,       :string, size: 50
           add :meta,         :map
           
-          # Configure timestamps time in :paper_trail :timestamps_type
+          # Configure timestamps type in config.ex :paper_trail :timestamps_type
           add :inserted_at,  :#{timestamps_type}, null: false
         end
 
