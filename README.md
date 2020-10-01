@@ -104,7 +104,7 @@ The library source code is minimal and well tested. It is suggested to read the 
 
   ```elixir
     def deps do
-      [{:paper_trail, "~> 0.8.7"}]
+      [{:paper_trail, "~> 0.9.0"}]
     end
   ```
 
@@ -475,6 +475,8 @@ Many thanks to:
 - [rustamtolipov](https://github.com/rustamtolipov) - Added support for Ecto v3
 - [gabrielpra1](https://github.com/gabrielpra1) - Added enhanced support for Ecto.Changeset
 - [Darren Thompson](https://github.com/DiscoStarslayer) - Added PaperTrail.Multi which makes paper trail transactions more usable
+- [Harold Tafur](https://github.com/hdtafur) - Made PaperTrail.insert accept :ecto_options params(ie. upsert options)
+- [Attila Szabo](https://github.com/szaboat) - Made %Version[:inserted_at] accept different ecto datetime options
 - [Izel Nakri](https://github.com/izelnakri) - The Originator of this library. See what I did there ;)
 
 Additional thanks to:
