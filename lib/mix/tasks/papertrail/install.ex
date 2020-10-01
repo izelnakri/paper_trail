@@ -9,6 +9,8 @@ defmodule Mix.Tasks.Papertrail.Install do
   def run(_args) do
     path = Path.relative_to("priv/repo/migrations", Mix.Project.app_path())
     file = Path.join(path, "#{timestamp()}_#{underscore(AddVersions)}.exs")
+    timestamps_type = Application.get_env(:paper_trail, :timestamps_type, :utc_datetime)
+
     create_directory(path)
 
     create_file(file, """
@@ -24,8 +26,9 @@ defmodule Mix.Tasks.Papertrail.Install do
           add :originator_id, references(:users) # you can change :users to your own foreign key constraint
           add :origin,       :string, size: 50
           add :meta,         :map
-
-          add :inserted_at,  :utc_datetime, null: false
+          
+          # Configure timestamps type in config.ex :paper_trail :timestamps_type
+          add :inserted_at,  :#{timestamps_type}, null: false
         end
 
         create index(:versions, [:originator_id])

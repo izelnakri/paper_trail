@@ -31,7 +31,10 @@ defmodule PaperTrail.Version do
       )
     end
 
-    timestamps(updated_at: false)
+    timestamps(
+      updated_at: false,
+      type: Application.get_env(:paper_trail, :timestamps_type, :utc_datetime)
+    )
   end
 
   def changeset(model, params \\ :empty) do
