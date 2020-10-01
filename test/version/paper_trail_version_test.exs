@@ -10,7 +10,7 @@ defmodule PaperTrailTest.Version do
     item_id: 1,
     item_changes: %{first_name: "Izel", last_name: "Nakri"},
     origin: "test",
-    inserted_at: ~N[1952-04-01 01:00:00]
+    inserted_at: DateTime.from_naive!(~N[1952-04-01 01:00:00], "Etc/UTC")
   }
   @invalid_attrs %{}
 
@@ -133,7 +133,7 @@ defmodule PaperTrailTest.Version do
              item_id: 3,
              item_changes: %{first_name: "Yukihiro", last_name: "Matsumoto"},
              origin: "test",
-             inserted_at: ~N[1965-04-14 01:00:00]
+             inserted_at: DateTime.from_naive!(~N[1965-04-14 01:00:00], "Etc/UTC")
            }
 
     assert Version.last() == nil
@@ -150,7 +150,7 @@ defmodule PaperTrailTest.Version do
           item_id: 2,
           item_changes: %{first_name: "Brendan", last_name: "Eich"},
           origin: "test",
-          inserted_at: ~N[1961-07-04 01:00:00]
+          inserted_at: DateTime.from_naive!(~N[1961-07-04 01:00:00], "Etc/UTC")
         },
         %{
           event: "insert",
@@ -158,7 +158,7 @@ defmodule PaperTrailTest.Version do
           item_id: 3,
           item_changes: %{first_name: "Yukihiro", last_name: "Matsumoto"},
           origin: "test",
-          inserted_at: ~N[1965-04-14 01:00:00]
+          inserted_at: DateTime.from_naive!(~N[1965-04-14 01:00:00], "Etc/UTC")
         }
       ],
       returning: true,
