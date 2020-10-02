@@ -95,7 +95,7 @@ defmodule PaperTrail.Serializer do
   end
 
   @doc """
-  Dumps the whole struct using Ecto fields
+  Shows DB representation of an Ecto model, filters relationships and virtual attributes from an Ecto.Changeset or %ModelStruct{}
   """
   @spec serialize(nil | Ecto.Changeset.t() | struct()) :: nil | map()
   def serialize(nil), do: nil
