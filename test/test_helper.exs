@@ -16,4 +16,4 @@ Code.require_file("test/support/uuid_with_custom_name_models.exs")
 
 ExUnit.configure(seed: 0)
 
-ExUnit.start()
+ExUnit.start(capture_log: true)
