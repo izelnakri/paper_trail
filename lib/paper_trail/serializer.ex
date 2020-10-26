@@ -26,7 +26,8 @@ defmodule PaperTrail.Serializer do
       originator_id:
         case originator_ref do
           nil -> nil
-          _ -> originator_ref |> Map.get(:id)
+          %{id: id} -> id
+          model when is_struct(model) -> get_model_id(originator_ref)
         end,
       origin: options[:origin],
       meta: options[:meta]
@@ -46,7 +47,8 @@ defmodule PaperTrail.Serializer do
       originator_id:
         case originator_ref do
           nil -> nil
-          _ -> originator_ref |> Map.get(:id)
+          %{id: id} -> id
+          model when is_struct(model) -> get_model_id(originator_ref)
         end,
       origin: options[:origin],
       meta: options[:meta]
@@ -66,7 +68,8 @@ defmodule PaperTrail.Serializer do
       originator_id:
         case originator_ref do
           nil -> nil
-          _ -> originator_ref |> Map.get(:id)
+          %{id: id} -> id
+          model when is_struct(model) -> get_model_id(originator_ref)
         end,
       origin: options[:origin],
       meta: options[:meta]

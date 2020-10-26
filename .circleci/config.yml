@@ -27,6 +27,7 @@ jobs:
       - run: docker-compose run paper_trail mix test test/paper_trail
       - run: docker-compose run paper_trail mix test test/version
       - run: docker-compose run paper_trail mix test test/uuid
+      - run: docker-compose run paper_trail mix test test/uuid_with_custom_name
 
 workflows:
   version: 2
