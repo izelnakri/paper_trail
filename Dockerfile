@@ -1,4 +1,4 @@
-FROM "elixir:1.10.1-alpine"
+FROM "elixir:1.11.2-alpine"
 
 ARG MIX_ENV=dev
 ENV MIX_ENV=$MIX_ENV

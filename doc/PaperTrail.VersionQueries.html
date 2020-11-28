@@ -5,9 +5,9 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.23.0">
-    <meta name="project" content="paper_trail v0.10.0">
+    <meta name="project" content="paper_trail v0.10.1">
 
-    <title>PaperTrail.VersionQueries — paper_trail v0.10.0</title>
+    <title>PaperTrail.VersionQueries — paper_trail v0.10.1</title>
     <link rel="stylesheet" href="dist/elixir-9f91ebe876dc01d67920.css" />
 
       <link rel="canonical" href="https://hexdocs.pm/paper_trail/PaperTrail.VersionQueries.html" />
@@ -52,7 +52,7 @@
 paper_trail
       </a>
       <strong class="sidebar-projectVersion">
-        v0.10.0
+        v0.10.1
       </strong>
     </div>
 
@@ -76,7 +76,7 @@ paper_trail
     <div id="content" class="content-inner">
 
       <h1>
-PaperTrail.VersionQueries <small class="app-vsn">(paper_trail v0.10.0)</small>
+PaperTrail.VersionQueries <small class="app-vsn">(paper_trail v0.10.1)</small>
 
       </h1>
 
@@ -119,16 +119,12 @@ PaperTrail.VersionQueries <small class="app-vsn">(paper_trail v0.10.0)</small>
 
   </div>
 
-    <div class="summary-synopsis"><p>Gets the last version of a record.</p></div>
-
 </div>
 <div class="summary-row">
   <div class="summary-signature">
     <a href="#get_version/3">get_version(model, id, options)</a>
 
   </div>
-
-    <div class="summary-synopsis"><p>Gets the last version of a record given its module reference and its id.</p></div>
 
 </div>
 <div class="summary-row">
@@ -146,7 +142,7 @@ PaperTrail.VersionQueries <small class="app-vsn">(paper_trail v0.10.0)</small>
 
   </div>
 
-    <div class="summary-synopsis"><p>Gets all the versions of a record.</p></div>
+    <div class="summary-synopsis"><p>Gets all the versions of a record given a module and its id</p></div>
 
 </div>
 <div class="summary-row">
@@ -154,8 +150,6 @@ PaperTrail.VersionQueries <small class="app-vsn">(paper_trail v0.10.0)</small>
     <a href="#get_versions/3">get_versions(model, id, options)</a>
 
   </div>
-
-    <div class="summary-synopsis"><p>Gets all the versions of a record given a module and its id.</p></div>
 
 </div>
 
@@ -207,11 +201,15 @@ Functions
       <h2>Specs</h2>
       <div class="specs">
 
-          <pre>get_version(record :: <a href="https://hexdocs.pm/ecto/Ecto.Schema.html#t:t/0">Ecto.Schema.t</a>()) :: <a href="https://hexdocs.pm/ecto/Ecto.Query.html#t:t/0">Ecto.Query.t</a>()</pre>
+          <pre>get_version(record :: <a href="https://hexdocs.pm/ecto/3.5.5/Ecto.Schema.html#t:t/0">Ecto.Schema.t</a>()) :: <a href="https://hexdocs.pm/ecto/3.5.5/Ecto.Query.html#t:t/0">Ecto.Query.t</a>()</pre>
 
       </div>
 
-<p>Gets the last version of a record.</p>
+<p>Gets the last version of a record.</p><p>A list of options is optional, so you can set for example the :prefix of the query,
+wich allows you to change between different tenants.</p><h1>Usage examples:</h1><p>  iex(1)&gt; PaperTrail.VersionQueries.get_version(record, id)
+  iex(1)&gt; PaperTrail.VersionQueries.get_version(record, [prefix: &quot;tenant_id&quot;])
+  iex(1)&gt; PaperTrail.VersionQueries.get_version(ModelName, id)
+  iex(1)&gt; PaperTrail.VersionQueries.get_version(ModelName, id, [prefix: &quot;tenant_id&quot;])</p>
   </section>
 </section>
 <section class="detail" id="get_version/2">
@@ -231,14 +229,13 @@ Functions
       <h2>Specs</h2>
       <div class="specs">
 
-          <pre>get_version(model :: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">module</a>(), id :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">pos_integer</a>()) :: <a href="https://hexdocs.pm/ecto/Ecto.Query.html#t:t/0">Ecto.Query.t</a>()</pre>
+          <pre>get_version(model :: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">module</a>(), id :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">pos_integer</a>()) :: <a href="https://hexdocs.pm/ecto/3.5.5/Ecto.Query.html#t:t/0">Ecto.Query.t</a>()</pre>
 
-          <pre>get_version(record :: <a href="https://hexdocs.pm/ecto/Ecto.Schema.html#t:t/0">Ecto.Schema.t</a>(), options :: []) :: <a href="https://hexdocs.pm/ecto/Ecto.Query.html#t:t/0">Ecto.Query.t</a>()</pre>
+          <pre>get_version(record :: <a href="https://hexdocs.pm/ecto/3.5.5/Ecto.Schema.html#t:t/0">Ecto.Schema.t</a>(), options :: []) :: <a href="https://hexdocs.pm/ecto/3.5.5/Ecto.Query.html#t:t/0">Ecto.Query.t</a>()</pre>
 
       </div>
 
-<p>Gets the last version of a record.</p><p>A list of options is optional, so you can set for example the :prefix of the query,
-wich allows you to change between different tenants.</p><h1>Usage example:</h1><p>  iex(1)&gt; PaperTrail.VersionQueries.get_version(record, [prefix: &quot;tenant_id&quot;])</p>
+
   </section>
 </section>
 <section class="detail" id="get_version/3">
@@ -259,12 +256,11 @@ wich allows you to change between different tenants.</p><h1>Usage example:</h1><
       <div class="specs">
 
           <pre>get_version(model :: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">module</a>(), id :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">pos_integer</a>(), options :: []) ::
-  <a href="https://hexdocs.pm/ecto/Ecto.Query.html#t:t/0">Ecto.Query.t</a>()</pre>
+  <a href="https://hexdocs.pm/ecto/3.5.5/Ecto.Query.html#t:t/0">Ecto.Query.t</a>()</pre>
 
       </div>
 
-<p>Gets the last version of a record given its module reference and its id.</p><p>A list of options is optional, so you can set for example the :prefix of the query,
-wich allows you to change between different tenants.</p><h1>Usage example:</h1><p>  iex(1)&gt; PaperTrail.VersionQueries.get_version(ModelName, id, [prefix: &quot;tenant_id&quot;])</p>
+
   </section>
 </section>
 <section class="detail" id="get_versions/1">
@@ -284,11 +280,15 @@ wich allows you to change between different tenants.</p><h1>Usage example:</h1><
       <h2>Specs</h2>
       <div class="specs">
 
-          <pre>get_versions(record :: <a href="https://hexdocs.pm/ecto/Ecto.Schema.html#t:t/0">Ecto.Schema.t</a>()) :: <a href="https://hexdocs.pm/ecto/Ecto.Query.html#t:t/0">Ecto.Query.t</a>()</pre>
+          <pre>get_versions(record :: <a href="https://hexdocs.pm/ecto/3.5.5/Ecto.Schema.html#t:t/0">Ecto.Schema.t</a>()) :: <a href="https://hexdocs.pm/ecto/3.5.5/Ecto.Query.html#t:t/0">Ecto.Query.t</a>()</pre>
 
       </div>
 
-<p>Gets all the versions of a record.</p>
+<p>Gets all the versions of a record.</p><p>A list of options is optional, so you can set for example the :prefix of the query,
+wich allows you to change between different tenants.</p><h1>Usage examples:</h1><p>  iex(1)&gt; PaperTrail.VersionQueries.get_versions(record)
+  iex(1)&gt; PaperTrail.VersionQueries.get_versions(record, [prefix: &quot;tenant_id&quot;])
+  iex(1)&gt; PaperTrail.VersionQueries.get_versions(ModelName, id)
+  iex(1)&gt; PaperTrail.VersionQueries.get_versions(ModelName, id, [prefix: &quot;tenant_id&quot;])</p>
   </section>
 </section>
 <section class="detail" id="get_versions/2">
@@ -308,14 +308,13 @@ wich allows you to change between different tenants.</p><h1>Usage example:</h1><
       <h2>Specs</h2>
       <div class="specs">
 
-          <pre>get_versions(model :: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">module</a>(), id :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">pos_integer</a>()) :: <a href="https://hexdocs.pm/ecto/Ecto.Query.html#t:t/0">Ecto.Query.t</a>()</pre>
+          <pre>get_versions(model :: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">module</a>(), id :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">pos_integer</a>()) :: <a href="https://hexdocs.pm/ecto/3.5.5/Ecto.Query.html#t:t/0">Ecto.Query.t</a>()</pre>
 
-          <pre>get_versions(record :: <a href="https://hexdocs.pm/ecto/Ecto.Schema.html#t:t/0">Ecto.Schema.t</a>(), options :: []) :: <a href="https://hexdocs.pm/ecto/Ecto.Query.html#t:t/0">Ecto.Query.t</a>()</pre>
+          <pre>get_versions(record :: <a href="https://hexdocs.pm/ecto/3.5.5/Ecto.Schema.html#t:t/0">Ecto.Schema.t</a>(), options :: []) :: <a href="https://hexdocs.pm/ecto/3.5.5/Ecto.Query.html#t:t/0">Ecto.Query.t</a>()</pre>
 
       </div>
 
-<p>Gets all the versions of a record.</p><p>A list of options is optional, so you can set for example the :prefix of the query,
-wich allows you to change between different tenants.</p><h1>Usage example:</h1><p>  iex(1)&gt; PaperTrail.VersionQueries.get_versions(record, [prefix: &quot;tenant_id&quot;])</p>
+<p>Gets all the versions of a record given a module and its id</p>
   </section>
 </section>
 <section class="detail" id="get_versions/3">
@@ -336,12 +335,11 @@ wich allows you to change between different tenants.</p><h1>Usage example:</h1><
       <div class="specs">
 
           <pre>get_versions(model :: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">module</a>(), id :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">pos_integer</a>(), options :: []) ::
-  <a href="https://hexdocs.pm/ecto/Ecto.Query.html#t:t/0">Ecto.Query.t</a>()</pre>
+  <a href="https://hexdocs.pm/ecto/3.5.5/Ecto.Query.html#t:t/0">Ecto.Query.t</a>()</pre>
 
       </div>
 
-<p>Gets all the versions of a record given a module and its id.</p><p>A list of options is optional, so you can set for example the :prefix of the query,
-wich allows you to change between different tenants.</p><h1>Usage example:</h1><p>  iex(1)&gt; PaperTrail.VersionQueries.get_versions(ModelName, id, [prefix: &quot;tenant_id&quot;])</p>
+
   </section>
 </section>
 

@@ -4,8 +4,8 @@ defmodule PaperTrail.Mixfile do
   def project do
     [
       app: :paper_trail,
-      version: "0.10.0",
-      elixir: "~> 1.10",
+      version: "0.10.1",
+      elixir: "~> 1.11",
       description: description(),
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
