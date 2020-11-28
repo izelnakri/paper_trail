@@ -6,14 +6,23 @@ defmodule PaperTrailTest do
   alias PaperTrail.Version
   alias SimpleCompany, as: Company
   alias SimplePerson, as: Person
+  alias PaperTrail.Serializer
 
   @repo PaperTrail.RepoClient.repo()
-  @create_company_params %{name: "Acme LLC", is_active: true, city: "Greenwich"}
+  @create_company_params %{
+    name: "Acme LLC",
+    is_active: true,
+    city: "Greenwich",
+    location: %{country: "Brazil"}
+  }
   @update_company_params %{
     city: "Hong Kong",
     website: "http://www.acme.com",
-    facebook: "acme.llc"
+    facebook: "acme.llc",
+    location: %{country: "Chile"}
   }
+
+  defdelegate serialize(data), to: Serializer
 
   doctest PaperTrail
 
@@ -61,7 +70,8 @@ defmodule PaperTrailTest do
              address: nil,
              facebook: nil,
              twitter: nil,
-             founded_in: nil
+             founded_in: nil,
+             location: %{country: "Brazil"}
            }
 
     assert Map.drop(version, [:id, :inserted_at]) == %{
@@ -131,7 +141,8 @@ defmodule PaperTrailTest do
              address: nil,
              facebook: "acme.llc",
              twitter: nil,
-             founded_in: nil
+             founded_in: nil,
+             location: %{country: "Chile"}
            }
 
     assert Map.drop(version, [:id, :inserted_at]) == %{
@@ -141,7 +152,8 @@ defmodule PaperTrailTest do
              item_changes: %{
                city: "Hong Kong",
                website: "http://www.acme.com",
-               facebook: "acme.llc"
+               facebook: "acme.llc",
+               location: %{country: "Chile"}
              },
              originator_id: user.id,
              origin: nil,
@@ -180,7 +192,8 @@ defmodule PaperTrailTest do
              address: nil,
              facebook: "acme.llc",
              twitter: nil,
-             founded_in: nil
+             founded_in: nil,
+             location: %{country: "Chile"}
            }
 
     assert Map.drop(version, [:id, :inserted_at]) == %{
@@ -190,7 +203,8 @@ defmodule PaperTrailTest do
              item_changes: %{
                city: "Hong Kong",
                website: "http://www.acme.com",
-               facebook: "acme.llc"
+               facebook: "acme.llc",
+               location: %{country: "Chile"}
              },
              originator_id: user.id,
              origin: nil,
@@ -249,7 +263,8 @@ defmodule PaperTrailTest do
              address: nil,
              facebook: "acme.llc",
              twitter: nil,
-             founded_in: nil
+             founded_in: nil,
+             location: %{country: "Chile"}
            }
 
     assert Map.drop(version, [:id, :inserted_at]) == %{
@@ -267,7 +282,8 @@ defmodule PaperTrailTest do
                address: nil,
                facebook: "acme.llc",
                twitter: nil,
-               founded_in: nil
+               founded_in: nil,
+               location: %{country: "Chile"}
              },
              originator_id: user.id,
              origin: nil,
@@ -280,7 +296,7 @@ defmodule PaperTrailTest do
   test "delete works with a changeset" do
     user = create_user()
     {:ok, insert_result} = create_company_with_version()
-    {:ok, update_result} = update_company_with_version(insert_result[:model])
+    {:ok, _update_result} = update_company_with_version(insert_result[:model])
     company_before_deletion = first(Company, :id) |> @repo.one
 
     changeset = Company.changeset(company_before_deletion, %{})
@@ -304,7 +320,8 @@ defmodule PaperTrailTest do
              address: nil,
              facebook: "acme.llc",
              twitter: nil,
-             founded_in: nil
+             founded_in: nil,
+             location: %{country: "Chile"}
            }
 
     assert Map.drop(version, [:id, :inserted_at]) == %{
@@ -322,7 +339,8 @@ defmodule PaperTrailTest do
                address: nil,
                facebook: "acme.llc",
                twitter: nil,
-               founded_in: nil
+               founded_in: nil,
+               location: %{country: "Chile"}
              },
              originator_id: user.id,
              origin: nil,
@@ -551,10 +569,5 @@ defmodule PaperTrailTest do
 
   defp update_company_with_version(company, params \\ @update_company_params, options \\ []) do
     Company.changeset(company, params) |> PaperTrail.update(options)
-  end
-
-  defp serialize(model) do
-    relationships = model.__struct__.__schema__(:associations)
-    Map.drop(model, [:__struct__, :__meta__] ++ relationships)
   end
 end

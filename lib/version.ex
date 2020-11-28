@@ -4,6 +4,8 @@ defmodule PaperTrail.Version do
   import Ecto.Changeset
   import Ecto.Query
 
+  @type t :: %__MODULE__{}
+
   # @setter PaperTrail.RepoClient.originator()
   # @item_type Application.get_env(:paper_trail, :item_type, :integer)
   # @originator_type Application.get_env(:paper_trail, :originator_type, :integer)

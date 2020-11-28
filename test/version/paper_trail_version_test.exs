@@ -3,6 +3,8 @@ defmodule PaperTrailTest.Version do
 
   alias PaperTrail.Version
   alias PaperTrailTest.MultiTenantHelper, as: MultiTenant
+  alias PaperTrail.RepoClient
+  alias PaperTrail.Serializer
 
   @valid_attrs %{
     event: "insert",
@@ -13,6 +15,9 @@ defmodule PaperTrailTest.Version do
     inserted_at: DateTime.from_naive!(~N[1952-04-01 01:00:00], "Etc/UTC")
   }
   @invalid_attrs %{}
+
+  defdelegate repo, to: RepoClient
+  defdelegate serialize(data), to: Serializer
 
   setup_all do
     Application.put_env(:paper_trail, :strict_mode, false)
@@ -165,16 +170,5 @@ defmodule PaperTrailTest.Version do
       prefix: prefix
     )
     |> elem(1)
-  end
-
-  def serialize(nil), do: nil
-
-  def serialize(resource) do
-    relationships = resource.__struct__.__schema__(:associations)
-    Map.drop(resource, [:__meta__, :__struct__] ++ relationships)
-  end
-
-  defp repo() do
-    PaperTrail.RepoClient.repo()
   end
 end

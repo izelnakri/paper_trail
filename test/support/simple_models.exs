@@ -1,3 +1,32 @@
+
+defmodule LocationType do
+  use Ecto.Type
+
+  defstruct [:country]
+
+  @impl true
+  def type, do: :map
+
+  @impl true
+  def embed_as(_format), do: :dump
+
+  @impl true
+  def cast(%__MODULE__{} = location), do: {:ok, location}
+  def cast(%{} = data), do: {:ok, struct!(__MODULE__, data)}
+  def cast(_), do: :error
+
+  @impl true
+  def load(data) when is_map(data) do
+    data = Enum.map(data, fn {key, val} -> {String.to_existing_atom(key), val} end)
+
+    {:ok, struct!(__MODULE__, data)}
+  end
+
+  @impl true
+  def dump(%__MODULE__{} = location), do: {:ok, Map.from_struct(location)}
+  def dump(_), do: :error
+end
+
 defmodule SimpleCompany do
   use Ecto.Schema
 
@@ -15,13 +44,24 @@ defmodule SimpleCompany do
     field(:facebook, :string)
     field(:twitter, :string)
     field(:founded_in, :string)
+    field(:location, LocationType)
 
     has_many(:people, SimplePerson, foreign_key: :company_id)
 
     timestamps()
   end
 
-  @optional_fields ~w(name is_active website city address facebook twitter founded_in)a
+  @optional_fields ~w(
+    name
+    is_active
+    website
+    city
+    address
+    facebook
+    twitter
+    founded_in
+    location
+  )a
 
   def changeset(model, params \\ %{}) do
     model
@@ -61,7 +101,14 @@ defmodule SimplePerson do
     timestamps()
   end
 
-  @optional_fields ~w(first_name last_name visit_count gender birthdate company_id)a
+  @optional_fields ~w(
+    first_name
+    last_name
+    visit_count
+    gender
+    birthdate
+    company_id
+  )a
 
   def changeset(model, params \\ %{}) do
     model
