@@ -4,17 +4,24 @@
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="ExDoc v0.22.6">
-    <meta name="project" content="paper_trail v0.9.0">
-    <title>PaperTrail.VersionQueries — paper_trail v0.9.0</title>
+    <meta name="generator" content="ExDoc v0.23.0">
+    <meta name="project" content="paper_trail v0.10.0">
+
+    <title>PaperTrail.VersionQueries — paper_trail v0.10.0</title>
     <link rel="stylesheet" href="dist/elixir-9f91ebe876dc01d67920.css" />
+
       <link rel="canonical" href="https://hexdocs.pm/paper_trail/PaperTrail.VersionQueries.html" />
-    <script src="dist/sidebar_items-2880b88c56.js"></script>
+
+    <script src="dist/sidebar_items-1590d474d6.js"></script>
+
       <script src="docs_config.js"></script>
-    <script async src="dist/app-aaa6eb1824b11a32f32d.js"></script>
+
+    <script async src="dist/app-60a0c9f10e9e52eae31f.js"></script>
+
   </head>
   <body data-type="modules">
     <script>try { if(localStorage.getItem('night-mode') === 'true') document.body.className += ' night-mode'; } catch (e) { }</script>
+
 <div class="main">
 
 <button class="sidebar-button sidebar-toggle">
@@ -42,11 +49,13 @@
   <div class="sidebar-header">
     <div class="sidebar-projectDetails">
       <a href="api-reference.html" class="sidebar-projectName">
-paper_trail      </a>
+paper_trail
+      </a>
       <strong class="sidebar-projectVersion">
-        v0.9.0
+        v0.10.0
       </strong>
     </div>
+
   </div>
 
   <ul class="sidebar-listNav">
@@ -54,7 +63,9 @@ paper_trail      </a>
 
       <li><a id="modules-list" href="#full-list">Modules</a></li>
 
+
       <li><a id="tasks-list" href="#full-list">Mix Tasks</a></li>
+
   </ul>
   <div class="gradient"></div>
   <ul id="full-list" class="sidebar-fullList"></ul>
@@ -65,7 +76,8 @@ paper_trail      </a>
     <div id="content" class="content-inner">
 
       <h1>
-        PaperTrail.VersionQueries <small class="app-vsn">(paper_trail v0.9.0)</small>
+PaperTrail.VersionQueries <small class="app-vsn">(paper_trail v0.10.0)</small>
+
       </h1>
 
 
@@ -78,6 +90,7 @@ paper_trail      </a>
             </a>
             Summary
           </h1>
+
   <div class="summary-functions summary">
     <h2>
       <a href="#functions">Functions</a>
@@ -85,47 +98,71 @@ paper_trail      </a>
 <div class="summary-row">
   <div class="summary-signature">
     <a href="#get_current_model/1">get_current_model(version)</a>
+
   </div>
+
     <div class="summary-synopsis"><p>Gets the current model record/struct of a version</p></div>
+
 </div>
 <div class="summary-row">
   <div class="summary-signature">
     <a href="#get_version/1">get_version(record)</a>
+
   </div>
+
     <div class="summary-synopsis"><p>Gets the last version of a record.</p></div>
+
 </div>
 <div class="summary-row">
   <div class="summary-signature">
     <a href="#get_version/2">get_version(model, id)</a>
+
   </div>
+
     <div class="summary-synopsis"><p>Gets the last version of a record.</p></div>
+
 </div>
 <div class="summary-row">
   <div class="summary-signature">
     <a href="#get_version/3">get_version(model, id, options)</a>
+
   </div>
+
     <div class="summary-synopsis"><p>Gets the last version of a record given its module reference and its id.</p></div>
+
 </div>
 <div class="summary-row">
   <div class="summary-signature">
     <a href="#get_versions/1">get_versions(record)</a>
+
   </div>
+
     <div class="summary-synopsis"><p>Gets all the versions of a record.</p></div>
+
 </div>
 <div class="summary-row">
   <div class="summary-signature">
     <a href="#get_versions/2">get_versions(model, id)</a>
+
   </div>
+
     <div class="summary-synopsis"><p>Gets all the versions of a record.</p></div>
+
 </div>
 <div class="summary-row">
   <div class="summary-signature">
     <a href="#get_versions/3">get_versions(model, id, options)</a>
+
   </div>
+
     <div class="summary-synopsis"><p>Gets all the versions of a record given a module and its id.</p></div>
+
 </div>
+
   </div>
+
         </section>
+
 
         <section id="functions" class="details-list">
           <h1 class="section-heading">
@@ -133,138 +170,189 @@ paper_trail      </a>
               <span class="icon-link" aria-hidden="true"></span>
               <span class="sr-only">Link to this section</span>
             </a>
-Functions          </h1>
+Functions
+          </h1>
           <div class="functions-list">
 <section class="detail" id="get_current_model/1">
+
   <div class="detail-header">
     <a href="#get_current_model/1" class="detail-link" title="Link to this function">
       <span class="icon-link" aria-hidden="true"></span>
       <span class="sr-only">Link to this function</span>
     </a>
     <h1 class="signature">get_current_model(version)</h1>
+
+
   </div>
 
   <section class="docstring">
 
-<p>Gets the current model record/struct of a version</p>  </section>
+<p>Gets the current model record/struct of a version</p>
+  </section>
 </section>
 <section class="detail" id="get_version/1">
+
   <div class="detail-header">
     <a href="#get_version/1" class="detail-link" title="Link to this function">
       <span class="icon-link" aria-hidden="true"></span>
       <span class="sr-only">Link to this function</span>
     </a>
     <h1 class="signature">get_version(record)</h1>
+
+
   </div>
 
   <section class="docstring">
+
       <h2>Specs</h2>
       <div class="specs">
+
           <pre>get_version(record :: <a href="https://hexdocs.pm/ecto/Ecto.Schema.html#t:t/0">Ecto.Schema.t</a>()) :: <a href="https://hexdocs.pm/ecto/Ecto.Query.html#t:t/0">Ecto.Query.t</a>()</pre>
+
       </div>
 
-<p>Gets the last version of a record.</p>  </section>
+<p>Gets the last version of a record.</p>
+  </section>
 </section>
 <section class="detail" id="get_version/2">
+
   <div class="detail-header">
     <a href="#get_version/2" class="detail-link" title="Link to this function">
       <span class="icon-link" aria-hidden="true"></span>
       <span class="sr-only">Link to this function</span>
     </a>
     <h1 class="signature">get_version(model, id)</h1>
+
+
   </div>
 
   <section class="docstring">
+
       <h2>Specs</h2>
       <div class="specs">
+
           <pre>get_version(model :: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">module</a>(), id :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">pos_integer</a>()) :: <a href="https://hexdocs.pm/ecto/Ecto.Query.html#t:t/0">Ecto.Query.t</a>()</pre>
+
           <pre>get_version(record :: <a href="https://hexdocs.pm/ecto/Ecto.Schema.html#t:t/0">Ecto.Schema.t</a>(), options :: []) :: <a href="https://hexdocs.pm/ecto/Ecto.Query.html#t:t/0">Ecto.Query.t</a>()</pre>
+
       </div>
 
 <p>Gets the last version of a record.</p><p>A list of options is optional, so you can set for example the :prefix of the query,
-wich allows you to change between different tenants.</p><h1>Usage example:</h1><p>  iex(1)&gt; PaperTrail.VersionQueries.get_version(record, [prefix: &quot;tenant_id&quot;])</p>  </section>
+wich allows you to change between different tenants.</p><h1>Usage example:</h1><p>  iex(1)&gt; PaperTrail.VersionQueries.get_version(record, [prefix: &quot;tenant_id&quot;])</p>
+  </section>
 </section>
 <section class="detail" id="get_version/3">
+
   <div class="detail-header">
     <a href="#get_version/3" class="detail-link" title="Link to this function">
       <span class="icon-link" aria-hidden="true"></span>
       <span class="sr-only">Link to this function</span>
     </a>
     <h1 class="signature">get_version(model, id, options)</h1>
+
+
   </div>
 
   <section class="docstring">
+
       <h2>Specs</h2>
       <div class="specs">
+
           <pre>get_version(model :: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">module</a>(), id :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">pos_integer</a>(), options :: []) ::
   <a href="https://hexdocs.pm/ecto/Ecto.Query.html#t:t/0">Ecto.Query.t</a>()</pre>
+
       </div>
 
 <p>Gets the last version of a record given its module reference and its id.</p><p>A list of options is optional, so you can set for example the :prefix of the query,
-wich allows you to change between different tenants.</p><h1>Usage example:</h1><p>  iex(1)&gt; PaperTrail.VersionQueries.get_version(ModelName, id, [prefix: &quot;tenant_id&quot;])</p>  </section>
+wich allows you to change between different tenants.</p><h1>Usage example:</h1><p>  iex(1)&gt; PaperTrail.VersionQueries.get_version(ModelName, id, [prefix: &quot;tenant_id&quot;])</p>
+  </section>
 </section>
 <section class="detail" id="get_versions/1">
+
   <div class="detail-header">
     <a href="#get_versions/1" class="detail-link" title="Link to this function">
       <span class="icon-link" aria-hidden="true"></span>
       <span class="sr-only">Link to this function</span>
     </a>
     <h1 class="signature">get_versions(record)</h1>
+
+
   </div>
 
   <section class="docstring">
+
       <h2>Specs</h2>
       <div class="specs">
+
           <pre>get_versions(record :: <a href="https://hexdocs.pm/ecto/Ecto.Schema.html#t:t/0">Ecto.Schema.t</a>()) :: <a href="https://hexdocs.pm/ecto/Ecto.Query.html#t:t/0">Ecto.Query.t</a>()</pre>
+
       </div>
 
-<p>Gets all the versions of a record.</p>  </section>
+<p>Gets all the versions of a record.</p>
+  </section>
 </section>
 <section class="detail" id="get_versions/2">
+
   <div class="detail-header">
     <a href="#get_versions/2" class="detail-link" title="Link to this function">
       <span class="icon-link" aria-hidden="true"></span>
       <span class="sr-only">Link to this function</span>
     </a>
     <h1 class="signature">get_versions(model, id)</h1>
+
+
   </div>
 
   <section class="docstring">
+
       <h2>Specs</h2>
       <div class="specs">
+
           <pre>get_versions(model :: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">module</a>(), id :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">pos_integer</a>()) :: <a href="https://hexdocs.pm/ecto/Ecto.Query.html#t:t/0">Ecto.Query.t</a>()</pre>
+
           <pre>get_versions(record :: <a href="https://hexdocs.pm/ecto/Ecto.Schema.html#t:t/0">Ecto.Schema.t</a>(), options :: []) :: <a href="https://hexdocs.pm/ecto/Ecto.Query.html#t:t/0">Ecto.Query.t</a>()</pre>
+
       </div>
 
 <p>Gets all the versions of a record.</p><p>A list of options is optional, so you can set for example the :prefix of the query,
-wich allows you to change between different tenants.</p><h1>Usage example:</h1><p>  iex(1)&gt; PaperTrail.VersionQueries.get_versions(record, [prefix: &quot;tenant_id&quot;])</p>  </section>
+wich allows you to change between different tenants.</p><h1>Usage example:</h1><p>  iex(1)&gt; PaperTrail.VersionQueries.get_versions(record, [prefix: &quot;tenant_id&quot;])</p>
+  </section>
 </section>
 <section class="detail" id="get_versions/3">
+
   <div class="detail-header">
     <a href="#get_versions/3" class="detail-link" title="Link to this function">
       <span class="icon-link" aria-hidden="true"></span>
       <span class="sr-only">Link to this function</span>
     </a>
     <h1 class="signature">get_versions(model, id, options)</h1>
+
+
   </div>
 
   <section class="docstring">
+
       <h2>Specs</h2>
       <div class="specs">
+
           <pre>get_versions(model :: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">module</a>(), id :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">pos_integer</a>(), options :: []) ::
   <a href="https://hexdocs.pm/ecto/Ecto.Query.html#t:t/0">Ecto.Query.t</a>()</pre>
+
       </div>
 
 <p>Gets all the versions of a record given a module and its id.</p><p>A list of options is optional, so you can set for example the :prefix of the query,
-wich allows you to change between different tenants.</p><h1>Usage example:</h1><p>  iex(1)&gt; PaperTrail.VersionQueries.get_versions(ModelName, id, [prefix: &quot;tenant_id&quot;])</p>  </section>
+wich allows you to change between different tenants.</p><h1>Usage example:</h1><p>  iex(1)&gt; PaperTrail.VersionQueries.get_versions(ModelName, id, [prefix: &quot;tenant_id&quot;])</p>
+  </section>
 </section>
+
           </div>
         </section>
+
       <footer class="footer">
         <p>
           <span class="line">
             Built using
-            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener">ExDoc</a> (v0.22.6) for the
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener">ExDoc</a> (v0.23.0) for the
             <a href="https://elixir-lang.org" title="Elixir" target="_blank">Elixir programming language</a>.
           </span>
           <span class="line">
@@ -273,7 +361,9 @@ wich allows you to change between different tenants.</p><h1>Usage example:</h1><
           </span>
         </p>
         <p>
+
             <a href="api-reference.html" title="API reference" class="line footer-button">API Reference</a>
+
           <button class="line footer-button display-shortcuts-help">
             Display keyboard shortcuts
           </button>
@@ -293,5 +383,6 @@ wich allows you to change between different tenants.</p><h1>Usage example:</h1><
   </div>
 </section>
 </div>
+
   </body>
 </html>

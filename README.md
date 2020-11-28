@@ -477,6 +477,7 @@ Many thanks to:
 - [Darren Thompson](https://github.com/DiscoStarslayer) - Added PaperTrail.Multi which makes paper trail transactions more usable
 - [Harold Tafur](https://github.com/hdtafur) - Made PaperTrail.insert accept :ecto_options params(ie. upsert options)
 - [Attila Szabo](https://github.com/szaboat) - Made %Version[:inserted_at] accept different ecto datetime options
+- [Rafael Scheffer](https://github.com/rschef) - Built PaperTrail.Serializer that unifies %Version{} serialization
 - [Izel Nakri](https://github.com/izelnakri) - The Originator of this library. See what I did there ;)
 
 Additional thanks to:
