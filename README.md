@@ -1,97 +1,104 @@
 [![Hex Version](http://img.shields.io/hexpm/v/paper_trail.svg?style=flat)](https://hex.pm/packages/paper_trail) [![Hex docs](http://img.shields.io/badge/hex.pm-docs-green.svg?style=flat)](https://hexdocs.pm/paper_trail/PaperTrail.html)
+[![Total Download](https://img.shields.io/hexpm/dt/paper_trail.svg)](https://hex.pm/packages/paper_trail)
+[![License](https://img.shields.io/hexpm/l/paper_trail.svg)](https://github.com/izelnakri/paper_trail/blob/master/LICENSE)
+[![Last Updated](https://img.shields.io/github/last-commit/izelnakri/paper_trail.svg)](https://github.com/izelnakri/paper_trail/commits/master)
+
+# Paper Trail
+
+Track and record all the changes in your database. Revert back to anytime in history.
 
 # How does it work?
 
 PaperTrail lets you record every change in your database in a separate database table called ```versions```. Library generates a new version record with associated data every time you run ```PaperTrail.insert/2```, ```PaperTrail.update/2``` or ```PaperTrail.delete/2``` functions. Simply these functions wrap your Repo insert, update or destroy actions in a database transaction, so if your database action fails you won't get a new version.
 
-PaperTrail is assailed with hundreds of test assertions for each release. Data integrity is an important aim of this project, please refer to the strict_mode if you want to ensure data correctness and integrity of your versions. For simpler use cases the default mode of PaperTrail should suffice.
+PaperTrail is assailed with hundreds of test assertions for each release. Data integrity is an important aim of this project, please refer to the `strict_mode` if you want to ensure data correctness and integrity of your versions. For simpler use cases the default mode of PaperTrail should suffice.
 
 ## Example
 
 ```elixir
-  changeset = Post.changeset(%Post{}, %{
-    title: "Word on the street is Elixir got its own database versioning library",
-    content: "You should try it now!"
-  })
+changeset = Post.changeset(%Post{}, %{
+  title: "Word on the street is Elixir got its own database versioning library",
+  content: "You should try it now!"
+})
 
-  PaperTrail.insert(changeset)
-  # => on success:
-  # {:ok,
-  #  %{model: %Post{__meta__: #Ecto.Schema.Metadata<:loaded, "posts">,
-  #     title: "Word on the street is Elixir got its own database versioning library",
-  #     content: "You should try it now!", id: 1, inserted_at: ~N[2016-09-15 21:42:38],
-  #     updated_at: ~N[2016-09-15 21:42:38]},
-  #    version: %PaperTrail.Version{__meta__: #Ecto.Schema.Metadata<:loaded, "versions">,
-  #     event: "insert", id: 1, inserted_at: ~N[2016-09-15 21:42:38],
-  #     item_changes: %{title: "Word on the street is Elixir got its own database versioning library",
-  #       content: "You should try it now!", id: 1, inserted_at: ~N[2016-09-15 21:42:38],
-  #       updated_at: ~N[2016-09-15 21:42:38]},
-  #     item_id: 1, item_type: "Post", originator_id: nil, originator: nil, meta: nil}}}
+PaperTrail.insert(changeset)
+# => on success:
+# {:ok,
+#  %{model: %Post{__meta__: #Ecto.Schema.Metadata<:loaded, "posts">,
+#     title: "Word on the street is Elixir got its own database versioning library",
+#     content: "You should try it now!", id: 1, inserted_at: ~N[2016-09-15 21:42:38],
+#     updated_at: ~N[2016-09-15 21:42:38]},
+#    version: %PaperTrail.Version{__meta__: #Ecto.Schema.Metadata<:loaded, "versions">,
+#     event: "insert", id: 1, inserted_at: ~N[2016-09-15 21:42:38],
+#     item_changes: %{title: "Word on the street is Elixir got its own database versioning library",
+#       content: "You should try it now!", id: 1, inserted_at: ~N[2016-09-15 21:42:38],
+#       updated_at: ~N[2016-09-15 21:42:38]},
+#     item_id: 1, item_type: "Post", originator_id: nil, originator: nil, meta: nil}}}
 
-  # => on error(it matches Repo.insert/2):
-  # {:error, Ecto.Changeset<action: :insert,
-  #  changes: %{title: "Word on the street is Elixir got its own database versioning library", content: "You should try it now!"},
-  #  errors: [content: {"is too short", []}], data: #Post<>,
-  #  valid?: false>, %{}}
+# => on error(it matches Repo.insert/2):
+# {:error, Ecto.Changeset<action: :insert,
+#  changes: %{title: "Word on the street is Elixir got its own database versioning library", content: "You should try it now!"},
+#  errors: [content: {"is too short", []}], data: #Post<>,
+#  valid?: false>, %{}}
 
-  post = Repo.get!(Post, 1)
-  edit_changeset = Post.changeset(post, %{
-    title: "Elixir matures fast",
-    content: "Future is already here, Elixir is the next step!"
-  })
+post = Repo.get!(Post, 1)
+edit_changeset = Post.changeset(post, %{
+  title: "Elixir matures fast",
+  content: "Future is already here, Elixir is the next step!"
+})
 
-  PaperTrail.update(edit_changeset)
-  # => on success:
-  # {:ok,
-  #  %{model: %Post{__meta__: #Ecto.Schema.Metadata<:loaded, "posts">,
-  #     title: "Elixir matures fast", content: "Future is already here, Elixir is the next step!",
-  #     id: 1, inserted_at: ~N[2016-09-15 21:42:38],
-  #     updated_at: ~N[2016-09-15 22:00:59]},
-  #    version: %PaperTrail.Version{__meta__: #Ecto.Schema.Metadata<:loaded, "versions">,
-  #     event: "update", id: 2, inserted_at: ~N[2016-09-15 22:00:59],
-  #     item_changes: %{title: "Elixir matures fast", content: "Future is already here, Elixir is the next step!"},
-  #     item_id: 1, item_type: "Post", originator_id: nil, originator: nil
-  #     meta: nil}}}
+PaperTrail.update(edit_changeset)
+# => on success:
+# {:ok,
+#  %{model: %Post{__meta__: #Ecto.Schema.Metadata<:loaded, "posts">,
+#     title: "Elixir matures fast", content: "Future is already here, Elixir is the next step!",
+#     id: 1, inserted_at: ~N[2016-09-15 21:42:38],
+#     updated_at: ~N[2016-09-15 22:00:59]},
+#    version: %PaperTrail.Version{__meta__: #Ecto.Schema.Metadata<:loaded, "versions">,
+#     event: "update", id: 2, inserted_at: ~N[2016-09-15 22:00:59],
+#     item_changes: %{title: "Elixir matures fast", content: "Future is already here, Elixir is the next step!"},
+#     item_id: 1, item_type: "Post", originator_id: nil, originator: nil
+#     meta: nil}}}
 
-  # => on error(it matches Repo.update/2):
-  # {:error, Ecto.Changeset<action: :update,
-  #  changes: %{title: "Elixir matures fast", content: "Future is already here, Elixir is the next step!"},
-  #  errors: [title: {"is too short", []}], data: #Post<>,
-  #  valid?: false>, %{}}
+# => on error(it matches Repo.update/2):
+# {:error, Ecto.Changeset<action: :update,
+#  changes: %{title: "Elixir matures fast", content: "Future is already here, Elixir is the next step!"},
+#  errors: [title: {"is too short", []}], data: #Post<>,
+#  valid?: false>, %{}}
 
-  PaperTrail.get_version(post)
-  #  %PaperTrail.Version{__meta__: #Ecto.Schema.Metadata<:loaded, "versions">,
-  #   event: "update", id: 2, inserted_at: ~N[2016-09-15 22:00:59],
-  #   item_changes: %{title: "Elixir matures fast", content: "Future is already here, Elixir is the next step!"},
-  #   item_id: 1, item_type: "Post", originator_id: nil, originator: nil, meta: nil}}}
+PaperTrail.get_version(post)
+#  %PaperTrail.Version{__meta__: #Ecto.Schema.Metadata<:loaded, "versions">,
+#   event: "update", id: 2, inserted_at: ~N[2016-09-15 22:00:59],
+#   item_changes: %{title: "Elixir matures fast", content: "Future is already here, Elixir is the next step!"},
+#   item_id: 1, item_type: "Post", originator_id: nil, originator: nil, meta: nil}}}
 
-  updated_post = Repo.get!(Post, 1)
+updated_post = Repo.get!(Post, 1)
 
-  PaperTrail.delete(updated_post)
-  # => on success:
-  # {:ok,
-  #  %{model: %Post{__meta__: #Ecto.Schema.Metadata<:deleted, "posts">,
-  #     title: "Elixir matures fast", content: "Future is already here, Elixir is the next step!",
-  #     id: 1, inserted_at: ~N[2016-09-15 21:42:38],
-  #     updated_at: ~N[2016-09-15 22:00:59]},
-  #    version: %PaperTrail.Version{__meta__: #Ecto.Schema.Metadata<:loaded, "versions">,
-  #     event: "delete", id: 3, inserted_at: ~N[2016-09-15 22:22:12],
-  #     item_changes: %{title: "Elixir matures fast", content: "Future is already here, Elixir is the next step!",
-  #       id: 1, inserted_at: ~N[2016-09-15 21:42:38],
-  #       updated_at: ~N[2016-09-15 22:00:59]},
-  #     item_id: 1, item_type: "Post", originator_id: nil, originator: nil, meta: nil}}}
+PaperTrail.delete(updated_post)
+# => on success:
+# {:ok,
+#  %{model: %Post{__meta__: #Ecto.Schema.Metadata<:deleted, "posts">,
+#     title: "Elixir matures fast", content: "Future is already here, Elixir is the next step!",
+#     id: 1, inserted_at: ~N[2016-09-15 21:42:38],
+#     updated_at: ~N[2016-09-15 22:00:59]},
+#    version: %PaperTrail.Version{__meta__: #Ecto.Schema.Metadata<:loaded, "versions">,
+#     event: "delete", id: 3, inserted_at: ~N[2016-09-15 22:22:12],
+#     item_changes: %{title: "Elixir matures fast", content: "Future is already here, Elixir is the next step!",
+#       id: 1, inserted_at: ~N[2016-09-15 21:42:38],
+#       updated_at: ~N[2016-09-15 22:00:59]},
+#     item_id: 1, item_type: "Post", originator_id: nil, originator: nil, meta: nil}}}
 
-  Repo.aggregate(Post, :count, :id) # => 0
-  PaperTrail.Version.count() # => 3
-  # same as Repo.aggregate(PaperTrail.Version, :count, :id)
+Repo.aggregate(Post, :count, :id) # => 0
+PaperTrail.Version.count() # => 3
+# same as Repo.aggregate(PaperTrail.Version, :count, :id)
 
-  PaperTrail.Version.last() # returns the last version in the db by inserted_at
-  #  %PaperTrail.Version{__meta__: #Ecto.Schema.Metadata<:loaded, "versions">,
-  #   event: "delete", id: 3, inserted_at: ~N[2016-09-15 22:22:12],
-  #   item_changes: %{"title" => "Elixir matures fast", content: "Future is already here, Elixir is the next step!", "id" => 1,
-  #     "inserted_at" => "2016-09-15T21:42:38",
-  #     "updated_at" => "2016-09-15T22:00:59"},
-  #   item_id: 1, item_type: "Post", originator_id: nil, originator: nil, meta: nil}
+PaperTrail.Version.last() # returns the last version in the db by inserted_at
+#  %PaperTrail.Version{__meta__: #Ecto.Schema.Metadata<:loaded, "versions">,
+#   event: "delete", id: 3, inserted_at: ~N[2016-09-15 22:22:12],
+#   item_changes: %{"title" => "Elixir matures fast", content: "Future is already here, Elixir is the next step!", "id" => 1,
+#     "inserted_at" => "2016-09-15T21:42:38",
+#     "updated_at" => "2016-09-15T22:00:59"},
+#   item_id: 1, item_type: "Post", originator_id: nil, originator: nil, meta: nil}
 ```
 
 PaperTrail is inspired by the ruby gem ```paper_trail```. However, unlike the ```paper_trail``` gem this library actually results in less data duplication, faster and more explicit programming model to version your record changes.
@@ -100,36 +107,36 @@ The library source code is minimal and well tested. It is suggested to read the 
 
 ## Installation
 
-  1. Add paper_trail to your list of dependencies in `mix.exs`:
+1.  Add paper_trail to your list of dependencies in `mix.exs`:
 
-  ```elixir
+    ```elixir
     def deps do
       [{:paper_trail, "~> 0.9.0"}]
     end
-  ```
+    ```
 
-  2. configure paper_trail to use your application repo in `config/config.exs`:
+2.  Configure paper_trail to use your application repo in `config/config.exs`:
 
-  ```elixir
-  config :paper_trail, repo: YourApplicationName.Repo
-  # if you don't specify this PaperTrail will assume your repo name is Repo
-  ```
+    ```elixir
+    config :paper_trail, repo: YourApplicationName.Repo
+    # if you don't specify this PaperTrail will assume your repo name is Repo
+    ```
 
-  3. install and compile your dependency:
+3.  Install and compile your dependency:
 
-  ```mix deps.get && mix compile```
+    ```mix deps.get && mix compile```
 
-  4. run this command to generate the migration:
+4.  Run this command to generate the migration:
 
-  ```mix papertrail.install```
+    ```mix papertrail.install```
 
-  You might want to edit the types for `:item_id` or `:originator_id` if you're
-  using UUID or other types for your primary keys before you execute
-  `mix ecto.migrate`.
+    You might want to edit the types for `:item_id` or `:originator_id` if you're
+    using UUID or other types for your primary keys before you execute
+    `mix ecto.migrate`.
 
-  5. run the migration:
+5.  Run the migration:
 
-  ```mix ecto.migrate```
+    ```mix ecto.migrate```
 
 Your application is now ready to collect some history!
 
@@ -163,6 +170,7 @@ config :paper_trail, item_type: Ecto.UUID,
 Remember to edit the types accordingly in the generated migration.
 
 ### Version origin references:
+
 PaperTrail records have a string field called ```origin```. ```PaperTrail.insert/2```, ```PaperTrail.update/2```, ```PaperTrail.delete/2``` functions accept a second argument to describe the origin of this version:
 ```elixir
 PaperTrail.update(changeset, origin: "migration")
@@ -177,12 +185,13 @@ PaperTrail.insert(new_user_changeset, origin: "facebook_registration")
 ```
 
 ### Version originator relationships
+
 You can specify setter/originator relationship to paper_trail versions with ```originator``` assignment. This feature is only possible by specifying `:originator` keyword list for your application configuration:
 
 ```elixir
-  # in your config/config.exs
-  config :paper_trail, originator: [name: :user, model: YourApp.User]
-  # For most applications originator should be the user since models can be updated/created/deleted by several users.
+# In your config/config.exs
+config :paper_trail, originator: [name: :user, model: YourApp.User]
+# For most applications originator should be the user since models can be updated/created/deleted by several users.
 ```
 
 Note: You will need to recompile your deps after you have added the config for originator.
@@ -203,17 +212,18 @@ PaperTrail.delete(edit_changeset, user: user)
 
 Also make sure you have the foreign-key constraint in the database and in your version migration file.
 
-
 ### Storing version meta data
 You might want to add some meta data that doesn't belong to ``originator`` and ``origin`` fields. Such data could be stored in one object named ```meta``` in paper_trail versions. Meta field could be passed as the second optional parameter to PaperTrail.insert/2, PaperTrail.update/2, PaperTrail.delete/2 functions:
 
 ```elixir
 company = Company.changeset(%Company{}, %{name: "Acme Inc."})
   |> PaperTrail.insert(meta: %{slug: "acme-llc"})
-# you can also combine this with an origin:
+
+# You can also combine this with an origin:
 edited_company = Company.changeset(company, %{name: "Acme LLC"})
   |> PaperTrail.update(origin: "documentation", meta: %{slug: "acme-llc"})
-# or even with an originator:
+
+# Or even with an originator:
 user = create_user()
 deleted_company = Company.changeset(edited_company, %{})
   |> PaperTrail.delete(origin: "worker:github", originator: user, meta: %{slug: "acme-llc", important: true})
@@ -223,14 +233,14 @@ deleted_company = Company.changeset(edited_company, %{})
 This is a feature more suitable for larger applications. Models can keep their version references via foreign key constraints. Therefore it would be impossible to delete the first and current version of a model if the model exists in the database, it also makes querying easier and the whole design more relational database/SQL friendly. In order to enable strict mode:
 
 ```elixir
-# in your config/config.exs
+# In your config/config.exs
 config :paper_trail, strict_mode: true
 ```
 
 Strict mode expects tracked models to have foreign-key reference to their first_version and current_version. These columns must be named ```first_version_id```, and ```current_version_id``` in their respective model tables. A tracked model example with a migration file:
 
 ```elixir
-# in the migration file: priv/repo/migrations/create_company.exs
+# In the migration file: priv/repo/migrations/create_company.exs
 defmodule Repo.Migrations.CreateCompany do
   def change do
     create table(:companies) do
@@ -249,7 +259,7 @@ defmodule Repo.Migrations.CreateCompany do
   end
 end
 
-# in the model definition:
+# In the model definition:
 defmodule Company do
   use Ecto.Schema
 
@@ -308,78 +318,78 @@ PaperTrail also supports ```PaperTrail.insert!```, ```PaperTrail.update!```, ```
 Bang functions assume the operation will always be successful, otherwise functions will raise ```Ecto.InvalidChangesetError``` just like ```Repo.insert!```, ```Repo.update!``` and ```Repo.delete!```:
 
 ```elixir
-  changeset = Post.changeset(%Post{}, %{
-    title: "Word on the street is Elixir got its own database versioning library",
-    content: "You should try it now!"
-  })
+changeset = Post.changeset(%Post{}, %{
+  title: "Word on the street is Elixir got its own database versioning library",
+  content: "You should try it now!"
+})
 
-  inserted_post = PaperTrail.insert!(changeset)
-  # => on success:
-  # %Post{__meta__: #Ecto.Schema.Metadata<:loaded, "posts">,
-  #   title: "Word on the street is Elixir got its own database versioning library",
-  #   content: "You should try it now!", id: 1, inserted_at: ~N[2016-09-15 21:42:38],
-  #   updated_at: ~N[2016-09-15 21:42:38]
-  # }
-  #
-  # => on error raises: Ecto.InvalidChangesetError !!
+inserted_post = PaperTrail.insert!(changeset)
+# => on success:
+# %Post{__meta__: #Ecto.Schema.Metadata<:loaded, "posts">,
+#   title: "Word on the street is Elixir got its own database versioning library",
+#   content: "You should try it now!", id: 1, inserted_at: ~N[2016-09-15 21:42:38],
+#   updated_at: ~N[2016-09-15 21:42:38]
+# }
+#
+# => on error raises: Ecto.InvalidChangesetError !!
 
-  inserted_post_version = PaperTrail.get_version(inserted_post)
-  # %PaperTrail.Version{__meta__: #Ecto.Schema.Metadata<:loaded, "versions">,
-  #   event: "insert", id: 1, inserted_at: ~N[2016-09-15 21:42:38],
-  #   item_changes: %{title: "Word on the street is Elixir got its own database versioning library",
-  #     content: "You should try it now!", id: 1, inserted_at: ~N[2016-09-15 21:42:38],
-  #     updated_at: ~N[2016-09-15 21:42:38]},
-  #   item_id: 1, item_type: "Post", originator_id: nil, originator: nil, meta: nil}
+inserted_post_version = PaperTrail.get_version(inserted_post)
+# %PaperTrail.Version{__meta__: #Ecto.Schema.Metadata<:loaded, "versions">,
+#   event: "insert", id: 1, inserted_at: ~N[2016-09-15 21:42:38],
+#   item_changes: %{title: "Word on the street is Elixir got its own database versioning library",
+#     content: "You should try it now!", id: 1, inserted_at: ~N[2016-09-15 21:42:38],
+#     updated_at: ~N[2016-09-15 21:42:38]},
+#   item_id: 1, item_type: "Post", originator_id: nil, originator: nil, meta: nil}
 
-  edit_changeset = Post.changeset(inserted_post, %{
-    title: "Elixir matures fast",
-    content: "Future is already here, Elixir is the next step!"
-  })
+edit_changeset = Post.changeset(inserted_post, %{
+  title: "Elixir matures fast",
+  content: "Future is already here, Elixir is the next step!"
+})
 
-  updated_post = PaperTrail.update!(edit_changeset)
-  # => on success:
-  # %Post{__meta__: #Ecto.Schema.Metadata<:loaded, "posts">,
-  #   title: "Elixir matures fast", content: "Future is already here, you deserve to be awesome!",
-  #   id: 1, inserted_at: ~N[2016-09-15 21:42:38],
-  #   updated_at: ~N[2016-09-15 22:00:59]}
-  #
-  # => on error raises: Ecto.InvalidChangesetError !!
+updated_post = PaperTrail.update!(edit_changeset)
+# => on success:
+# %Post{__meta__: #Ecto.Schema.Metadata<:loaded, "posts">,
+#   title: "Elixir matures fast", content: "Future is already here, you deserve to be awesome!",
+#   id: 1, inserted_at: ~N[2016-09-15 21:42:38],
+#   updated_at: ~N[2016-09-15 22:00:59]}
+#
+# => on error raises: Ecto.InvalidChangesetError !!
 
-  updated_post_version = PaperTrail.get_version(updated_post)
-  # %PaperTrail.Version{__meta__: #Ecto.Schema.Metadata<:loaded, "versions">,
-  #   event: "update", id: 2, inserted_at: ~N[2016-09-15 22:00:59],
-  #   item_changes: %{title: "Elixir matures fast", content: "Future is already here, Elixir is the next step!"},
-  #   item_id: 1, item_type: "Post", originator_id: nil, originator: nil
-  #   meta: nil}
+updated_post_version = PaperTrail.get_version(updated_post)
+# %PaperTrail.Version{__meta__: #Ecto.Schema.Metadata<:loaded, "versions">,
+#   event: "update", id: 2, inserted_at: ~N[2016-09-15 22:00:59],
+#   item_changes: %{title: "Elixir matures fast", content: "Future is already here, Elixir is the next step!"},
+#   item_id: 1, item_type: "Post", originator_id: nil, originator: nil
+#   meta: nil}
 
-  PaperTrail.delete!(updated_post)
-  # => on success:
-  # %Post{__meta__: #Ecto.Schema.Metadata<:deleted, "posts">,
-  #   title: "Elixir matures fast", content: "Future is already here, Elixir is the next step!",
-  #   id: 1, inserted_at: ~N[2016-09-15 21:42:38],
-  #   updated_at: ~N[2016-09-15 22:00:59]}
-  #
-  # => on error raises: Ecto.InvalidChangesetError !!
+PaperTrail.delete!(updated_post)
+# => on success:
+# %Post{__meta__: #Ecto.Schema.Metadata<:deleted, "posts">,
+#   title: "Elixir matures fast", content: "Future is already here, Elixir is the next step!",
+#   id: 1, inserted_at: ~N[2016-09-15 21:42:38],
+#   updated_at: ~N[2016-09-15 22:00:59]}
+#
+# => on error raises: Ecto.InvalidChangesetError !!
 
-  PaperTrail.get_version(updated_post)
-  # %PaperTrail.Version{__meta__: #Ecto.Schema.Metadata<:loaded, "versions">,
-  #   event: "delete", id: 3, inserted_at: ~N[2016-09-15 22:22:12],
-  #   item_changes: %{title: "Elixir matures fast", content: "Future is already here, Elixir is the next step!",
-  #   id: 1, inserted_at: ~N[2016-09-15 21:42:38],
-  #   updated_at: ~N[2016-09-15 22:00:59]},
-  #   item_id: 1, item_type: "Post", originator_id: nil, originator: nil, meta: nil}
+PaperTrail.get_version(updated_post)
+# %PaperTrail.Version{__meta__: #Ecto.Schema.Metadata<:loaded, "versions">,
+#   event: "delete", id: 3, inserted_at: ~N[2016-09-15 22:22:12],
+#   item_changes: %{title: "Elixir matures fast", content: "Future is already here, Elixir is the next step!",
+#   id: 1, inserted_at: ~N[2016-09-15 21:42:38],
+#   updated_at: ~N[2016-09-15 22:00:59]},
+#   item_id: 1, item_type: "Post", originator_id: nil, originator: nil, meta: nil}
 
-  Repo.aggregate(Post, :count, :id) # => 0
-  PaperTrail.Version.count() # => 3
-  # same as Repo.aggregate(PaperTrail.Version, :count, :id)
+Repo.aggregate(Post, :count, :id) # => 0
+PaperTrail.Version.count() # => 3
+# same as Repo.aggregate(PaperTrail.Version, :count, :id)
 
-  PaperTrail.Version.last() # returns the last version in the db by inserted_at
-  #  %PaperTrail.Version{__meta__: #Ecto.Schema.Metadata<:loaded, "versions">,
-  #   event: "delete", id: 3, inserted_at: ~N[2016-09-15 22:22:12],
-  #   item_changes: %{"title" => "Elixir matures fast", content: "Future is already here, Elixir is the next step!", "id" => 1,
-  #     "inserted_at" => "2016-09-15T21:42:38",
-  #     "updated_at" => "2016-09-15T22:00:59"},
-  #   item_id: 1, item_type: "Post", originator_id: nil, originator: nil, meta: nil}
+PaperTrail.Version.last() # returns the last version in the db by inserted_at
+#  %PaperTrail.Version{__meta__: #Ecto.Schema.Metadata<:loaded, "versions">,
+#   event: "delete", id: 3, inserted_at: ~N[2016-09-15 22:22:12],
+#   item_changes: %{"title" => "Elixir matures fast", content: "Future is already here, Elixir is the next step!", "id" => 1,
+#     "inserted_at" => "2016-09-15T21:42:38",
+#     "updated_at" => "2016-09-15T22:00:59"},
+#   item_id: 1, item_type: "Post", originator_id: nil, originator: nil, meta: nil}
 ```
 
 ## Working with multi tenancy
@@ -422,7 +432,7 @@ specified by the `:prefix` value (`tenant_id`).
 
 Note that the `User`'s changeset it's sent with the `:prefix`, so PaperTrail **will take care of the
 storage of the generated `Version` entry in the desired schema/database**. Make sure
-to add this prefix to your changeset before the execution of the PaperTrail function if you want to do versioning on a seperate schema.
+to add this prefix to your changeset before the execution of the PaperTrail function if you want to do versioning on a separate schema.
 
 PaperTrail can also get versions of records or models from different schemas/databases as well
 by using the `:prefix` option. Example:
@@ -439,16 +449,16 @@ PaperTrail.get_versions(User, id, [prefix: tenant])
 PaperTrail can be configured to use `utc_datetime` or `utc_datetime_usec` for Version timestamps.
 
 ```elixir
-# in your config/config.exs
-
+# In your config/config.exs
 config :paper_trail, timestamps_type: :utc_datetime
 ```
 
 Note: You will need to recompile your deps after you have added the config for timestamps.
 
 ## Suggestions
+
 - PaperTrail.Version(s) order matter,
-- don't delete your paper_trail versions, instead you can merge them
+- Don't delete your paper_trail versions, instead you can merge them
 - If you have a question or a problem, do not hesitate to create an issue or submit a pull request
 
 ## Contributing
@@ -483,3 +493,7 @@ Many thanks to:
 Additional thanks to:
 - [Ruby paper_trail gem](https://github.com/airblade/paper_trail) - Initial inspiration of this project.
 - [Ecto](https://github.com/elixir-ecto/ecto) - For the great API.
+
+## License
+
+This source code is licensed under the MIT license. Copyright (c) 2016-present Izel Nakri.

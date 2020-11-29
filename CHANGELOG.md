@@ -1,3 +1,5 @@
+# Changelog
+
 ### v0.8.3 - September 10th, 2019:
 - PaperTrail.delete now accepts Ecto.Changeset
 
