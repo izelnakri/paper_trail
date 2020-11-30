@@ -1,4 +1,3 @@
-
 defmodule LocationType do
   use Ecto.Type
 

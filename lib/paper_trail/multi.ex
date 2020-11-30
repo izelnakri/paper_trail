@@ -22,9 +22,19 @@ defmodule PaperTrail.Multi do
   defdelegate get_item_type(data), to: Serializer
   defdelegate get_model_id(model), to: Serializer
 
-  def insert(%Ecto.Multi{} = multi, changeset, options \\ [
-    origin: nil, meta: nil, originator: nil, prefix: nil, model_key: :model, version_key: :version, ecto_options: []
-  ]) do
+  def insert(
+        %Ecto.Multi{} = multi,
+        changeset,
+        options \\ [
+          origin: nil,
+          meta: nil,
+          originator: nil,
+          prefix: nil,
+          model_key: :model,
+          version_key: :version,
+          ecto_options: []
+        ]
+      ) do
     model_key = options[:model_key] || :model
     version_key = options[:version_key] || :version
     ecto_options = options[:ecto_options] || []
@@ -56,7 +66,8 @@ defmodule PaperTrail.Multi do
 
           repo.insert(updated_changeset, ecto_options)
         end)
-        |> Ecto.Multi.run(version_key, fn repo, %{initial_version: initial_version, model: model} ->
+        |> Ecto.Multi.run(version_key, fn repo,
+                                          %{initial_version: initial_version, model: model} ->
           target_version = make_version_struct(%{event: "insert"}, model, options) |> serialize()
 
           Version.changeset(initial_version, target_version) |> repo.update
