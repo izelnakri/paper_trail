@@ -1,8 +1,5 @@
 defmodule PaperTrail do
-  import Ecto.Changeset
-
   alias PaperTrail.Version
-  alias PaperTrail.RepoClient
   alias PaperTrail.Serializer
 
   defdelegate get_version(record), to: PaperTrail.VersionQueries
@@ -22,6 +19,9 @@ defmodule PaperTrail do
   @doc """
   Inserts a record to the database with a related version insertion in one transaction
   """
+  @spec insert(changeset :: Ecto.Changeset.t(model), options :: Keyword.t()) ::
+          {:ok, %{model: model, version: Version.t()}} | {:error, Ecto.Changeset.t(model) | term}
+        when model: struct
   def insert(
         changeset,
         options \\ [
@@ -42,6 +42,8 @@ defmodule PaperTrail do
   @doc """
   Same as insert/2 but returns only the model struct or raises if the changeset is invalid.
   """
+  @spec insert!(changeset :: Ecto.Changeset.t(model), options :: Keyword.t()) :: model
+        when model: struct
   def insert!(
         changeset,
         options \\ [
@@ -54,50 +56,17 @@ defmodule PaperTrail do
           ecto_options: []
         ]
       ) do
-    repo = RepoClient.repo()
-    ecto_options = options[:ecto_options] || []
-
-    repo.transaction(fn ->
-      case RepoClient.strict_mode() do
-        true ->
-          version_id = get_sequence_id("versions") + 1
-
-          changeset_data =
-            Map.get(changeset, :data, changeset)
-            |> Map.merge(%{
-              id: get_sequence_id(changeset) + 1,
-              first_version_id: version_id,
-              current_version_id: version_id
-            })
-
-          initial_version =
-            make_version_struct(%{event: "insert"}, changeset_data, options)
-            |> repo.insert!
-
-          updated_changeset =
-            changeset
-            |> change(%{
-              first_version_id: initial_version.id,
-              current_version_id: initial_version.id
-            })
-
-          model = repo.insert!(updated_changeset, ecto_options)
-          target_version = make_version_struct(%{event: "insert"}, model, options) |> serialize()
-          Version.changeset(initial_version, target_version) |> repo.update!
-          model
-
-        _ ->
-          model = repo.insert!(changeset, ecto_options)
-          make_version_struct(%{event: "insert"}, model, options) |> repo.insert!
-          model
-      end
-    end)
-    |> elem(1)
+    changeset
+    |> insert(options)
+    |> model_or_error(:insert)
   end
 
   @doc """
   Updates a record from the database with a related version insertion in one transaction
   """
+  @spec update(changeset :: Ecto.Changeset.t(model), options :: Keyword.t()) ::
+          {:ok, %{model: model, version: Version.t()}} | {:error, Ecto.Changeset.t(model) | term}
+        when model: struct
   def update(changeset, options \\ [origin: nil, meta: nil, originator: nil, prefix: nil]) do
     PaperTrail.Multi.new()
     |> PaperTrail.Multi.update(changeset, options)
@@ -107,65 +76,58 @@ defmodule PaperTrail do
   @doc """
   Same as update/2 but returns only the model struct or raises if the changeset is invalid.
   """
+  @spec update!(changeset :: Ecto.Changeset.t(model), options :: Keyword.t()) :: model
+        when model: struct
   def update!(changeset, options \\ [origin: nil, meta: nil, originator: nil, prefix: nil]) do
-    repo = PaperTrail.RepoClient.repo()
-    client = PaperTrail.RepoClient
-
-    repo.transaction(fn ->
-      case client.strict_mode() do
-        true ->
-          version_data =
-            changeset.data
-            |> Map.merge(%{
-              current_version_id: get_sequence_id("versions")
-            })
-
-          target_changeset = changeset |> Map.merge(%{data: version_data})
-          target_version = make_version_struct(%{event: "update"}, target_changeset, options)
-          initial_version = repo.insert!(target_version)
-          updated_changeset = changeset |> change(%{current_version_id: initial_version.id})
-          model = repo.update!(updated_changeset)
-
-          new_item_changes =
-            initial_version.item_changes
-            |> Map.merge(%{
-              current_version_id: initial_version.id
-            })
-
-          initial_version |> change(%{item_changes: new_item_changes}) |> repo.update!
-          model
-
-        _ ->
-          model = repo.update!(changeset)
-          version_struct = make_version_struct(%{event: "update"}, changeset, options)
-          repo.insert!(version_struct)
-          model
-      end
-    end)
-    |> elem(1)
+    changeset
+    |> update(options)
+    |> model_or_error(:update)
   end
 
   @doc """
   Deletes a record from the database with a related version insertion in one transaction
   """
-  def delete(struct, options \\ [origin: nil, meta: nil, originator: nil, prefix: nil]) do
+  @spec delete(model_or_changeset :: model | Ecto.Changeset.t(model), options :: Keyword.t()) ::
+          {:ok, %{model: model, version: Version.t()}} | {:error, Ecto.Changeset.t(model) | term}
+        when model: struct
+  def delete(
+        model_or_changeset,
+        options \\ [origin: nil, meta: nil, originator: nil, prefix: nil]
+      ) do
     PaperTrail.Multi.new()
-    |> PaperTrail.Multi.delete(struct, options)
+    |> PaperTrail.Multi.delete(model_or_changeset, options)
     |> PaperTrail.Multi.commit()
   end
 
   @doc """
   Same as delete/2 but returns only the model struct or raises if the changeset is invalid.
   """
-  def delete!(struct, options \\ [origin: nil, meta: nil, originator: nil, prefix: nil]) do
-    repo = PaperTrail.RepoClient.repo()
+  @spec delete!(model_or_changeset :: model | Ecto.Changeset.t(model), options :: Keyword.t()) ::
+          model
+        when model: struct
+  def delete!(
+        model_or_changeset,
+        options \\ [origin: nil, meta: nil, originator: nil, prefix: nil]
+      ) do
+    model_or_changeset
+    |> delete(options)
+    |> model_or_error(:delete)
+  end
 
-    repo.transaction(fn ->
-      model = repo.delete!(struct, options)
-      version_struct = make_version_struct(%{event: "delete"}, struct, options)
-      repo.insert!(version_struct, options)
-      model
-    end)
-    |> elem(1)
+  @spec model_or_error(result :: {:ok, %{model: model}}, action :: :insert | :update | :delete) ::
+          model
+        when model: struct()
+  defp model_or_error({:ok, %{model: model}}, _action) do
+    model
+  end
+
+  @spec model_or_error(result :: {:error, reason :: term}, action :: :insert | :update | :delete) ::
+          no_return
+  defp model_or_error({:error, %Ecto.Changeset{} = changeset}, action) do
+    raise Ecto.InvalidChangesetError, action: action, changeset: changeset
+  end
+
+  defp model_or_error({:error, reason}, _action) do
+    raise reason
   end
 end

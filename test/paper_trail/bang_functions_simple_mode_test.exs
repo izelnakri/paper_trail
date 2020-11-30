@@ -989,7 +989,7 @@ defmodule PaperTrailTest.SimpleModeBangFunctions do
     |> PaperTrail.insert!(opts_with_prefix)
   end
 
-  defp update_company_with_version(company, params \\ @update_company_params, options \\ nil) do
+  defp update_company_with_version(company, params \\ @update_company_params, options \\ []) do
     Company.changeset(company, params) |> PaperTrail.update!(options)
   end
 
