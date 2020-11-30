@@ -97,6 +97,9 @@ defmodule SimplePerson do
 
     belongs_to(:company, SimpleCompany, foreign_key: :company_id)
 
+    embeds_one(:singular, SimpleEmbed)
+    embeds_many(:plural, SimpleEmbed)
+
     timestamps()
   end
 
@@ -113,6 +116,8 @@ defmodule SimplePerson do
     model
     |> cast(params, @optional_fields)
     |> foreign_key_constraint(:company_id)
+    |> cast_embed(:singular)
+    |> cast_embed(:plural)
   end
 
   def count do
@@ -123,5 +128,20 @@ defmodule SimplePerson do
     from(record in __MODULE__, select: count(record.id))
     |> MultiTenant.add_prefix_to_query()
     |> PaperTrail.RepoClient.repo().one
+  end
+end
+
+defmodule SimpleEmbed do
+  use Ecto.Schema
+
+  import Ecto.Changeset
+
+  embedded_schema do
+    field(:name, :string)
+  end
+
+  def changeset(model, params \\ %{}) do
+    model
+    |> cast(params, [:name])
   end
 end

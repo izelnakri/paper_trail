@@ -326,7 +326,9 @@ defmodule PaperTrailTest.SimpleModeBangFunctions do
              gender: true,
              visit_count: nil,
              birthdate: nil,
-             company_id: second_company.id
+             company_id: second_company.id,
+             plural: [],
+             singular: nil
            }
 
     assert Map.drop(version, [:id, :inserted_at]) == %{
@@ -340,6 +342,39 @@ defmodule PaperTrailTest.SimpleModeBangFunctions do
            }
 
     assert person == first(Person, :id) |> repo().one |> serialize
+  end
+
+  test "creating a person with embeds creates a person version with correct attributes" do
+    company = create_company_with_version()
+
+    %Person{
+      id: person_id,
+      plural: [%{id: _, name: "Plural"}],
+      singular: %{id: _, name: "Singular"}
+    } =
+      person =
+      %Person{}
+      |> Person.changeset(%{
+        first_name: "Izel",
+        last_name: "Nakri",
+        gender: true,
+        company_id: company.id,
+        plural: [%{name: "Plural"}],
+        singular: %{name: "Singular"}
+      })
+      |> PaperTrail.insert!()
+
+    version = PaperTrail.get_version(person)
+    person_change = person |> serialize() |> convert_to_string_map
+
+    assert %{
+             event: "insert",
+             item_type: "SimplePerson",
+             item_id: ^person_id,
+             item_changes: ^person_change
+           } = version
+
+    assert person == first(Person, :id) |> repo().one
   end
 
   test "updating a person creates a person version with correct attributes" do
@@ -391,7 +426,9 @@ defmodule PaperTrailTest.SimpleModeBangFunctions do
              visit_count: 10,
              birthdate: ~D[1992-04-01],
              last_name: "Nakri",
-             gender: true
+             gender: true,
+             plural: [],
+             singular: nil
            }
 
     assert Map.drop(version, [:id, :inserted_at]) == %{
@@ -411,6 +448,44 @@ defmodule PaperTrailTest.SimpleModeBangFunctions do
            }
 
     assert person == first(Person, :id) |> repo().one |> serialize
+  end
+
+  test "updating a person with embeds creates a person version with correct attributes" do
+    company = create_company_with_version()
+
+    %Person{
+      id: person_id,
+      plural: [%{id: _, name: "Plural"}],
+      singular: %{id: _, name: "Singular"}
+    } =
+      person =
+      %Person{}
+      |> Person.changeset(%{
+        first_name: "Izel",
+        last_name: "Nakri",
+        gender: true,
+        company_id: company.id
+      })
+      |> PaperTrail.insert!()
+      |> Person.changeset(%{
+        plural: [%{name: "Plural"}],
+        singular: %{name: "Singular"}
+      })
+      |> PaperTrail.update!()
+
+    version = PaperTrail.get_version(person)
+
+    assert %{
+             event: "update",
+             item_type: "SimplePerson",
+             item_id: ^person_id,
+             item_changes: %{
+               "plural" => [%{"id" => _, "name" => "Plural"}],
+               "singular" => %{"id" => _, "name" => "Singular"}
+             }
+           } = version
+
+    assert person == first(Person, :id) |> repo().one
   end
 
   test "deleting a person creates a person version with correct attributes" do
@@ -475,7 +550,9 @@ defmodule PaperTrailTest.SimpleModeBangFunctions do
                  gender: true,
                  visit_count: 10,
                  birthdate: ~D[1992-04-01],
-                 company_id: inserted_target_company.id
+                 company_id: inserted_target_company.id,
+                 plural: [],
+                 singular: nil
                }),
              originator_id: nil,
              origin: "admin",
@@ -483,6 +560,40 @@ defmodule PaperTrailTest.SimpleModeBangFunctions do
            }
 
     assert old_person == person_before_deletion
+  end
+
+  test "deleting a person with embeds creates a person version with correct attributes" do
+    company = create_company_with_version()
+
+    %Person{
+      id: person_id,
+      plural: [%{id: _, name: "Plural"}],
+      singular: %{id: _, name: "Singular"}
+    } =
+      person =
+      %Person{}
+      |> Person.changeset(%{
+        first_name: "Izel",
+        last_name: "Nakri",
+        gender: true,
+        company_id: company.id,
+        plural: [%{name: "Plural"}],
+        singular: %{name: "Singular"}
+      })
+      |> PaperTrail.insert!()
+      |> PaperTrail.delete!()
+
+    version = PaperTrail.get_version(person)
+    person_change = person |> serialize() |> convert_to_string_map
+
+    assert %{
+             event: "delete",
+             item_type: "SimplePerson",
+             item_id: ^person_id,
+             item_changes: ^person_change
+           } = version
+
+    assert is_nil(first(Person, :id) |> repo().one)
   end
 
   # Multi tenant tests
@@ -791,7 +902,9 @@ defmodule PaperTrailTest.SimpleModeBangFunctions do
              gender: true,
              visit_count: nil,
              birthdate: nil,
-             company_id: second_company.id
+             company_id: second_company.id,
+             plural: [],
+             singular: nil
            }
 
     assert Map.drop(version, [:id, :inserted_at]) == %{
@@ -863,7 +976,9 @@ defmodule PaperTrailTest.SimpleModeBangFunctions do
              visit_count: 10,
              birthdate: ~D[1992-04-01],
              last_name: "Nakri",
-             gender: true
+             gender: true,
+             plural: [],
+             singular: nil
            }
 
     assert Map.drop(version, [:id, :inserted_at]) == %{
@@ -955,7 +1070,9 @@ defmodule PaperTrailTest.SimpleModeBangFunctions do
                  gender: true,
                  visit_count: 10,
                  birthdate: ~D[1992-04-01],
-                 company_id: inserted_target_company.id
+                 company_id: inserted_target_company.id,
+                 plural: [],
+                 singular: nil
                }),
              originator_id: nil,
              origin: "admin",

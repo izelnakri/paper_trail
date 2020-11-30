@@ -411,7 +411,9 @@ defmodule PaperTrailTest do
              gender: true,
              visit_count: nil,
              birthdate: nil,
-             company_id: new_company_result[:model].id
+             company_id: new_company_result[:model].id,
+             plural: [],
+             singular: nil
            }
 
     assert Map.drop(version, [:id, :inserted_at]) == %{
@@ -475,7 +477,9 @@ defmodule PaperTrailTest do
              visit_count: 10,
              birthdate: ~D[1992-04-01],
              last_name: "Nakri",
-             gender: true
+             gender: true,
+             plural: [],
+             singular: nil
            }
 
     assert Map.drop(version, [:id, :inserted_at]) == %{
@@ -557,7 +561,9 @@ defmodule PaperTrailTest do
                gender: true,
                visit_count: 10,
                birthdate: ~D[1992-04-01],
-               company_id: target_company_insertion[:model].id
+               company_id: target_company_insertion[:model].id,
+               plural: [],
+               singular: nil
              },
              originator_id: nil,
              origin: "admin",

@@ -8,6 +8,8 @@ defmodule Repo.Migrations.CreateSimplePeople do
       add :visit_count, :integer
       add :gender, :boolean
       add :birthdate, :date
+      add :singular, :map
+      add :plural, {:array, :map}
 
       add :company_id, references(:simple_companies), null: false
 
