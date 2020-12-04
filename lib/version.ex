@@ -27,9 +27,11 @@ defmodule PaperTrail.Version do
       belongs_to(
         PaperTrail.RepoClient.originator()[:name],
         PaperTrail.RepoClient.originator()[:model],
-        define_field: false,
-        foreign_key: :originator_id,
-        type: Application.get_env(:paper_trail, :originator_type, :integer)
+        Keyword.merge(Application.get_env(:paper_trail, :originator_relationship_options, []),
+          define_field: false,
+          foreign_key: :originator_id,
+          type: Application.get_env(:paper_trail, :originator_type, :integer)
+        )
       )
     end
 

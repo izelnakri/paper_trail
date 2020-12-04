@@ -162,9 +162,26 @@ YES! Make sure you do the steps above.
 If you are using UUID or another type for your primary keys, you can configure
 the PaperTrail.Version schema to use it.
 
+##### Example Config
+
 ```elixir
 config :paper_trail, item_type: Ecto.UUID,
-                     originator_type: Ecto.UUID
+                     originator_type: Ecto.UUID,
+                     originator_relationship_options: [references: :uuid]
+```
+
+###### Example User
+
+```elixir
+defmodule Acme.User do
+  use Ecto.Schema
+
+  @primary_key {:uuid, :binary_id, autogenerate: true}
+  schema "users" do
+    field :email, :string
+
+    timestamps()
+  end
 ```
 
 Remember to edit the types accordingly in the generated migration.
