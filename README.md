@@ -494,6 +494,7 @@ Many thanks to:
 - [Alex Antonov](https://github.com/asiniy) - Original inventor of the originator feature
 - [Moritz Schmale](https://github.com/narrowtux) - UUID primary keys feature
 - [Jason Draper](https://github.com/drapergeek) - UUID primary keys feature
+- [Jonatan Männchen](https://github.com/maennchen) - Added non-regular :binary_id UUID support for originator
 - [Josh Taylor](https://github.com/joshuataylor) - Maintenance and new feature suggestions
 - [Mitchell Henke](https://github.com/mitchellhenke) - Fixed weird elixir compiler warnings
 - [Iván González](https://github.com/dreamingechoes) - Multi tenancy feature and some minor refactors
@@ -505,6 +506,7 @@ Many thanks to:
 - [Harold Tafur](https://github.com/hdtafur) - Made PaperTrail.insert accept :ecto_options params(ie. upsert options)
 - [Attila Szabo](https://github.com/szaboat) - Made %Version[:inserted_at] accept different ecto datetime options
 - [Rafael Scheffer](https://github.com/rschef) - Built PaperTrail.Serializer that unifies %Version{} serialization
+- [Kian Meng Ang](https://github.com/kianmeng) - Improved documentation
 - [Izel Nakri](https://github.com/izelnakri) - The Originator of this library. See what I did there ;)
 
 Additional thanks to:
