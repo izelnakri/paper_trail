@@ -1,5 +1,8 @@
 # Changelog
 
+### v0.11.0 - December 4th, 2020:
+- :originator_relationship_options config for more :originator relationship customizations such as UUID
+
 ### v0.8.3 - September 10th, 2019:
 - PaperTrail.delete now accepts Ecto.Changeset
 
