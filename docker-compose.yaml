@@ -29,11 +29,10 @@ services:
       - db
     networks:
       - backend_network
-    command: ["./setup-database.sh"]
+    command: ["/bin/sh", "./setup-database.sh"]
 
 volumes:
   pgdata:
 networks:
   backend_network:
     driver: bridge
-
