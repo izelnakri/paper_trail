@@ -1,0 +1,35 @@
+{
+  "private": true,
+  "name": "paper_trail",
+  "author": "Izel Nakri",
+  "version": "0.11.0",
+  "description": "[![Hex Version](http://img.shields.io/hexpm/v/paper_trail.svg?style=flat)](https://hex.pm/packages/paper_trail) [![Hex docs](http://img.shields.io/badge/hex.pm-docs-green.svg?style=flat)](https://hexdocs.pm/paper_trail/PaperTrail.html) [![Total Download](https://img.shields.io/hexpm/dt/paper_trail.svg)](https://hex.pm/packages/paper_trail) [![License](https://img.shields.io/hexpm/l/paper_trail.svg)](https://github.com/izelnakri/paper_trail/blob/master/LICENSE) [![Last Updated](https://img.shields.io/github/last-commit/izelnakri/paper_trail.svg)](https://github.com/izelnakri/paper_trail/commits/master)",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/izelnakri/paper_trail.git"
+  },
+  "scripts": {
+    "changelog:preview": "node_modules/.bin/auto-changelog --stdout --commit-limit false --package -u",
+    "changelog:update": "node_modules/.bin/auto-changelog --commit-limit false --package",
+    "release:alpha": "node_modules/.bin/release-it --preRelease=alpha --no-npm.publish",
+    "release:beta": "node_modules/.bin/release-it --preRelease=beta --no-npm.publish",
+    "release": "node_modules/.bin/release-it --no-npm.publish"
+  },
+  "license": "MIT",
+  "release-it": {
+    "git": {
+      "changelog": "npm run changelog:preview"
+    },
+    "github": {
+      "release": true
+    },
+    "hooks": {
+      "after:bump": "npm run changelog:update"
+    }
+  },
+  "devDependencies": {
+    "auto-changelog": "^2.2.1",
+    "release-it": "^14.2.2"
+  }
+}

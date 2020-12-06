@@ -24,3 +24,5 @@ paper_trail-*.tar
 
 # Temporary files for e.g. tests
 /tmp
+
+/node_modules/
