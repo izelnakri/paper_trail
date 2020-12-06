@@ -12,12 +12,24 @@
   "scripts": {
     "changelog:preview": "node_modules/.bin/auto-changelog --stdout --commit-limit false --package -u",
     "changelog:update": "node_modules/.bin/auto-changelog --commit-limit false --package",
-    "release:alpha": "node_modules/.bin/release-it --preRelease=alpha --no-npm.publish",
-    "release:beta": "node_modules/.bin/release-it --preRelease=beta --no-npm.publish",
-    "release": "node_modules/.bin/release-it --no-npm.publish"
+    "release:alpha": "node_modules/.bin/release-it --preRelease=alpha --no-npm.publish && MIX_ENV=dev mix hex.publish --yes",
+    "release:beta": "node_modules/.bin/release-it --preRelease=beta --no-npm.publish && MIX_ENV=dev mix hex.publish --yes",
+    "release": "node_modules/.bin/release-it --no-npm.publish && MIX_ENV=dev mix hex.publish --yes"
   },
   "license": "MIT",
   "release-it": {
+    "plugins": {
+      "@j-ulrich/release-it-regex-bumper": {
+        "in": "package.json",
+        "out": {
+          "file": "mix.exs",
+          "search": {
+            "pattern": "@version \"([0-9.]+)\""
+          },
+          "replace": "@version \"{{version}}\""
+        }
+      }
+    },
     "git": {
       "changelog": "npm run changelog:preview"
     },
@@ -29,6 +41,7 @@
     }
   },
   "devDependencies": {
+    "@j-ulrich/release-it-regex-bumper": "^1.2.0",
     "auto-changelog": "^2.2.1",
     "release-it": "^14.2.2"
   }
