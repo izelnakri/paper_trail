@@ -1,6 +1,7 @@
 use Mix.Config
 
-config :paper_trail, ecto_repos: [PaperTrail.Repo, PaperTrail.UUIDRepo, PaperTrail.UUIDWithCustomNameRepo]
+config :paper_trail,
+  ecto_repos: [PaperTrail.Repo, PaperTrail.UUIDRepo, PaperTrail.UUIDWithCustomNameRepo]
 
 config :paper_trail, repo: PaperTrail.Repo, originator: [name: :user, model: User]
 
