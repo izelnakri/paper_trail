@@ -109,9 +109,9 @@ defmodule PaperTrail.Serializer do
   Dumps changes using Ecto fields
   """
   @spec serialize_changes(Ecto.Changeset.t()) :: map()
-  def serialize_changes(%Ecto.Changeset{data: %schema{}, changes: changes}) do
-    changes
-    |> schema.__struct__()
+  def serialize_changes(%Ecto.Changeset{changes: changes} = changeset) do
+    changeset
+    |> serialize_model_changes()
     |> serialize()
     |> Map.take(Map.keys(changes))
   end
@@ -146,5 +146,48 @@ defmodule PaperTrail.Serializer do
       _ ->
         "#{model_id}"
     end
+  end
+
+  @spec serialize_model_changes(Ecto.Changeset.t()) :: map()
+  defp serialize_model_changes(%Ecto.Changeset{data: %schema{}} = changeset) do
+    field_values = serialize_model_field_changes(changeset)
+    embed_values = serialize_model_embed_changes(changeset)
+
+    field_values
+    |> Map.merge(embed_values)
+    |> schema.__struct__()
+  end
+
+  defp serialize_model_field_changes(%Ecto.Changeset{data: %schema{}, changes: changes}) do
+    change_keys = changes |> Map.keys() |> MapSet.new()
+
+    field_keys =
+      :fields
+      |> schema.__schema__()
+      |> MapSet.new()
+      |> MapSet.intersection(change_keys)
+      |> MapSet.to_list()
+
+    Map.take(changes, field_keys)
+  end
+
+  defp serialize_model_embed_changes(%Ecto.Changeset{data: %schema{}, changes: changes}) do
+    change_keys = changes |> Map.keys() |> MapSet.new()
+
+    embed_keys =
+      :embeds
+      |> schema.__schema__()
+      |> MapSet.new()
+      |> MapSet.intersection(change_keys)
+      |> MapSet.to_list()
+
+    changes
+    |> Map.take(embed_keys)
+    |> Map.new(fn {key, value} ->
+      case schema.__schema__(:embed, key) do
+        %Ecto.Embedded{cardinality: :one} -> {key, serialize_model_changes(value)}
+        %Ecto.Embedded{cardinality: :many} -> {key, Enum.map(value, &serialize_model_changes/1)}
+      end
+    end)
   end
 end
