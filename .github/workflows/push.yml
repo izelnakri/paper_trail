@@ -50,3 +50,5 @@ jobs:
           docker-compose run paper_trail mix test test/version
           docker-compose run paper_trail mix test test/uuid
           STRING_TEST=true docker-compose run paper_trail mix test test/uuid
+      - name: Check Formatted
+        run: mix format --check-formatted
