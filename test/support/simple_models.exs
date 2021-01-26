@@ -97,7 +97,7 @@ defmodule SimplePerson do
 
     belongs_to(:company, SimpleCompany, foreign_key: :company_id)
 
-    embeds_one(:singular, SimpleEmbed)
+    embeds_one(:singular, SimpleEmbed, on_replace: :update)
     embeds_many(:plural, SimpleEmbed)
 
     timestamps()

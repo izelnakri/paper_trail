@@ -148,6 +148,9 @@ defmodule PaperTrail.Serializer do
     end
   end
 
+  @spec serialize_model_changes(nil) :: nil
+  defp serialize_model_changes(nil), do: nil
+
   @spec serialize_model_changes(Ecto.Changeset.t()) :: map()
   defp serialize_model_changes(%Ecto.Changeset{data: %schema{}} = changeset) do
     field_values = serialize_model_field_changes(changeset)
