@@ -17,6 +17,22 @@ defmodule PaperTrail do
   defdelegate get_model_id(model), to: Serializer
 
   @doc """
+  Intialise paper_trail for existing record
+  """
+  def initialise(model, options \\ [origin: nil, meta: nil, originator: nil, prefix: nil, version_key: :version]) do
+    case get_version(model) do
+      nil ->
+        repo = RepoClient.repo()
+
+        make_version_struct(%{event: "insert"}, model, options)
+        |> repo.insert!()
+
+      _ ->
+        :error
+    end
+  end
+
+  @doc """
   Inserts a record to the database with a related version insertion in one transaction
   """
   @spec insert(changeset :: Ecto.Changeset.t(model), options :: Keyword.t()) ::
