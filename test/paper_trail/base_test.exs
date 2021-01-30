@@ -573,6 +573,31 @@ defmodule PaperTrailTest do
     assert old_person == person_before_deletion
   end
 
+  test "works with nil embed" do
+    {:ok, target_company_insertion} =
+      create_company_with_version(%{
+        name: "Another Company Corp.",
+        is_active: true,
+        address: "Sesame street 100/3, 101010"
+      })
+
+    {:ok, insert_person_result} =
+      Person.changeset(%Person{}, %{
+        first_name: "Izel",
+        last_name: "Nakri",
+        gender: true,
+        company_id: target_company_insertion[:model].id,
+        singular: %{}
+      })
+      |> PaperTrail.insert(origin: "admin")
+
+    assert {:ok, insert_person_result} =
+             Person.changeset(insert_person_result[:model], %{
+               singular: nil
+             })
+             |> PaperTrail.update(origin: "admin")
+  end
+
   defp create_user do
     User.changeset(%User{}, %{token: "fake-token", username: "izelnakri"}) |> @repo.insert!
   end
