@@ -2,7 +2,7 @@ defmodule PaperTrail.Mixfile do
   use Mix.Project
 
   @source_url "https://github.com/izelnakri/paper_trail"
-  @version "0.12.0"
+  @version "0.12.1"
 
   def project do
     [
