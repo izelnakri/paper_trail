@@ -41,9 +41,12 @@ defmodule PaperTrail do
           {:ok, %{model: model, version: Version.t()}} | {:error, Ecto.Changeset.t(model) | term}
         when model: struct
   def insert(changeset, options \\ []) do
+    ref = make_ref()
+
     Ecto.Multi.new()
-    |> PaperTrail.Multi.insert(changeset, options)
-    |> PaperTrail.Multi.commit()
+    |> PaperTrail.Multi.insert(ref, changeset, options)
+    |> PaperTrail.RepoClient.repo().transaction()
+    |> unpack_multi(ref, options)
   end
 
   @doc """
@@ -54,7 +57,7 @@ defmodule PaperTrail do
   def insert!(changeset, options \\ []) do
     changeset
     |> insert(options)
-    |> model_or_error(:insert)
+    |> model_or_error(:insert, options)
   end
 
   @doc """
@@ -64,9 +67,12 @@ defmodule PaperTrail do
           {:ok, %{model: model, version: Version.t()}} | {:error, Ecto.Changeset.t(model) | term}
         when model: struct
   def update(changeset, options \\ []) do
+    ref = make_ref()
+
     Ecto.Multi.new()
-    |> PaperTrail.Multi.update(changeset, options)
-    |> PaperTrail.Multi.commit()
+    |> PaperTrail.Multi.update(ref, changeset, options)
+    |> PaperTrail.RepoClient.repo().transaction()
+    |> unpack_multi(ref)
   end
 
   @doc """
@@ -87,9 +93,12 @@ defmodule PaperTrail do
           {:ok, %{model: model, version: Version.t()}} | {:error, Ecto.Changeset.t(model) | term}
         when model: struct
   def delete(model_or_changeset, options \\ []) do
+    ref = make_ref()
+
     Ecto.Multi.new()
-    |> PaperTrail.Multi.delete(model_or_changeset, options)
-    |> PaperTrail.Multi.commit()
+    |> PaperTrail.Multi.delete(ref, model_or_changeset, options)
+    |> PaperTrail.RepoClient.repo().transaction()
+    |> unpack_multi(ref)
   end
 
   @doc """
@@ -198,20 +207,75 @@ defmodule PaperTrail do
     end
   end
 
-  @spec model_or_error(result :: {:ok, %{model: model}}, action :: :insert | :update | :delete) ::
+  defp model_or_error(result, action, options \\ [])
+
+  @spec model_or_error(
+          result :: {:ok, map},
+          action :: :insert | :update | :delete,
+          options :: Keyword.t()
+        ) ::
           model
         when model: struct()
-  defp model_or_error({:ok, %{model: model}}, _action) do
-    model
+  defp model_or_error({:ok, result}, _action, options) do
+    model_output_key = options[:model_key] || :model
+    Map.fetch!(result, model_output_key)
   end
 
-  @spec model_or_error(result :: {:error, reason :: term}, action :: :insert | :update | :delete) ::
+  @spec model_or_error(
+          result :: {:error, reason :: term},
+          action :: :insert | :update | :delete,
+          options :: Keyword.t()
+        ) ::
           no_return
-  defp model_or_error({:error, %Ecto.Changeset{} = changeset}, action) do
+  defp model_or_error({:error, %Ecto.Changeset{} = changeset}, action, _options) do
     raise Ecto.InvalidChangesetError, action: action, changeset: changeset
   end
 
-  defp model_or_error({:error, reason}, _action) do
+  defp model_or_error({:error, reason}, _action, _options) do
     raise reason
+  end
+
+  defp unpack_multi(result, name, options \\ [])
+
+  @spec unpack_multi(result :: {:ok, map}, name :: Ecto.Multi.name(), options :: Keyword.t()) ::
+          {:ok, %{model: struct, version: Version.t()}}
+  defp unpack_multi({:ok, result}, name, options) do
+    # TODO: Remove model_key / version_key in 1.0
+    model_result_key = options[:model_key] || name
+    model_output_key = options[:model_key] || :model
+    version_result_key = options[:version_key] || {name, :version}
+    vserion_output_key = options[:version_key] || :version
+
+    {:ok,
+     %{
+       model_output_key => Map.fetch!(result, model_result_key),
+       vserion_output_key => Map.fetch!(result, version_result_key)
+     }}
+  end
+
+  @spec unpack_multi(result, name :: Ecto.Multi.name(), options :: Keyword.t()) :: result
+        when result: {:error, reason :: term}
+  defp unpack_multi({:error, reason}, _name, _options) do
+    {:error, reason}
+  end
+
+  @spec unpack_multi(
+          {:error, Ecto.Multi.name(), reason, %{required(Ecto.Multi.name()) => any()}},
+          name :: Ecto.Multi.name(),
+          options :: Keyword.t()
+        ) :: {:error, reason}
+        when reason: any()
+
+  defp unpack_multi({:error, name, changeset, %{}}, name, _options) do
+    # TODO: Remove repo in changeset for 1.0
+    repo = PaperTrail.RepoClient.repo()
+
+    if PaperTrail.RepoClient.strict_mode() do
+      filtered_changes = Map.drop(changeset.changes, [:current_version_id, :first_version_id])
+
+      {:error, Map.merge(changeset, %{repo: repo, changes: filtered_changes})}
+    else
+      {:error, Map.merge(changeset, %{repo: repo})}
+    end
   end
 end

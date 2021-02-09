@@ -81,6 +81,35 @@ defmodule PaperTrailStrictModeTest do
     assert company == first(Company, :id) |> @repo.one |> serialize
   end
 
+  test "Multi can mutate multiple resources" do
+    user = create_user()
+
+    {:ok, %{model: update_company}} = create_company_with_version(%{name: "Acme Inc"}, user: user)
+    {:ok, %{model: delete_company}} = create_company_with_version(%{name: "Bar Corp"}, user: user)
+
+    assert {:ok, results} =
+             Ecto.Multi.new()
+             |> PaperTrail.Multi.insert(
+               :insert,
+               Company.changeset(%Company{}, %{name: "Foo Ltd"})
+             )
+             |> PaperTrail.Multi.update(
+               :update,
+               Company.changeset(update_company, %{name: "Acme Corp"})
+             )
+             |> PaperTrail.Multi.delete(:delete, delete_company)
+             |> @repo.transaction()
+
+    assert %{
+             :insert => %Company{id: insert_id, name: "Foo Ltd"},
+             {:insert, :version} => %Version{item_id: insert_id, event: "insert"},
+             :update => %Company{id: update_id, name: "Acme Corp"},
+             {:update, :version} => %Version{item_id: update_id, event: "update"},
+             :delete => %Company{id: delete_id, name: "Bar Corp"},
+             {:delete, :version} => %Version{item_id: delete_id, event: "delete"}
+           } = results
+  end
+
   test "creating a company without changeset creates a company version with correct attributes" do
     {:ok, result} = PaperTrail.insert(%Company{name: "Acme LLC"})
     company_count = Company.count()

@@ -1092,11 +1092,11 @@ defmodule PaperTrailTest.SimpleModeBangFunctions do
     |> repo().insert!
   end
 
-  defp create_company_with_version(params \\ @create_company_params, options \\ nil) do
+  defp create_company_with_version(params \\ @create_company_params, options \\ []) do
     Company.changeset(%Company{}, params) |> PaperTrail.insert!(options)
   end
 
-  defp create_company_with_version_multi(params \\ @create_company_params, options \\ nil) do
+  defp create_company_with_version_multi(params \\ @create_company_params, options \\ []) do
     opts_with_prefix = Keyword.put(options || [], :prefix, MultiTenant.tenant())
 
     Company.changeset(%Company{}, params)
@@ -1111,7 +1111,7 @@ defmodule PaperTrailTest.SimpleModeBangFunctions do
   defp update_company_with_version_multi(
          company,
          params \\ @update_company_params,
-         options \\ nil
+         options \\ []
        ) do
     opts_with_prefix = Keyword.put(options || [], :prefix, MultiTenant.tenant())
 
