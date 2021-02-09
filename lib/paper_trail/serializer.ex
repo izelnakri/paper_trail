@@ -1,7 +1,6 @@
 defmodule PaperTrail.Serializer do
-  @moduledoc """
-  Serialization functions to create a version struct
-  """
+  @moduledoc false
+  # Serialization functions to create a version struct
 
   alias PaperTrail.RepoClient
   alias PaperTrail.Version

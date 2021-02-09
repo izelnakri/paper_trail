@@ -1,4 +1,8 @@
 defmodule PaperTrail.Multi do
+  @moduledoc false
+  # TODO: Will be documented again as soon as the insert / update / delete
+  # functions are overhauled
+
   import Ecto.Changeset
 
   alias PaperTrail
@@ -6,35 +10,82 @@ defmodule PaperTrail.Multi do
   alias PaperTrail.RepoClient
   alias PaperTrail.Serializer
 
+  # TODO: Remove Function with next major release
+  @doc false
+  @deprecated "Use Ecto.Multi.new/0"
   defdelegate new(), to: Ecto.Multi
+
+  # TODO: Remove Function with next major release
+  @doc false
+  @deprecated "Use Ecto.Multi.append/2"
   defdelegate append(lhs, rhs), to: Ecto.Multi
+
+  # TODO: Remove Function with next major release
+  @doc false
+  @deprecated "Use Ecto.Multi.error/3"
   defdelegate error(multi, name, value), to: Ecto.Multi
+
+  # TODO: Remove Function with next major release
+  @doc false
+  @deprecated "Use Ecto.Multi.merge/2"
   defdelegate merge(multi, merge), to: Ecto.Multi
+
+  # TODO: Remove Function with next major release
+  @doc false
+  @deprecated "Use Ecto.Multi.merge/4"
   defdelegate merge(multi, mod, fun, args), to: Ecto.Multi
+
+  # TODO: Remove Function with next major release
+  @doc false
+  @deprecated "Use Ecto.Multi.prepend/2"
   defdelegate prepend(lhs, rhs), to: Ecto.Multi
+
+  # TODO: Remove Function with next major release
+  @doc false
+  @deprecated "Use Ecto.Multi.run/3"
   defdelegate run(multi, name, run), to: Ecto.Multi
+
+  # TODO: Remove Function with next major release
+  @doc false
+  @deprecated "Use Ecto.Multi.run/5"
   defdelegate run(multi, name, mod, fun, args), to: Ecto.Multi
+
+  # TODO: Remove Function with next major release
+  @doc false
+  @deprecated "Use Ecto.Multi.to_list/1"
   defdelegate to_list(multi), to: Ecto.Multi
+
+  # TODO: Remove Function with next major release
+  @doc false
+  @deprecated "Internal API"
   defdelegate make_version_struct(version, model, options), to: Serializer
+
+  # TODO: Remove Function with next major release
+  @doc false
+  @deprecated "Internal API"
   defdelegate serialize(data), to: Serializer
+
+  # TODO: Remove Function with next major release
+  @doc false
+  @deprecated "Internal API"
   defdelegate get_sequence_id(table_name), to: Serializer
+
+  # TODO: Remove Function with next major release
+  @doc false
+  @deprecated "Internal API"
   defdelegate add_prefix(schema, prefix), to: Serializer
+
+  # TODO: Remove Function with next major release
+  @doc false
+  @deprecated "Internal API"
   defdelegate get_item_type(data), to: Serializer
+
+  # TODO: Remove Function with next major release
+  @doc false
+  @deprecated "Internal API"
   defdelegate get_model_id(model), to: Serializer
 
-  def insert(
-        %Ecto.Multi{} = multi,
-        changeset,
-        options \\ [
-          origin: nil,
-          meta: nil,
-          originator: nil,
-          prefix: nil,
-          model_key: :model,
-          version_key: :version,
-          ecto_options: []
-        ]
-      ) do
+  def insert(%Ecto.Multi{} = multi, changeset, options \\ []) do
     model_key = options[:model_key] || :model
     version_key = options[:version_key] || :version
     ecto_options = options[:ecto_options] || []
@@ -83,11 +134,7 @@ defmodule PaperTrail.Multi do
     end
   end
 
-  def update(
-        %Ecto.Multi{} = multi,
-        changeset,
-        options \\ [origin: nil, meta: nil, originator: nil, prefix: nil]
-      ) do
+  def update(%Ecto.Multi{} = multi, changeset, options \\ []) do
     case RepoClient.strict_mode() do
       true ->
         multi
@@ -126,11 +173,7 @@ defmodule PaperTrail.Multi do
     end
   end
 
-  def delete(
-        %Ecto.Multi{} = multi,
-        struct,
-        options \\ [origin: nil, meta: nil, originator: nil, prefix: nil]
-      ) do
+  def delete(%Ecto.Multi{} = multi, struct, options \\ []) do
     multi
     |> Ecto.Multi.delete(:model, struct, options)
     |> Ecto.Multi.run(:version, fn repo, %{} ->

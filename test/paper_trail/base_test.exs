@@ -24,7 +24,7 @@ defmodule PaperTrailTest do
 
   defdelegate serialize(data), to: Serializer
 
-  doctest PaperTrail
+  doctest PaperTrail, except: [get_version: 1, get_versions: 1]
 
   setup_all do
     Application.put_env(:paper_trail, :strict_mode, false)
@@ -591,7 +591,7 @@ defmodule PaperTrailTest do
       })
       |> PaperTrail.insert(origin: "admin")
 
-    assert {:ok, insert_person_result} =
+    assert {:ok, _insert_person_result} =
              Person.changeset(insert_person_result[:model], %{
                singular: nil
              })

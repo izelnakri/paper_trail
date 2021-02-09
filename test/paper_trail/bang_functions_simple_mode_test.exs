@@ -20,8 +20,6 @@ defmodule PaperTrailTest.SimpleModeBangFunctions do
   defdelegate repo, to: RepoClient
   defdelegate serialize(data), to: Serializer
 
-  doctest PaperTrail
-
   setup_all do
     Application.put_env(:paper_trail, :strict_mode, false)
     Application.put_env(:paper_trail, :repo, PaperTrail.Repo)
