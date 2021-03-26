@@ -67,7 +67,8 @@ defmodule PaperTrail.VersionQueries do
     |> PaperTrail.RepoClient.repo().one
   end
 
-  @spec get_version(model :: module, id :: pos_integer, options :: keyword | []) :: Version.t() | nil
+  @spec get_version(model :: module, id :: pos_integer, options :: keyword | []) ::
+          Version.t() | nil
   def get_version(model, id, options) do
     item_type = model |> Module.split() |> List.last()
     last(version_query(item_type, id, options)) |> PaperTrail.RepoClient.repo().one
