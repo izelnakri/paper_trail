@@ -25,7 +25,7 @@ defmodule PaperTrail.VersionQueries do
   def get_versions(model, id) when is_atom(model) and is_integer(id),
     do: get_versions(model, id, [])
 
-  @spec get_versions(record :: Ecto.Schema.t(), options :: []) :: [Version.t()]
+  @spec get_versions(record :: Ecto.Schema.t(), options :: keyword | []) :: [Version.t()]
   def get_versions(record, options) when is_map(record) do
     item_type = record.__struct__ |> Module.split() |> List.last()
 
@@ -33,7 +33,7 @@ defmodule PaperTrail.VersionQueries do
     |> PaperTrail.RepoClient.repo().all
   end
 
-  @spec get_versions(model :: module, id :: pos_integer, options :: []) :: [Version.t()]
+  @spec get_versions(model :: module, id :: pos_integer, options :: keyword | []) :: [Version.t()]
   def get_versions(model, id, options) do
     item_type = model |> Module.split() |> List.last()
     version_query(item_type, id, options) |> PaperTrail.RepoClient.repo().all
@@ -59,7 +59,7 @@ defmodule PaperTrail.VersionQueries do
   def get_version(model, id) when is_atom(model) and is_integer(id),
     do: get_version(model, id, [])
 
-  @spec get_version(record :: Ecto.Schema.t(), options :: []) :: Version.t() | nil
+  @spec get_version(record :: Ecto.Schema.t(), options :: keyword | []) :: Version.t() | nil
   def get_version(record, options) when is_map(record) do
     item_type = record.__struct__ |> Module.split() |> List.last()
 
@@ -67,7 +67,7 @@ defmodule PaperTrail.VersionQueries do
     |> PaperTrail.RepoClient.repo().one
   end
 
-  @spec get_version(model :: module, id :: pos_integer, options :: []) :: Version.t() | nil
+  @spec get_version(model :: module, id :: pos_integer, options :: keyword | []) :: Version.t() | nil
   def get_version(model, id, options) do
     item_type = model |> Module.split() |> List.last()
     last(version_query(item_type, id, options)) |> PaperTrail.RepoClient.repo().one
