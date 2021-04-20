@@ -41,7 +41,7 @@ defmodule PaperTrail.Version do
     )
   end
 
-  def changeset(model, params \\ :empty) do
+  def changeset(model, params \\ %{}) do
     model
     |> cast(params, [:item_type, :item_id, :item_changes, :origin, :originator_id, :meta])
     |> validate_required([:event, :item_type, :item_id, :item_changes])
