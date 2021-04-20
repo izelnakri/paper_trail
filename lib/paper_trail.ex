@@ -114,7 +114,10 @@ defmodule PaperTrail do
     |> model_or_error(:delete)
   end
 
-  @spec model_or_error(result :: {:ok, %{model: model}}, action :: :insert | :update | :delete) ::
+  @spec model_or_error(
+          result :: {:ok, %{required(:model) => model, optional(any()) => any()}},
+          action :: :insert | :update | :delete
+        ) ::
           model
         when model: struct()
   defp model_or_error({:ok, %{model: model}}, _action) do
