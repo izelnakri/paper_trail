@@ -62,6 +62,35 @@ defmodule PaperTrail do
   end
 
   @doc """
+  Upserts a record to the database with a related version insertion in one transaction.
+  """
+  @spec insert_or_update(changeset :: Ecto.Changeset.t(model), options :: Keyword.t()) ::
+          {:ok, %{model: model, version: Version.t()}} | {:error, Ecto.Changeset.t(model) | term}
+        when model: struct
+  def insert_or_update(
+        changeset,
+        options \\ [origin: nil, meta: nil, originator: nil, prefix: nil]
+      ) do
+    PaperTrail.Multi.new()
+    |> PaperTrail.Multi.insert_or_update(changeset, options)
+    |> PaperTrail.Multi.commit()
+  end
+
+  @doc """
+  Same as insert_or_update/2 but returns only the model struct or raises if the changeset is invalid.
+  """
+  @spec insert_or_update!(changeset :: Ecto.Changeset.t(model), options :: Keyword.t()) :: model
+        when model: struct
+  def insert_or_update!(
+        changeset,
+        options \\ [origin: nil, meta: nil, originator: nil, prefix: nil]
+      ) do
+    changeset
+    |> insert_or_update(options)
+    |> model_or_error(:insert_or_update)
+  end
+
+  @doc """
   Updates a record from the database with a related version insertion in one transaction
   """
   @spec update(changeset :: Ecto.Changeset.t(model), options :: Keyword.t()) ::
@@ -116,7 +145,7 @@ defmodule PaperTrail do
 
   @spec model_or_error(
           result :: {:ok, %{required(:model) => model, optional(any()) => any()}},
-          action :: :insert | :update | :delete
+          action :: :insert | :insert_or_update | :update | :delete
         ) ::
           model
         when model: struct()
@@ -124,7 +153,10 @@ defmodule PaperTrail do
     model
   end
 
-  @spec model_or_error(result :: {:error, reason :: term}, action :: :insert | :update | :delete) ::
+  @spec model_or_error(
+          result :: {:error, reason :: term},
+          action :: :insert | :insert_or_update | :update | :delete
+        ) ::
           no_return
   defp model_or_error({:error, %Ecto.Changeset{} = changeset}, action) do
     raise Ecto.InvalidChangesetError, action: action, changeset: changeset

@@ -142,6 +142,33 @@ defmodule PaperTrail.Multi do
     end
   end
 
+  def insert_or_update(
+        %Ecto.Multi{} = multi,
+        changeset,
+        options \\ [
+          origin: nil,
+          meta: nil,
+          originator: nil,
+          prefix: nil,
+          model_key: :model,
+          version_key: :version,
+          ecto_options: []
+        ]
+      ) do
+    case get_state(changeset) do
+      :built ->
+        insert(multi, changeset, options)
+
+      :loaded ->
+        update(multi, changeset, options)
+
+      state ->
+        raise ArgumentError,
+              "the changeset has an invalid state " <>
+                "for PaperTrail.insert_or_update/2 or PaperTrail.insert_or_update!/2: #{state}"
+    end
+  end
+
   def delete(
         %Ecto.Multi{} = multi,
         struct,
@@ -191,5 +218,14 @@ defmodule PaperTrail.Multi do
           _ -> transaction
         end
     end
+  end
+
+  defp get_state(%Ecto.Changeset{data: %{__meta__: %{state: state}}}), do: state
+
+  defp get_state(%{__struct__: _}) do
+    raise ArgumentError,
+          "giving a struct to PaperTrail.insert_or_update/2 or " <>
+            "PaperTrail.insert_or_update!/2 is not supported. " <>
+            "Please use an Ecto.Changeset"
   end
 end
