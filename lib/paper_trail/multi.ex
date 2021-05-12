@@ -32,17 +32,19 @@ defmodule PaperTrail.Multi do
           prefix: nil,
           model_key: :model,
           version_key: :version,
+          initial_version_key: :initial_version,
           ecto_options: []
         ]
       ) do
     model_key = options[:model_key] || :model
     version_key = options[:version_key] || :version
+    initial_version_key = options[:initial_version_key] || :initial_version
     ecto_options = options[:ecto_options] || []
 
     case RepoClient.strict_mode() do
       true ->
         multi
-        |> Ecto.Multi.run(:initial_version, fn repo, %{} ->
+        |> Ecto.Multi.run(initial_version_key, fn repo, %{} ->
           version_id = get_sequence_id("versions") + 1
 
           changeset_data =
@@ -56,7 +58,7 @@ defmodule PaperTrail.Multi do
           initial_version = make_version_struct(%{event: "insert"}, changeset_data, options)
           repo.insert(initial_version)
         end)
-        |> Ecto.Multi.run(model_key, fn repo, %{initial_version: initial_version} ->
+        |> Ecto.Multi.run(model_key, fn repo, %{^initial_version_key => initial_version} ->
           updated_changeset =
             changeset
             |> change(%{
@@ -67,7 +69,10 @@ defmodule PaperTrail.Multi do
           repo.insert(updated_changeset, ecto_options)
         end)
         |> Ecto.Multi.run(version_key, fn repo,
-                                          %{:initial_version => initial_version, ^model_key => model} ->
+                                          %{
+                                            ^initial_version_key => initial_version,
+                                            ^model_key => model
+                                          } ->
           target_version = make_version_struct(%{event: "insert"}, model, options) |> serialize()
 
           Version.changeset(initial_version, target_version) |> repo.update
@@ -93,17 +98,19 @@ defmodule PaperTrail.Multi do
           prefix: nil,
           model_key: :model,
           version_key: :version,
+          initial_version_key: :initial_version,
           ecto_options: []
         ]
       ) do
     model_key = options[:model_key] || :model
     version_key = options[:version_key] || :version
+    initial_version_key = options[:initial_version_key] || :initial_version
     ecto_options = options[:ecto_options] || []
 
     case RepoClient.strict_mode() do
       true ->
         multi
-        |> Ecto.Multi.run(:initial_version, fn repo, %{} ->
+        |> Ecto.Multi.run(initial_version_key, fn repo, %{} ->
           version_data =
             changeset.data
             |> Map.merge(%{
@@ -114,11 +121,11 @@ defmodule PaperTrail.Multi do
           target_version = make_version_struct(%{event: "update"}, target_changeset, options)
           repo.insert(target_version)
         end)
-        |> Ecto.Multi.run(model_key, fn repo, %{initial_version: initial_version} ->
+        |> Ecto.Multi.run(model_key, fn repo, %{^initial_version_key => initial_version} ->
           updated_changeset = changeset |> change(%{current_version_id: initial_version.id})
           repo.update(updated_changeset, Keyword.take(options, [:returning]))
         end)
-        |> Ecto.Multi.run(version_key, fn repo, %{initial_version: initial_version} ->
+        |> Ecto.Multi.run(version_key, fn repo, %{^initial_version_key => initial_version} ->
           new_item_changes =
             initial_version.item_changes
             |> Map.merge(%{
