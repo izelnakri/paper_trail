@@ -508,6 +508,7 @@ Many thanks to:
 - [Rafael Scheffer](https://github.com/rschef) - Built PaperTrail.Serializer that unifies %Version{} serialization
 - [Kian Meng Ang](https://github.com/kianmeng) - Improved documentation
 - [Francisco Correia](https://github.com/fv316) - Made PaperTrail transaction keys and ecto transactions more customizable
+- [Don Barlow](https://github.com/ottobar) - Made :initial_version_key configurable for `strict_mode` inserts
 - [Izel Nakri](https://github.com/izelnakri) - The Originator of this library. See what I did there ;)
 
 Additional thanks to:
