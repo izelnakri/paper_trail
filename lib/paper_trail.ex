@@ -16,24 +16,26 @@ defmodule PaperTrail do
   defdelegate get_item_type(data), to: Serializer
   defdelegate get_model_id(model), to: Serializer
 
+  @default_transaction_options [
+    origin: nil,
+    meta: nil,
+    originator: nil,
+    prefix: nil,
+    model_key: :model,
+    version_key: :version,
+    ecto_options: []
+  ]
+
   @doc """
   Inserts a record to the database with a related version insertion in one transaction
   """
-  @spec insert(changeset :: Ecto.Changeset.t(model), options :: Keyword.t()) ::
+  @spec insert(
+          changeset :: Ecto.Changeset.t(model),
+          options :: Keyword.t()
+        ) ::
           {:ok, %{model: model, version: Version.t()}} | {:error, Ecto.Changeset.t(model) | term}
         when model: struct
-  def insert(
-        changeset,
-        options \\ [
-          origin: nil,
-          meta: nil,
-          originator: nil,
-          prefix: nil,
-          model_key: :model,
-          version_key: :version,
-          ecto_options: []
-        ]
-      ) do
+  def insert(changeset, options \\ @default_transaction_options) do
     PaperTrail.Multi.new()
     |> PaperTrail.Multi.insert(changeset, options)
     |> PaperTrail.Multi.commit()
@@ -44,18 +46,7 @@ defmodule PaperTrail do
   """
   @spec insert!(changeset :: Ecto.Changeset.t(model), options :: Keyword.t()) :: model
         when model: struct
-  def insert!(
-        changeset,
-        options \\ [
-          origin: nil,
-          meta: nil,
-          originator: nil,
-          prefix: nil,
-          model_key: :model,
-          version_key: :version,
-          ecto_options: []
-        ]
-      ) do
+  def insert!(changeset, options \\ @default_transaction_options) do
     changeset
     |> insert(options)
     |> model_or_error(:insert)
@@ -67,10 +58,7 @@ defmodule PaperTrail do
   @spec insert_or_update(changeset :: Ecto.Changeset.t(model), options :: Keyword.t()) ::
           {:ok, %{model: model, version: Version.t()}} | {:error, Ecto.Changeset.t(model) | term}
         when model: struct
-  def insert_or_update(
-        changeset,
-        options \\ [origin: nil, meta: nil, originator: nil, prefix: nil]
-      ) do
+  def insert_or_update(changeset, options \\ @default_transaction_options) do
     PaperTrail.Multi.new()
     |> PaperTrail.Multi.insert_or_update(changeset, options)
     |> PaperTrail.Multi.commit()
@@ -81,10 +69,7 @@ defmodule PaperTrail do
   """
   @spec insert_or_update!(changeset :: Ecto.Changeset.t(model), options :: Keyword.t()) :: model
         when model: struct
-  def insert_or_update!(
-        changeset,
-        options \\ [origin: nil, meta: nil, originator: nil, prefix: nil]
-      ) do
+  def insert_or_update!(changeset, options \\ @default_transaction_options) do
     changeset
     |> insert_or_update(options)
     |> model_or_error(:insert_or_update)
@@ -96,7 +81,7 @@ defmodule PaperTrail do
   @spec update(changeset :: Ecto.Changeset.t(model), options :: Keyword.t()) ::
           {:ok, %{model: model, version: Version.t()}} | {:error, Ecto.Changeset.t(model) | term}
         when model: struct
-  def update(changeset, options \\ [origin: nil, meta: nil, originator: nil, prefix: nil]) do
+  def update(changeset, options \\ @default_transaction_options) do
     PaperTrail.Multi.new()
     |> PaperTrail.Multi.update(changeset, options)
     |> PaperTrail.Multi.commit()
@@ -107,7 +92,7 @@ defmodule PaperTrail do
   """
   @spec update!(changeset :: Ecto.Changeset.t(model), options :: Keyword.t()) :: model
         when model: struct
-  def update!(changeset, options \\ [origin: nil, meta: nil, originator: nil, prefix: nil]) do
+  def update!(changeset, options \\ @default_transaction_options) do
     changeset
     |> update(options)
     |> model_or_error(:update)
@@ -119,10 +104,7 @@ defmodule PaperTrail do
   @spec delete(model_or_changeset :: model | Ecto.Changeset.t(model), options :: Keyword.t()) ::
           {:ok, %{model: model, version: Version.t()}} | {:error, Ecto.Changeset.t(model) | term}
         when model: struct
-  def delete(
-        model_or_changeset,
-        options \\ [origin: nil, meta: nil, originator: nil, prefix: nil]
-      ) do
+  def delete(model_or_changeset, options \\ @default_transaction_options) do
     PaperTrail.Multi.new()
     |> PaperTrail.Multi.delete(model_or_changeset, options)
     |> PaperTrail.Multi.commit()
@@ -134,10 +116,7 @@ defmodule PaperTrail do
   @spec delete!(model_or_changeset :: model | Ecto.Changeset.t(model), options :: Keyword.t()) ::
           model
         when model: struct
-  def delete!(
-        model_or_changeset,
-        options \\ [origin: nil, meta: nil, originator: nil, prefix: nil]
-      ) do
+  def delete!(model_or_changeset, options \\ @default_transaction_options) do
     model_or_changeset
     |> delete(options)
     |> model_or_error(:delete)
@@ -156,8 +135,7 @@ defmodule PaperTrail do
   @spec model_or_error(
           result :: {:error, reason :: term},
           action :: :insert | :insert_or_update | :update | :delete
-        ) ::
-          no_return
+        ) :: no_return
   defp model_or_error({:error, %Ecto.Changeset{} = changeset}, action) do
     raise Ecto.InvalidChangesetError, action: action, changeset: changeset
   end

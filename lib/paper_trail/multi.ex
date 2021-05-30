@@ -22,20 +22,18 @@ defmodule PaperTrail.Multi do
   defdelegate get_item_type(data), to: Serializer
   defdelegate get_model_id(model), to: Serializer
 
-  def insert(
-        %Ecto.Multi{} = multi,
-        changeset,
-        options \\ [
-          origin: nil,
-          meta: nil,
-          originator: nil,
-          prefix: nil,
-          model_key: :model,
-          version_key: :version,
-          initial_version_key: :initial_version,
-          ecto_options: []
-        ]
-      ) do
+  @default_transaction_options [
+    origin: nil,
+    meta: nil,
+    originator: nil,
+    prefix: nil,
+    model_key: :model,
+    version_key: :version,
+    initial_version_key: :initial_version,
+    ecto_options: []
+  ]
+
+  def insert(%Ecto.Multi{} = multi, changeset, options \\ @default_transaction_options) do
     model_key = options[:model_key] || :model
     version_key = options[:version_key] || :version
     initial_version_key = options[:initial_version_key] || :initial_version
@@ -88,20 +86,7 @@ defmodule PaperTrail.Multi do
     end
   end
 
-  def update(
-        %Ecto.Multi{} = multi,
-        changeset,
-        options \\ [
-          origin: nil,
-          meta: nil,
-          originator: nil,
-          prefix: nil,
-          model_key: :model,
-          version_key: :version,
-          initial_version_key: :initial_version,
-          ecto_options: []
-        ]
-      ) do
+  def update(%Ecto.Multi{} = multi, changeset, options \\ @default_transaction_options) do
     model_key = options[:model_key] || :model
     version_key = options[:version_key] || :version
     initial_version_key = options[:initial_version_key] || :initial_version
@@ -149,19 +134,7 @@ defmodule PaperTrail.Multi do
     end
   end
 
-  def insert_or_update(
-        %Ecto.Multi{} = multi,
-        changeset,
-        options \\ [
-          origin: nil,
-          meta: nil,
-          originator: nil,
-          prefix: nil,
-          model_key: :model,
-          version_key: :version,
-          ecto_options: []
-        ]
-      ) do
+  def insert_or_update(%Ecto.Multi{} = multi, changeset, options \\ @default_transaction_options) do
     case get_state(changeset) do
       :built ->
         insert(multi, changeset, options)
@@ -176,19 +149,7 @@ defmodule PaperTrail.Multi do
     end
   end
 
-  def delete(
-        %Ecto.Multi{} = multi,
-        struct,
-        options \\ [
-          origin: nil,
-          meta: nil,
-          originator: nil,
-          prefix: nil,
-          model_key: :model,
-          version_key: :version,
-          ecto_options: []
-        ]
-      ) do
+  def delete(%Ecto.Multi{} = multi, struct, options \\ @default_transaction_options) do
     model_key = options[:model_key] || :model
     version_key = options[:version_key] || :version
     ecto_options = options[:ecto_options] || []
