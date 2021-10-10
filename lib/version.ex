@@ -19,9 +19,7 @@ defmodule PaperTrail.Version do
     field(:item_changes, :map)
     field(:originator_id, RepoClient.originator_type())
 
-    field(:origin, :string,
-      read_after_writes:  RepoClient.origin_read_after_writes()
-    )
+    field(:origin, :string, read_after_writes: RepoClient.origin_read_after_writes())
 
     field(:meta, :map)
 

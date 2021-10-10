@@ -27,8 +27,8 @@ defmodule PaperTrail.Mixfile do
 
   defp deps do
     [
-      {:ecto, ">= 3.6.1"},
-      {:ecto_sql, ">= 3.6.1"},
+      {:ecto, ">= 3.7.1"},
+      {:ecto_sql, ">= 3.7.0"},
       {:ex_doc, ">= 0.0.0", only: :dev, runtime: false},
       {:jason, ">= 1.2.2", only: [:dev, :test]},
       {:postgrex, ">= 0.0.0", only: [:dev, :test]}
