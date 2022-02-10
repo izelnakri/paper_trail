@@ -15,9 +15,18 @@ defmodule PaperTrail.Multi do
   defdelegate run(multi, name, mod, fun, args), to: Ecto.Multi
   defdelegate to_list(multi), to: Ecto.Multi
 
-  def insert(%Ecto.Multi{} = multi, changeset, options \\ [
-    origin: nil, meta: nil, originator: nil, prefix: nil, model_key: :model, version_key: :version
-  ]) do
+  def insert(
+        %Ecto.Multi{} = multi,
+        changeset,
+        options \\ [
+          origin: nil,
+          meta: nil,
+          originator: nil,
+          prefix: nil,
+          model_key: :model,
+          version_key: :version
+        ]
+      ) do
     model_key = options[:model_key] || :model
     version_key = options[:version_key] || :version
 
@@ -48,7 +57,8 @@ defmodule PaperTrail.Multi do
 
           repo.insert(updated_changeset)
         end)
-        |> Ecto.Multi.run(version_key, fn repo, %{initial_version: initial_version, model: model} ->
+        |> Ecto.Multi.run(version_key, fn repo,
+                                          %{initial_version: initial_version, model: model} ->
           target_version = make_version_struct(%{event: "insert"}, model, options) |> serialize()
 
           Version.changeset(initial_version, target_version) |> repo.update
@@ -67,8 +77,18 @@ defmodule PaperTrail.Multi do
   def update(
         %Ecto.Multi{} = multi,
         changeset,
-        options \\ [origin: nil, meta: nil, originator: nil, prefix: nil]
+        options \\ [
+          origin: nil,
+          meta: nil,
+          originator: nil,
+          prefix: nil,
+          model_key: :model,
+          version_key: :version
+        ]
       ) do
+    model_key = options[:model_key] || :model
+    version_key = options[:version_key] || :version
+
     case RepoClient.strict_mode() do
       true ->
         multi
@@ -110,7 +130,14 @@ defmodule PaperTrail.Multi do
   def delete(
         %Ecto.Multi{} = multi,
         struct,
-        options \\ [origin: nil, meta: nil, originator: nil, prefix: nil, model_key: :model, version_key: :version]
+        options \\ [
+          origin: nil,
+          meta: nil,
+          originator: nil,
+          prefix: nil,
+          model_key: :model,
+          version_key: :version
+        ]
       ) do
     model_key = options[:model_key] || :model
     version_key = options[:version_key] || :version
