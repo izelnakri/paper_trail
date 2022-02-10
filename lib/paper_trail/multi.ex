@@ -103,11 +103,11 @@ defmodule PaperTrail.Multi do
           target_version = make_version_struct(%{event: "update"}, target_changeset, options)
           repo.insert(target_version)
         end)
-        |> Ecto.Multi.run(:model, fn repo, %{initial_version: initial_version} ->
+        |> Ecto.Multi.run(model_key, fn repo, %{initial_version: initial_version} ->
           updated_changeset = changeset |> change(%{current_version_id: initial_version.id})
           repo.update(updated_changeset)
         end)
-        |> Ecto.Multi.run(:version, fn repo, %{initial_version: initial_version} ->
+        |> Ecto.Multi.run(version_key, fn repo, %{initial_version: initial_version} ->
           new_item_changes =
             initial_version.item_changes
             |> Map.merge(%{
@@ -119,8 +119,8 @@ defmodule PaperTrail.Multi do
 
       _ ->
         multi
-        |> Ecto.Multi.update(:model, changeset)
-        |> Ecto.Multi.run(:version, fn repo, %{model: _model} ->
+        |> Ecto.Multi.update(model_key, changeset)
+        |> Ecto.Multi.run(version_key, fn repo, %{model: _model} ->
           version = make_version_struct(%{event: "update"}, changeset, options)
           repo.insert(version)
         end)
