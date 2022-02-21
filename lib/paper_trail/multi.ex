@@ -120,7 +120,7 @@ defmodule PaperTrail.Multi do
       _ ->
         multi
         |> Ecto.Multi.update(model_key, changeset)
-        |> Ecto.Multi.run(version_key, fn repo, %{model: _model} ->
+        |> Ecto.Multi.run(version_key, fn repo, %{^model_key => _model} ->
           version = make_version_struct(%{event: "update"}, changeset, options)
           repo.insert(version)
         end)
