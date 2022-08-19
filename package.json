@@ -45,7 +45,7 @@
   "devDependencies": {
     "@j-ulrich/release-it-regex-bumper": "^3.0.0",
     "auto-changelog": "^2.3.0",
-    "release-it": "^14.11.6"
+    "release-it": "^14.14.3"
   },
   "volta": {
     "node": "15.3.0"
