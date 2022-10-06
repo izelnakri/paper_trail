@@ -112,7 +112,6 @@ defmodule PaperTrail.Serializer do
   def serialize_changes(%Ecto.Changeset{changes: changes} = changeset) do
     changeset
     |> serialize_model_changes()
-    |> serialize()
     |> Map.take(Map.keys(changes))
   end
 
@@ -155,6 +154,7 @@ defmodule PaperTrail.Serializer do
   defp serialize_model_changes(%Ecto.Changeset{data: %schema{}} = changeset) do
     field_values = serialize_model_field_changes(changeset)
     embed_values = serialize_model_embed_changes(changeset)
+    assoc_values = serialize_association_changes(changeset)
 
     field_values
     |> Map.merge(embed_values)
@@ -172,6 +172,27 @@ defmodule PaperTrail.Serializer do
       |> MapSet.to_list()
 
     Map.take(changes, field_keys)
+  end
+
+  defp serialize_association_changes(%Ecto.Changeset{data: %schema{}, changes: changes}) do
+    change_keys = changes |> Map.keys() |> MapSet.new()
+
+    field_keys =
+      :associations
+      |> schema.__schema__()
+      |> MapSet.new()
+      |> MapSet.intersection(change_keys)
+      |> MapSet.to_list()
+
+    changes_serialized =
+      changes
+      |> Map.take(field_keys)
+      |> Enum.map(fn {field, changes} ->
+        {field, PaperTrail.Serializer.serialize_changes(changes)}
+      end)
+      |> Enum.into(%{})
+
+    Map.take(changes_serialized, field_keys)
   end
 
   defp serialize_model_embed_changes(%Ecto.Changeset{data: %schema{}, changes: changes}) do
