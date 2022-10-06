@@ -158,6 +158,7 @@ defmodule PaperTrail.Serializer do
 
     field_values
     |> Map.merge(embed_values)
+    |> Map.merge(assoc_values)
     |> schema.__struct__()
   end
 
