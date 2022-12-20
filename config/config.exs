@@ -1,6 +1,6 @@
 # This file is responsible for configuring your application
 # and its dependencies with the aid of the Mix.Config module.
-use Mix.Config
+import Config
 
 # config :paper_trail, ecto_repos: []
 # This configuration is loaded before any dependency and is restricted

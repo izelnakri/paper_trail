@@ -16,7 +16,7 @@
     "release:alpha": "node_modules/.bin/release-it --preRelease=alpha --no-npm.publish && MIX_ENV=dev mix hex.publish --yes",
     "release:beta": "node_modules/.bin/release-it --preRelease=beta --no-npm.publish && MIX_ENV=dev mix hex.publish --yes",
     "release": "node_modules/.bin/release-it --no-npm.publish && MIX_ENV=dev mix hex.publish --yes",
-    "test": "mix test test/paper_trail && mix test test/version && mix test test/uuid && STRING_TEST=true mix test test/uuid"
+    "test": "sh setup-database.sh && mix test test/paper_trail && mix test test/version && mix test test/uuid && STRING_TEST=true mix test test/uuid"
   },
   "license": "MIT",
   "release-it": {

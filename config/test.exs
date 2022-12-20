@@ -1,4 +1,4 @@
-use Mix.Config
+import Config
 
 config :paper_trail,
   ecto_repos: [PaperTrail.Repo, PaperTrail.UUIDRepo, PaperTrail.UUIDWithCustomNameRepo]
