@@ -103,7 +103,11 @@ defmodule PaperTrail.Serializer do
   @spec serialize(nil | Ecto.Changeset.t() | struct()) :: nil | map()
   def serialize(nil), do: nil
   def serialize(%Ecto.Changeset{data: data}), do: serialize(data)
-  def serialize(%_schema{} = model), do: Ecto.embedded_dump(model, :json)
+
+  def serialize(%schema{} = model),
+    do:
+      Ecto.embedded_dump(model, :json)
+      |> redact_hash(schema)
 
   @doc """
   Dumps changes using Ecto fields
@@ -192,5 +196,14 @@ defmodule PaperTrail.Serializer do
         %Ecto.Embedded{cardinality: :many} -> {key, Enum.map(value, &serialize_model_changes/1)}
       end
     end)
+  end
+
+  defp redact_hash(struct, schema) do
+    if function_exported?(schema, :redacted_keys, 0) do
+      struct
+      |> Map.drop(schema.redacted_keys)
+    else
+      struct
+    end
   end
 end
