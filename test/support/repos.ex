@@ -10,6 +10,10 @@ defmodule PaperTrail.UUIDWithCustomNameRepo do
   use Ecto.Repo, otp_app: :paper_trail, adapter: Ecto.Adapters.Postgres
 end
 
+defmodule PaperTrail.MultipleItemIDRepo do
+  use Ecto.Repo, otp_app: :paper_trail, adapter: Ecto.Adapters.Postgres
+end
+
 defmodule User do
   use Ecto.Schema
 
