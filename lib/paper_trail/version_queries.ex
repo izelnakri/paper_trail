@@ -85,8 +85,13 @@ defmodule PaperTrail.VersionQueries do
     )
   end
 
-  defp version_query(item_type, id) do
+  defp version_query(item_type, id) when is_integer(id) do
     from(v in Version, where: v.item_type == ^item_type and v.item_id == ^id)
+  end
+
+  defp version_query(item_type, id) when is_binary(id) do
+    id_field = PaperTrail.RepoClient.item_binary_id_field()
+    from(v in Version, where: v.item_type == ^item_type and field(v, ^id_field) == ^id)
   end
 
   defp version_query(item_type, id, options) do

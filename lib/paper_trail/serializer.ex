@@ -21,7 +21,6 @@ defmodule PaperTrail.Serializer do
     %Version{
       event: "insert",
       item_type: get_item_type(model),
-      item_id: get_model_id(model),
       item_changes: serialize(model),
       originator_id:
         case originator_ref do
@@ -32,6 +31,7 @@ defmodule PaperTrail.Serializer do
       origin: options[:origin],
       meta: options[:meta]
     }
+    |> Map.merge(item_id_changes(model))
     |> add_prefix(options[:prefix])
   end
 
@@ -42,7 +42,6 @@ defmodule PaperTrail.Serializer do
     %Version{
       event: "update",
       item_type: get_item_type(changeset),
-      item_id: get_model_id(changeset),
       item_changes: serialize_changes(changeset),
       originator_id:
         case originator_ref do
@@ -53,6 +52,7 @@ defmodule PaperTrail.Serializer do
       origin: options[:origin],
       meta: options[:meta]
     }
+    |> Map.merge(item_id_changes(changeset))
     |> add_prefix(options[:prefix])
   end
 
@@ -63,7 +63,6 @@ defmodule PaperTrail.Serializer do
     %Version{
       event: "delete",
       item_type: get_item_type(model_or_changeset),
-      item_id: get_model_id(model_or_changeset),
       item_changes: serialize(model_or_changeset),
       originator_id:
         case originator_ref do
@@ -74,6 +73,7 @@ defmodule PaperTrail.Serializer do
       origin: options[:origin],
       meta: options[:meta]
     }
+    |> Map.merge(item_id_changes(model_or_changeset))
     |> add_prefix(options[:prefix])
   end
 
@@ -192,5 +192,17 @@ defmodule PaperTrail.Serializer do
         %Ecto.Embedded{cardinality: :many} -> {key, Enum.map(value, &serialize_model_changes/1)}
       end
     end)
+  end
+
+  defp item_id_changes(%Ecto.Changeset{data: data}), do: item_id_changes(data)
+
+  defp item_id_changes(model) do
+    {_, model_id} = List.first(Ecto.primary_key(model))
+
+    cond do
+      is_integer(model_id) -> %{item_id: model_id}
+      is_binary(model_id) -> Map.new([{RepoClient.item_binary_id_field(), model_id}])
+      true -> %{}
+    end
   end
 end

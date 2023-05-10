@@ -8,16 +8,16 @@ defmodule PaperTrail.Version do
 
   alias PaperTrail.RepoClient
 
-  # @setter RepoClient.originator()
-  # @item_type Application.get_env(:paper_trail, :item_type, :integer)
-  # @originator_type Application.get_env(:paper_trail, :originator_type, :integer)
-
   schema "versions" do
     field(:event, :string)
     field(:item_type, :string)
     field(:item_id, RepoClient.item_type())
     field(:item_changes, :map)
     field(:originator_id, RepoClient.originator_type())
+
+    for {field, type} <- RepoClient.additional_fields() do
+      field(field, type)
+    end
 
     field(:origin, :string, read_after_writes: RepoClient.origin_read_after_writes())
 
