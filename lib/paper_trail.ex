@@ -33,10 +33,10 @@ defmodule PaperTrail do
   Explicitly inserts a non-versioned already existing record into the Versions table
   """
   def initialise(model, options \\ [origin: nil, meta: nil, originator: nil, prefix: nil, version_key: :version]) do
-    case has_version?(model) |> IO.inspect(label: "has") do
+    case has_version?(model) do
       false ->
 
-        with {:ok, _} <- make_version_struct(%{event: "insert"}, model, options)    |> IO.inspect(label: "vs")
+        with {:ok, _} <- make_version_struct(%{event: "insert"}, model, options) 
         |> PaperTrail.RepoClient.repo().insert() do
           :ok
         end

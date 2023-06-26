@@ -86,7 +86,6 @@ defmodule PaperTrail.VersionQueries do
   @spec has_version?(model :: module, id :: pos_integer, options :: keyword | []) :: boolean
   def has_version?(model, id, options) do
     version_query(model, id, options)
-    |> IO.inspect(label: "q")
     |> PaperTrail.RepoClient.repo().exists?()
   end
 
