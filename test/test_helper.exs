@@ -1,5 +1,9 @@
 Application.start(:postgrex)
 
+Application.put_env(:paper_trail, :ecto_repos, [PaperTrail.Repo, PaperTrail.UUIDRepo, PaperTrail.UUIDWithCustomNameRepo])
+Application.put_env(:paper_trail, :repo, PaperTrail.Repo)
+Application.put_env(:paper_trail, :originator, [name: :user, model: User])
+
 Mix.Task.run("ecto.drop")
 Mix.Task.run("ecto.create")
 Mix.Task.run("ecto.migrate")
@@ -7,12 +11,6 @@ Mix.Task.run("ecto.migrate")
 PaperTrail.Repo.start_link()
 PaperTrail.UUIDRepo.start_link()
 PaperTrail.UUIDWithCustomNameRepo.start_link()
-
-Code.require_file("test/support/multi_tenant_helper.exs")
-Code.require_file("test/support/simple_models.exs")
-Code.require_file("test/support/strict_models.exs")
-Code.require_file("test/support/uuid_models.exs")
-Code.require_file("test/support/uuid_with_custom_name_models.exs")
 
 ExUnit.configure(seed: 0)
 

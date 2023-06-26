@@ -5,6 +5,9 @@ defmodule PaperTrail do
   defdelegate get_version(record), to: PaperTrail.VersionQueries
   defdelegate get_version(model_or_record, id_or_options), to: PaperTrail.VersionQueries
   defdelegate get_version(model, id, options), to: PaperTrail.VersionQueries
+  defdelegate has_version?(record), to: PaperTrail.VersionQueries
+  defdelegate has_version?(model_or_record, id_or_options), to: PaperTrail.VersionQueries
+  defdelegate has_version?(model, id, options), to: PaperTrail.VersionQueries
   defdelegate get_versions(record), to: PaperTrail.VersionQueries
   defdelegate get_versions(model_or_record, id_or_options), to: PaperTrail.VersionQueries
   defdelegate get_versions(model, id, options), to: PaperTrail.VersionQueries
@@ -25,6 +28,24 @@ defmodule PaperTrail do
     version_key: :version,
     ecto_options: []
   ]
+
+  @doc """
+  Explicitly inserts a non-versioned already existing record into the Versions table
+  """
+  def initialise(model, options \\ [origin: nil, meta: nil, originator: nil, prefix: nil, version_key: :version]) do
+    case has_version?(model) |> IO.inspect(label: "has") do
+      false ->
+
+        with {:ok, _} <- make_version_struct(%{event: "insert"}, model, options)    |> IO.inspect(label: "vs")
+        |> PaperTrail.RepoClient.repo().insert() do
+          :ok
+        end
+
+      _ ->
+        # already initalised
+        :ok
+    end
+  end
 
   @doc """
   Inserts a record to the database with a related version insertion in one transaction
@@ -81,7 +102,11 @@ defmodule PaperTrail do
   @spec update(changeset :: Ecto.Changeset.t(model), options :: Keyword.t()) ::
           {:ok, %{model: model, version: Version.t()}} | {:error, Ecto.Changeset.t(model) | term}
         when model: struct
-  def update(changeset, options \\ @default_transaction_options) do
+  def update(changeset, options \\ @default_transaction_options) 
+  def update(%Ecto.Changeset{changes: changes}, _) when changes==%{} do
+    {:ok, :no_changes}
+  end
+  def update(changeset, options) do
     PaperTrail.Multi.new()
     |> PaperTrail.Multi.update(changeset, options)
     |> PaperTrail.Multi.commit()
