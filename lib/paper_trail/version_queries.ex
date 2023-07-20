@@ -71,7 +71,7 @@ defmodule PaperTrail.VersionQueries do
     |> PaperTrail.RepoClient.repo().one
   end
 
-  @spec has_version?(record :: Ecto.Schema.t()) :: Version.t() | nil
+  @spec has_version?(record :: Ecto.Schema.t()) :: boolean
   def has_version?(record), do: has_version?(record, [])
 
   @spec has_version?(model :: module, id :: pos_integer) :: boolean
