@@ -102,11 +102,7 @@ defmodule PaperTrail do
   @spec update(changeset :: Ecto.Changeset.t(model), options :: Keyword.t()) ::
           {:ok, %{model: model, version: Version.t()}} | {:error, Ecto.Changeset.t(model) | term}
         when model: struct
-  def update(changeset, options \\ @default_transaction_options) 
-  def update(%Ecto.Changeset{changes: changes}, _) when changes==%{} do
-    {:ok, :no_changes}
-  end
-  def update(changeset, options) do
+  def update(changeset, options \\ @default_transaction_options) do
     PaperTrail.Multi.new()
     |> PaperTrail.Multi.update(changeset, options)
     |> PaperTrail.Multi.commit()
