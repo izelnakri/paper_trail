@@ -5,6 +5,9 @@ defmodule PaperTrail do
   defdelegate get_version(record), to: PaperTrail.VersionQueries
   defdelegate get_version(model_or_record, id_or_options), to: PaperTrail.VersionQueries
   defdelegate get_version(model, id, options), to: PaperTrail.VersionQueries
+  defdelegate has_version?(record), to: PaperTrail.VersionQueries
+  defdelegate has_version?(model_or_record, id_or_options), to: PaperTrail.VersionQueries
+  defdelegate has_version?(model, id, options), to: PaperTrail.VersionQueries
   defdelegate get_versions(record), to: PaperTrail.VersionQueries
   defdelegate get_versions(model_or_record, id_or_options), to: PaperTrail.VersionQueries
   defdelegate get_versions(model, id, options), to: PaperTrail.VersionQueries
@@ -25,6 +28,24 @@ defmodule PaperTrail do
     version_key: :version,
     ecto_options: []
   ]
+
+  @doc """
+  Explicitly inserts a non-versioned already existing record into the Versions table
+  """
+  def initialise(model, options \\ [origin: nil, meta: nil, originator: nil, prefix: nil, version_key: :version]) do
+    case has_version?(model) do
+      false ->
+
+        with {:ok, _} <- make_version_struct(%{event: "insert"}, model, options) 
+        |> PaperTrail.RepoClient.repo().insert() do
+          :ok
+        end
+
+      _ ->
+        # already initalised
+        :ok
+    end
+  end
 
   @doc """
   Inserts a record to the database with a related version insertion in one transaction

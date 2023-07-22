@@ -29,8 +29,8 @@ defmodule PaperTrailTest do
   setup_all do
     Application.put_env(:paper_trail, :strict_mode, false)
     Application.put_env(:paper_trail, :repo, PaperTrail.Repo)
-    Code.eval_file("lib/paper_trail.ex")
-    Code.eval_file("lib/version.ex")
+    
+    
     :ok
   end
 
@@ -686,6 +686,19 @@ defmodule PaperTrailTest do
                singular: nil
              })
              |> PaperTrail.update(origin: "admin")
+  end
+
+   test "updating a company with current params should not create a version" do
+    {:ok, insert_result} = create_company_with_version()
+
+    {:ok, update_result} =
+      update_company_with_version(
+        insert_result[:model],
+        @create_company_params,
+        []
+      )
+
+    assert PaperTrail.get_version(insert_result[:model]) == insert_result[:version]
   end
 
   defp create_user do

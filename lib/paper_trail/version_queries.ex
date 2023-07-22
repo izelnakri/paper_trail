@@ -22,7 +22,7 @@ defmodule PaperTrail.VersionQueries do
   Gets all the versions of a record given a module and its id
   """
   @spec get_versions(model :: module, id :: pos_integer) :: [Version.t()]
-  def get_versions(model, id) when is_atom(model) and is_integer(id),
+  def get_versions(model, id) when is_atom(model) and (is_integer(id) or is_binary(id)),
     do: get_versions(model, id, [])
 
   @spec get_versions(record :: Ecto.Schema.t(), options :: keyword | []) :: [Version.t()]
@@ -56,22 +56,37 @@ defmodule PaperTrail.VersionQueries do
   def get_version(record), do: get_version(record, [])
 
   @spec get_version(model :: module, id :: pos_integer) :: Version.t() | nil
-  def get_version(model, id) when is_atom(model) and is_integer(id),
+  def get_version(model, id) when is_atom(model) and (is_integer(id) or is_binary(id)),
     do: get_version(model, id, [])
 
   @spec get_version(record :: Ecto.Schema.t(), options :: keyword | []) :: Version.t() | nil
   def get_version(record, options) when is_map(record) do
-    item_type = record.__struct__ |> Module.split() |> List.last()
-
-    last(version_query(item_type, PaperTrail.get_model_id(record), options))
-    |> PaperTrail.RepoClient.repo().one
+    get_version(record.__struct__, PaperTrail.get_model_id(record), options)
   end
 
   @spec get_version(model :: module, id :: pos_integer, options :: keyword | []) ::
           Version.t() | nil
   def get_version(model, id, options) do
-    item_type = model |> Module.split() |> List.last()
-    last(version_query(item_type, id, options)) |> PaperTrail.RepoClient.repo().one
+    last(version_query(model, id, options)) 
+    |> PaperTrail.RepoClient.repo().one
+  end
+
+  @spec has_version?(record :: Ecto.Schema.t()) :: boolean
+  def has_version?(record), do: has_version?(record, [])
+
+  @spec has_version?(model :: module, id :: pos_integer) :: boolean
+  def has_version?(model, id) when is_atom(model) and (is_integer(id) or is_binary(id)),
+    do: has_version?(model, id, [])
+
+  @spec has_version?(record :: Ecto.Schema.t(), options :: keyword | []) :: boolean
+  def has_version?(record, options) when is_map(record) do
+    has_version?(record.__struct__, PaperTrail.get_model_id(record), options)
+  end
+
+  @spec has_version?(model :: module, id :: pos_integer, options :: keyword | []) :: boolean
+  def has_version?(model, id, options) do
+    version_query(model, id, options)
+    |> PaperTrail.RepoClient.repo().exists?()
   end
 
   @doc """
@@ -89,7 +104,13 @@ defmodule PaperTrail.VersionQueries do
     from(v in Version, where: v.item_type == ^item_type and v.item_id == ^id)
   end
 
-  defp version_query(item_type, id, options) do
+  defp version_query(model, id, options) when is_atom(model) do
+    model 
+    |> Module.split() 
+    |> List.last()
+    |> version_query(id, options)
+  end
+  defp version_query(item_type, id, options) when is_binary(item_type) do
     with opts <- Enum.into(options, %{}) do
       version_query(item_type, id)
       |> Ecto.Queryable.to_query()
