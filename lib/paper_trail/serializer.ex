@@ -27,6 +27,7 @@ defmodule PaperTrail.Serializer do
         case originator_ref do
           nil -> nil
           %{id: id} -> id
+          id when is_binary(id) -> id
           model when is_struct(model) -> get_model_id(originator_ref)
         end,
       origin: options[:origin],
@@ -48,6 +49,7 @@ defmodule PaperTrail.Serializer do
         case originator_ref do
           nil -> nil
           %{id: id} -> id
+          id when is_binary(id) -> id
           model when is_struct(model) -> get_model_id(originator_ref)
         end,
       origin: options[:origin],
@@ -69,6 +71,7 @@ defmodule PaperTrail.Serializer do
         case originator_ref do
           nil -> nil
           %{id: id} -> id
+          id when is_binary(id) -> id
           model when is_struct(model) -> get_model_id(originator_ref)
         end,
       origin: options[:origin],
