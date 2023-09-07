@@ -4,13 +4,13 @@ defmodule PaperTrail.Version do
   import Ecto.Changeset
   import Ecto.Query
 
-  @type t :: %__MODULE__{}
-
   alias PaperTrail.RepoClient
 
-  # @setter RepoClient.originator()
-  # @item_type Application.get_env(:paper_trail, :item_type, :integer)
-  # @originator_type Application.get_env(:paper_trail, :originator_type, :integer)
+  @type t :: %__MODULE__{}
+
+  if custom_primary_key = Application.compile_env(:paper_trail, :version_primary_key) do
+    @primary_key custom_primary_key
+  end
 
   schema "versions" do
     field(:event, :string)
