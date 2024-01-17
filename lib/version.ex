@@ -17,6 +17,7 @@ defmodule PaperTrail.Version do
     field(:item_type, :string)
     field(:item_id, RepoClient.item_type())
     field(:item_changes, :map)
+    field(:item_from, :map)
     field(:originator_id, RepoClient.originator_type())
 
     field(:origin, :string, read_after_writes: RepoClient.origin_read_after_writes())
@@ -41,10 +42,13 @@ defmodule PaperTrail.Version do
     )
   end
 
+  @required_fields ~w(event item_type item_id item_changes)a
+  @all_fields ~w(item_type item_id item_changes item_from origin originator_id meta)a
+
   def changeset(model, params \\ %{}) do
     model
-    |> cast(params, [:item_type, :item_id, :item_changes, :origin, :originator_id, :meta])
-    |> validate_required([:event, :item_type, :item_id, :item_changes])
+    |> cast(params, @all_fields)
+    |> validate_required(@required_fields)
   end
 
   @doc """

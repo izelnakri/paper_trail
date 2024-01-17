@@ -23,10 +23,11 @@ defmodule Mix.Tasks.Papertrail.Install do
           add :item_type,    :string, null: false
           add :item_id,      :integer
           add :item_changes, :map, null: false
+          add :item_from, :map
           add :originator_id, references(:users) # you can change :users to your own foreign key constraint
           add :origin,       :string, size: 50
           add :meta,         :map
-          
+
           # Configure timestamps type in config.ex :paper_trail :timestamps_type
           add :inserted_at,  :#{timestamps_type}, null: false
         end

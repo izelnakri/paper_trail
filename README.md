@@ -152,6 +152,7 @@ YES! Make sure you do the steps above.
 | item_type     | String  | model name of the reference record | Library generates |
 | item_id       | configurable (Integer by default) | model id of the reference record | Library generates |
 | item_changes  | Map     | all the changes in this version as a map | Library generates |
+| item_from  | Map     | all the data before applying changes | Library generates |
 | originator_id | configurable (Integer by default) | foreign key reference to the creator/owner of this change | Optionally set |
 | origin        | String  | short reference to origin(eg. worker:activity-checker, migration, admin:33) | Optionally set |
 | meta          | Map     | any extra optional meta information about the version(eg. %{slug: "ausername", important: true}) | Optionally set |
@@ -487,6 +488,7 @@ mix test --trace
 ```
 
 # Credits
+
 Many thanks to:
 - [Jose Pablo Castro](https://github.com/josepablocastro) - Built the repo configuration for paper_trail
 - [Harold Tafur](https://github.com/hdtafur) - Built the `:ecto_options` option for PaperTrail inserts
