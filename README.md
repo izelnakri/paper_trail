@@ -472,6 +472,12 @@ config :paper_trail, timestamps_type: :utc_datetime
 
 Note: You will need to recompile your deps after you have added the config for timestamps.
 
+## Postgres datatype support
+
+PaperTrail serializes the version data in JSON and not all native Postgres data types are supported directly. [Composite types](https://www.postgresql.org/docs/current/rowtypes.html#:~:text=A%20composite%20type%20represents%20the,be%20of%20a%20composite%20type.) and [range types](https://www.postgresql.org/docs/current/rangetypes.html) are two examples which have no native JSON representation. 
+
+Developers may derive their own [Jason encoder](https://hexdocs.pm/jason/Jason.Encoder.html) for such types. It should be noted that an encoder can only be defined for a native Elixir base type or `struct` once in an application and therefore there is a small risk of conflicting encoders.
+
 ## Suggestions
 
 - PaperTrail.Version(s) order matter,
