@@ -29,4 +29,4 @@ config :paper_trail, PaperTrail.UUIDWithCustomNameRepo,
   hostname: System.get_env("PG_HOST"),
   poolsize: 10
 
-config :logger, level: :warn
+config :logger, level: :warning
