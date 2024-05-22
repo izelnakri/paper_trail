@@ -2,6 +2,7 @@ defmodule PaperTrailTest do
   use ExUnit.Case
 
   import Ecto.Query
+  import PaperTrailTest.Assertions
 
   alias PaperTrail.Version
   alias SimpleCompany, as: Company
@@ -29,8 +30,6 @@ defmodule PaperTrailTest do
   setup_all do
     Application.put_env(:paper_trail, :strict_mode, false)
     Application.put_env(:paper_trail, :repo, PaperTrail.Repo)
-    Code.eval_file("lib/paper_trail.ex")
-    Code.eval_file("lib/version.ex")
     :ok
   end
 
@@ -58,7 +57,7 @@ defmodule PaperTrailTest do
     company = result[:model] |> serialize
     version = result[:version] |> serialize
 
-    assert Map.keys(result) == [:model, :version]
+    assert_map_keys(result, [:model, :version])
     assert company_count == 1
     assert version_count == 1
 
@@ -133,7 +132,7 @@ defmodule PaperTrailTest do
     company = result[:model] |> serialize
     version = result[:version] |> serialize
 
-    assert Map.keys(result) == [:model, :version]
+    assert_map_keys(result, [:model, :version])
     assert company_count == 1
     assert version_count == 1
 
@@ -176,7 +175,7 @@ defmodule PaperTrailTest do
     company = result[:model] |> serialize
     version = result[:version] |> serialize
 
-    assert Map.keys(result) == [:model, :version]
+    assert_map_keys(result, [:model, :version])
     assert company_count == 1
     assert version_count == 2
 
@@ -227,7 +226,7 @@ defmodule PaperTrailTest do
     company = result[:model] |> serialize
     version = result[:version] |> serialize
 
-    assert Map.keys(result) == [:model, :version]
+    assert_map_keys(result, [:model, :version])
     assert company_count == 1
     assert version_count == 2
 
@@ -278,7 +277,7 @@ defmodule PaperTrailTest do
     company = result[:model] |> serialize
     version = result[:version] |> serialize
 
-    assert Map.keys(result) == [:model, :version]
+    assert_map_keys(result, [:model, :version])
     assert company_count == 1
     assert version_count == 2
 
@@ -349,7 +348,7 @@ defmodule PaperTrailTest do
     company = result[:model] |> serialize
     version = result[:version] |> serialize
 
-    assert Map.keys(result) == [:model, :version]
+    assert_map_keys(result, [:model, :version])
     assert company_count == 0
     assert version_count == 3
 
@@ -406,7 +405,7 @@ defmodule PaperTrailTest do
     company = result[:model] |> serialize
     version = result[:version] |> serialize
 
-    assert Map.keys(result) == [:model, :version]
+    assert_map_keys(result, [:model, :version])
     assert company_count == 0
     assert version_count == 3
 
@@ -491,7 +490,7 @@ defmodule PaperTrailTest do
     person = result[:model] |> serialize
     version = result[:version] |> serialize
 
-    assert Map.keys(result) == [:model, :version]
+    assert_map_keys(result, [:model, :version])
     assert person_count == 1
     assert version_count == 3
 
@@ -557,7 +556,7 @@ defmodule PaperTrailTest do
     person = result[:model] |> serialize
     version = result[:version] |> serialize
 
-    assert Map.keys(result) == [:model, :version]
+    assert_map_keys(result, [:model, :version])
     assert person_count == 1
     assert version_count == 4
 
@@ -631,7 +630,7 @@ defmodule PaperTrailTest do
     person_count = Person.count()
     version_count = Version.count()
 
-    assert Map.keys(result) == [:model, :version]
+    assert_map_keys(result, [:model, :version])
     old_person = update_result[:model] |> serialize
     version = result[:version] |> serialize
 
