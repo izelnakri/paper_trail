@@ -30,8 +30,6 @@ defmodule PaperTrailTest.Version do
   end
 
   setup do
-    repo().delete_all(Version)
-
     Version
     |> MultiTenant.add_prefix_to_query()
     |> repo().delete_all()

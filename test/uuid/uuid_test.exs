@@ -18,10 +18,6 @@ defmodule PaperTrailTest.UUIDTest do
     Code.eval_file("lib/paper_trail.ex")
     Code.eval_file("lib/version.ex")
 
-    repo().delete_all(Version)
-    repo().delete_all(Admin)
-    repo().delete_all(Product)
-    repo().delete_all(Item)
     :ok
   end
 

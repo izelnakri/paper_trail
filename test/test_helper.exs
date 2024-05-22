@@ -10,4 +10,8 @@ PaperTrail.UUIDWithCustomNameRepo.start_link()
 
 ExUnit.configure(seed: 0)
 
+Ecto.Adapters.SQL.Sandbox.mode(PaperTrail.Repo, :auto)
+Ecto.Adapters.SQL.Sandbox.mode(PaperTrail.UUIDRepo, :auto)
+Ecto.Adapters.SQL.Sandbox.mode(PaperTrail.UUIDWithCustomNameRepo, :auto)
+
 ExUnit.start(capture_log: true)

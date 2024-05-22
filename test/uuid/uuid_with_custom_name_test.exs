@@ -19,9 +19,6 @@ defmodule PaperTrailTest.UUIDWithCustomNameTest do
     Code.eval_file("lib/paper_trail.ex")
     Code.eval_file("lib/version.ex")
 
-    repo().delete_all(Version)
-    repo().delete_all(Person)
-    repo().delete_all(Project)
     :ok
   end
 
