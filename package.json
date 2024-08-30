@@ -43,11 +43,11 @@
     }
   },
   "devDependencies": {
-    "@j-ulrich/release-it-regex-bumper": "^4.1.1",
+    "@j-ulrich/release-it-regex-bumper": "^5.1.0",
     "auto-changelog": "^2.4.0",
-    "release-it": "^15.5.1"
+    "release-it": "^17.6.0"
   },
   "volta": {
-    "node": "18.12.1"
+    "node": "20.17.0"
   }
 }
