@@ -27,10 +27,10 @@ defmodule PaperTrail.MixProject do
 
   defp deps do
     [
-      {:ecto, ">= 3.10.2"},
-      {:ecto_sql, ">= 3.10.1"},
+      {:ecto, ">= 3.12.2"},
+      {:ecto_sql, ">= 3.12.0"},
       {:ex_doc, ">= 0.0.0", only: :dev, runtime: false},
-      {:jason, ">= 1.4.0", only: [:dev, :test]},
+      {:jason, ">= 1.4.4", only: [:dev, :test]},
       {:postgrex, ">= 0.0.0", only: [:dev, :test]}
     ]
   end
