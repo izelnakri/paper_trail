@@ -16,8 +16,8 @@ defmodule PaperTrailTest.UUIDWithCustomNameTest do
       if(System.get_env("STRING_TEST") == nil, do: Ecto.UUID, else: :string)
     )
 
-    
-    
+    Code.eval_file("lib/paper_trail.ex")
+    Code.eval_file("lib/version.ex")
 
     repo().delete_all(Version)
     repo().delete_all(Person)

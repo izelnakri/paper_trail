@@ -87,7 +87,9 @@ defmodule PaperTrail.Multi do
   end
 
   def update(multi, changeset, options \\ @default_transaction_options)
-  def update(%Ecto.Multi{} = multi, %Ecto.Changeset{changes: changes} = changeset, options) when changes==%{} do
+
+  def update(%Ecto.Multi{} = multi, %Ecto.Changeset{changes: changes} = changeset, options)
+      when changes == %{} do
     # when there's no changes to save, rely on ecto's update being a no-op
     model_key = options[:model_key] || :model
     ecto_options = options[:ecto_options] || []

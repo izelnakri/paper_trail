@@ -67,7 +67,7 @@ defmodule PaperTrail.VersionQueries do
   @spec get_version(model :: module, id :: pos_integer, options :: keyword | []) ::
           Version.t() | nil
   def get_version(model, id, options) do
-    last(version_query(model, id, options)) 
+    last(version_query(model, id, options))
     |> PaperTrail.RepoClient.repo().one
   end
 
@@ -105,11 +105,12 @@ defmodule PaperTrail.VersionQueries do
   end
 
   defp version_query(model, id, options) when is_atom(model) do
-    model 
-    |> Module.split() 
+    model
+    |> Module.split()
     |> List.last()
     |> version_query(id, options)
   end
+
   defp version_query(item_type, id, options) when is_binary(item_type) do
     with opts <- Enum.into(options, %{}) do
       version_query(item_type, id)

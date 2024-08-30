@@ -1,8 +1,13 @@
 Application.start(:postgrex)
 
-Application.put_env(:paper_trail, :ecto_repos, [PaperTrail.Repo, PaperTrail.UUIDRepo, PaperTrail.UUIDWithCustomNameRepo])
+Application.put_env(:paper_trail, :ecto_repos, [
+  PaperTrail.Repo,
+  PaperTrail.UUIDRepo,
+  PaperTrail.UUIDWithCustomNameRepo
+])
+
 Application.put_env(:paper_trail, :repo, PaperTrail.Repo)
-Application.put_env(:paper_trail, :originator, [name: :user, model: User])
+Application.put_env(:paper_trail, :originator, name: :user, model: User)
 
 Mix.Task.run("ecto.drop")
 Mix.Task.run("ecto.create")

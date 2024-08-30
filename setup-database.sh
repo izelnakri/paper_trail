@@ -1,6 +1,6 @@
 #!/bin/sh
 set -oe allexport
-source .env
+source ./.env
 
 echo "PGHOST IS:"
 echo $PGHOST

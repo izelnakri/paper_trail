@@ -29,8 +29,7 @@ defmodule PaperTrailTest do
   setup_all do
     Application.put_env(:paper_trail, :strict_mode, false)
     Application.put_env(:paper_trail, :repo, PaperTrail.Repo)
-    
-    
+
     :ok
   end
 
@@ -688,8 +687,11 @@ defmodule PaperTrailTest do
              |> PaperTrail.update(origin: "admin")
   end
 
-   test "updating a company with current params should not create a version" do
+  test "updating a company with current params should not create a version" do
     {:ok, insert_result} = create_company_with_version()
+
+    insert_result_version = PaperTrail.get_version(insert_result[:model])
+    version_count_before_update = PaperTrail.Version.count()
 
     {:ok, update_result} =
       update_company_with_version(
@@ -698,7 +700,11 @@ defmodule PaperTrailTest do
         []
       )
 
-    assert PaperTrail.get_version(insert_result[:model]) == insert_result[:version]
+    version_count_after_update = PaperTrail.Version.count()
+    update_result_version = PaperTrail.get_version(update_result[:model])
+
+    assert version_count_before_update == version_count_after_update
+    assert insert_result_version == update_result_version
   end
 
   defp create_user do

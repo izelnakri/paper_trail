@@ -26,8 +26,7 @@ defmodule PaperTrailTest.StrictModeBangFunctions do
     Application.put_env(:paper_trail, :strict_mode, true)
     Application.put_env(:paper_trail, :repo, PaperTrail.Repo)
     Application.put_env(:paper_trail, :originator_type, :integer)
-    
-    
+
     MultiTenant.setup_tenant(repo())
     :ok
   end
