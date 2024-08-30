@@ -1,4 +1,4 @@
-defmodule Example.Mixfile do
+defmodule Example.MixProject do
   use Mix.Project
 
   def project do
@@ -16,7 +16,7 @@ defmodule Example.Mixfile do
   def application do
     [
       mod: {Example, []},
-      applications: [:logger, :postgrex, :ecto]
+      extra_applications: [:logger, :postgrex, :ecto]
     ]
   end
 

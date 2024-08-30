@@ -32,4 +32,4 @@ config :paper_trail, PaperTrail.UUIDWithCustomNameRepo,
   show_sensitive_data_on_connection_error: true,
   poolsize: 10
 
-config :logger, level: :warn
+config :logger, level: :warning

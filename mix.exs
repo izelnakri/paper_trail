@@ -1,8 +1,8 @@
-defmodule PaperTrail.Mixfile do
+defmodule PaperTrail.MixProject do
   use Mix.Project
 
   @source_url "https://github.com/izelnakri/paper_trail"
-  @version "1.0.1"
+  @version "1.1.0"
 
   def project do
     [
@@ -21,7 +21,7 @@ defmodule PaperTrail.Mixfile do
 
   def application do
     [
-      applications: [:logger, :ecto, :ecto_sql, :runtime_tools]
+      extra_applications: [:logger, :ecto, :ecto_sql, :runtime_tools]
     ]
   end
 

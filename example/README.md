@@ -18,7 +18,7 @@ If [available in Hex](https://hex.pm/docs/publish), the package can be installed
 
     ```elixir
     def application do
-      [applications: [:example]]
+      [extra_applications: [:example]]
     end
     ```
 
