@@ -2,15 +2,21 @@ services:
   db:
     image: postgres:16.4-alpine
     environment:
-      POSTGRES_PASSWORD: $PGPASSWORD
       PGPASSWORD: $PGPASSWORD
       PGUSER: $PGUSER
+      POSTGRES_USER: $PGUSER
+      POSTGRES_PASSWORD: $PGPASSWORD
       PGDATA: /var/lib/postgresql/data/pgdata
     restart: always
     networks:
       - backend_network
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 1s
+      timeout: 5s
+      retries: 10
   paper_trail:
     image: $REGISTRY/$REPO_OWNER/$DOCKER_TAG
     build:
