@@ -26,8 +26,8 @@ defmodule PaperTrailTest.SimpleModeBangFunctions do
     Application.put_env(:paper_trail, :strict_mode, false)
     Application.put_env(:paper_trail, :repo, PaperTrail.Repo)
     Application.put_env(:paper_trail, :originator_type, :integer)
-    Code.eval_file("lib/paper_trail.ex")
-    Code.eval_file("lib/version.ex")
+    
+    
     MultiTenant.setup_tenant(repo())
     :ok
   end
