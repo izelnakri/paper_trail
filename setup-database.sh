@@ -2,6 +2,9 @@
 set -oe allexport
 source .env
 
+echo "PGHOST IS:"
+echo $PGHOST
+
 # Prepare Dialyzer if the project has Dialyxer set up
 # if mix help dialyzer >/dev/null 2>&1
 # then
@@ -13,7 +16,7 @@ source .env
 
 # Wait for Postgres to become available.
 until psql -h $PGHOST -U "$PGUSER" -c '\q' 2>/dev/null; do
-  >&2 echo "Postgres is unavailable - sleeping"
+  echo "Postgres is unavailable - sleeping"
   sleep 1
 done
 
