@@ -2,9 +2,6 @@
 set -oe allexport
 source ./.env
 
-echo "PGHOST IS:"
-echo $PGHOST
-
 # Prepare Dialyzer if the project has Dialyxer set up
 # if mix help dialyzer >/dev/null 2>&1
 # then

@@ -8,7 +8,7 @@ defmodule PaperTrail.MixProject do
     [
       app: :paper_trail,
       version: @version,
-      elixir: "~> 1.11",
+      elixir: "~> 1.17",
       description: description(),
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
