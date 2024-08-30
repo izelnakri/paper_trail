@@ -13,7 +13,7 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U ${PGUSER}"]
       interval: 1s
       timeout: 5s
       retries: 10
@@ -32,7 +32,8 @@ services:
       MIX_ENV: $MIX_ENV
     tty: true
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     networks:
       - backend_network
     command: ["/bin/sh", "./setup-database.sh"]
