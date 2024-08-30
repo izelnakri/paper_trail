@@ -1,6 +1,6 @@
 #!/bin/sh
 set -oe allexport
-source ./.env
+source .env
 
 # Prepare Dialyzer if the project has Dialyxer set up
 # if mix help dialyzer >/dev/null 2>&1

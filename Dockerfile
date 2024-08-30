@@ -5,7 +5,7 @@ ENV MIX_ENV=$MIX_ENV
 
 WORKDIR /code/
 
-RUN echo "y" | mix local.hex --if-missing && echo "y" | mix local.rebar --if-missing
+RUN apk add postgresql | echo "y" | mix local.hex --if-missing && echo "y" | mix local.rebar --if-missing
 
 ADD ["mix.lock", "mix.exs", "/code/"]
 
