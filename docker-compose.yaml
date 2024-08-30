@@ -3,8 +3,8 @@ services:
   db:
     image: postgres:12.2-alpine
     environment:
-      POSTGRES_PASSWORD: $POSTGRES_USER
-      POSTGRES_USER: $POSTGRES_PASSWORD
+      PGPASSWORD: $PGPASSWORD
+      PGUSER: $PGUSER
       PGDATA: /var/lib/postgresql/data/pgdata
     restart: always
     networks:
@@ -19,10 +19,10 @@ services:
       cache_from:
         - $REGISTRY/$REPO_OWNER/$DOCKER_TAG
     environment:
-      POSTGRES_USER: $POSTGRES_USER
-      POSTGRES_PASSWORD: $POSTGRES_PASSWORD
+      PGUSER: $PGUSER
+      PGPASSWORD: $PGPASSWORD
       PGPORT: 5432
-      PG_HOST: db
+      PGHOST: db
       MIX_ENV: $MIX_ENV
     tty: true
     depends_on:
