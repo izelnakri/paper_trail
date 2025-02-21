@@ -138,10 +138,11 @@ defmodule SimpleEmbed do
 
   embedded_schema do
     field(:name, :string)
+    field(:language, :string)
   end
 
   def changeset(model, params \\ %{}) do
     model
-    |> cast(params, [:name])
+    |> cast(params, [:name, :language])
   end
 end

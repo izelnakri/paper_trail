@@ -454,7 +454,7 @@ defmodule PaperTrailTest.SimpleModeBangFunctions do
 
     %Person{
       id: person_id,
-      plural: [%{id: _, name: "Plural"}],
+      plural: [%{id: _, name: "Plural_1"}, %{id: _, name: "Plural_2", language: "en"}],
       singular: %{id: _, name: "Singular"}
     } =
       person =
@@ -467,7 +467,7 @@ defmodule PaperTrailTest.SimpleModeBangFunctions do
       })
       |> PaperTrail.insert!()
       |> Person.changeset(%{
-        plural: [%{name: "Plural"}],
+        plural: [%{name: "Plural_1"}, %{name: "Plural_2", language: "en"}],
         singular: %{name: "Singular"}
       })
       |> PaperTrail.update!()
@@ -479,10 +479,17 @@ defmodule PaperTrailTest.SimpleModeBangFunctions do
              item_type: "SimplePerson",
              item_id: ^person_id,
              item_changes: %{
-               "plural" => [%{"id" => _, "name" => "Plural"}],
-               "singular" => %{"id" => _, "name" => "Singular"}
+               "plural" => [%{"name" => "Plural_1"}, %{"name" => "Plural_2", "language" => "en"}],
+               "singular" => %{"name" => "Singular"}
              }
            } = version
+
+    assert version.item_changes["plural"] == [
+             %{"name" => "Plural_1"},
+             %{"name" => "Plural_2", "language" => "en"}
+           ]
+
+    assert Map.equal?(version.item_changes["singular"], %{"name" => "Singular"})
 
     assert person == first(Person, :id) |> repo().one
   end
