@@ -109,11 +109,23 @@ defmodule PaperTrail.Serializer do
   Dumps changes using Ecto fields
   """
   @spec serialize_changes(Ecto.Changeset.t()) :: map()
-  def serialize_changes(%Ecto.Changeset{changes: changes} = changeset) do
+  def serialize_changes(%Ecto.Changeset{changes: changes, data: %schema{}} = changeset) do
+    changed_fields =
+      changes
+      |> Map.keys()
+      |> Enum.map(fn key -> {key, schema.__schema__(:field_source, key)} end)
+
+    columns = Enum.map(changed_fields, fn {_, column} -> column end)
+
     changeset
     |> serialize_model_changes()
     |> serialize()
-    |> Map.take(Map.keys(changes))
+    |> Map.take(columns)
+    |> Map.new(fn {key, value} ->
+      case Enum.find(changed_fields, fn {_field, column} -> column == key end) do
+        {field, _column} -> {field, value}
+      end
+    end)
   end
 
   @doc """
