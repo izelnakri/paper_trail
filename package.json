@@ -43,9 +43,9 @@
     }
   },
   "devDependencies": {
-    "@j-ulrich/release-it-regex-bumper": "^5.1.0",
+    "@j-ulrich/release-it-regex-bumper": "^5.3.1",
     "auto-changelog": "^2.4.0",
-    "release-it": "^17.6.0"
+    "release-it": "^19.2.4"
   },
   "volta": {
     "node": "20.17.0"
