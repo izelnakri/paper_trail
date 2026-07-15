@@ -139,7 +139,9 @@ defmodule PaperTrail.Serializer do
   def get_model_id(model) do
     {_, model_id} = List.first(Ecto.primary_key(model))
 
-    case PaperTrail.Version.__schema__(:type, :item_id) do
+    # NOTE: the schema type of `item_id` is `PaperTrail.ConfiguredType`, so ask
+    # the runtime config for the actual type it delegates to
+    case PaperTrail.RepoClient.item_type() do
       :integer ->
         model_id
 

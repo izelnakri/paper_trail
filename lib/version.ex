@@ -15,9 +15,9 @@ defmodule PaperTrail.Version do
   schema "versions" do
     field(:event, :string)
     field(:item_type, :string)
-    field(:item_id, RepoClient.item_type())
+    field(:item_id, PaperTrail.ConfiguredType, configured_as: :item_type)
     field(:item_changes, :map)
-    field(:originator_id, RepoClient.originator_type())
+    field(:originator_id, PaperTrail.ConfiguredType, configured_as: :originator_type)
 
     field(:origin, :string, read_after_writes: RepoClient.origin_read_after_writes())
 
@@ -29,8 +29,7 @@ defmodule PaperTrail.Version do
         RepoClient.originator()[:model],
         Keyword.merge(RepoClient.originator_relationship_opts(),
           define_field: false,
-          foreign_key: :originator_id,
-          type: RepoClient.originator_type()
+          foreign_key: :originator_id
         )
       )
     end
